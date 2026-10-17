@@ -1,0 +1,279 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans JP', Meiryo, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+  --color-accent-50: oklch(0.975 0.018 180);
+  --color-accent-100: oklch(0.945 0.04 180);
+  --color-accent-200: oklch(0.89 0.07 180);
+  --color-accent-300: oklch(0.82 0.1 180);
+  --color-accent-400: oklch(0.73 0.12 180);
+  --color-accent-500: oklch(0.64 0.12 182);
+  --color-accent-600: oklch(0.56 0.11 184);
+  --color-accent-700: oklch(0.49 0.095 185);
+  --color-accent-800: oklch(0.42 0.08 186);
+  --color-accent-900: oklch(0.36 0.065 187);
+
+  --animate-fade-in: fade-in 0.18s ease-out;
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  html {
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+    overscroll-behavior: none;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent-500;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  dialog::backdrop {
+    background: rgb(15 23 42 / 0.5);
+    backdrop-filter: blur(2px);
+  }
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* ---- チャットのメッセージ（Markdown） ---- */
+.prose-chat {
+  @apply text-[0.95rem] leading-relaxed break-words;
+}
+.prose-chat > * + * {
+  @apply mt-3;
+}
+.prose-chat h1 {
+  @apply text-xl font-bold;
+}
+.prose-chat h2 {
+  @apply text-lg font-bold;
+}
+.prose-chat h3,
+.prose-chat h4 {
+  @apply font-bold;
+}
+.prose-chat ul {
+  @apply list-disc pl-6;
+}
+.prose-chat ol {
+  @apply list-decimal pl-6;
+}
+.prose-chat li + li {
+  @apply mt-1;
+}
+.prose-chat a {
+  @apply text-accent-700 underline underline-offset-2 dark:text-accent-300;
+}
+.prose-chat blockquote {
+  @apply border-l-4 border-slate-300 pl-3 text-slate-600 dark:border-slate-600 dark:text-slate-400;
+}
+.prose-chat :not(pre) > code {
+  @apply rounded bg-slate-200/70 px-1.5 py-0.5 font-mono text-[0.85em] dark:bg-slate-700/70;
+}
+.prose-chat pre {
+  @apply overflow-x-auto rounded-lg bg-slate-900 p-3 font-mono text-[0.82rem] leading-normal text-slate-100 dark:border dark:border-slate-800 dark:bg-black/50;
+}
+.prose-chat table {
+  @apply block overflow-x-auto border-collapse text-sm;
+}
+.prose-chat th,
+.prose-chat td {
+  @apply border border-slate-300 px-2 py-1 dark:border-slate-600;
+}
+.prose-chat th {
+  @apply bg-slate-100 dark:bg-slate-800;
+}
+.prose-chat hr {
+  @apply border-slate-300 dark:border-slate-700;
+}
+
+/* 生成中カーソル */
+.streaming-caret::after {
+  content: '';
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.6;
+  animation: caret-blink 1s steps(2, start) infinite;
+}
+@keyframes caret-blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* ---- グラフ（記録ページ）の色。ダークモードは同じ色相を暗い背景向けに選び直したもの ---- */
+:root {
+  --viz-orange: #eb6834;
+  --viz-aqua: #1baf7a;
+  --viz-blue: #2a78d6;
+  --viz-neutral: #cbd5e1;
+}
+.dark {
+  --viz-orange: #d95926;
+  --viz-aqua: #199e70;
+  --viz-blue: #3987e5;
+  --viz-neutral: #475569;
+}
+
+/*
+ * ---- 落ち着いたダークテーマ（docs/DARK_THEME.md） ----
+ * Tailwind の色はすべて CSS 変数なので、ダークモードのときだけ変数を差し替えて、
+ * 部品のクラスを変えずに配色をまとめて切り替える。
+ * - neutral: 色味のないグレー（落ち着いた青緑のアクセント）
+ * - warm: ほんの少し暖かいグレーと、くすんだテラコッタのアクセント（Claude に近い）
+ * - vivid: 以前の配色（差し替えない）
+ * 状態の色（正解の緑・不正解の赤など）は、どちらも彩度を半分にして目に刺さらないようにする。
+ */
+.dark[data-dark-palette='neutral'],
+.dark[data-dark-palette='warm'] {
+  --color-emerald-50: oklch(0.979 0.011 166.1);
+  --color-emerald-100: oklch(0.95 0.026 163.1);
+  --color-emerald-200: oklch(0.905 0.046 164.2);
+  --color-emerald-300: oklch(0.845 0.071 165);
+  --color-emerald-400: oklch(0.765 0.088 163.2);
+  --color-emerald-500: oklch(0.696 0.085 162.5);
+  --color-emerald-600: oklch(0.596 0.072 163.2);
+  --color-emerald-700: oklch(0.508 0.059 165.6);
+  --color-emerald-800: oklch(0.432 0.048 166.9);
+  --color-emerald-900: oklch(0.378 0.038 168.9);
+  --color-emerald-950: oklch(0.262 0.025 172.6);
+  --color-rose-50: oklch(0.969 0.007 12.4);
+  --color-rose-100: oklch(0.941 0.015 12.6);
+  --color-rose-200: oklch(0.892 0.029 10);
+  --color-rose-300: oklch(0.81 0.059 11.6);
+  --color-rose-400: oklch(0.712 0.097 13.4);
+  --color-rose-500: oklch(0.645 0.123 16.4);
+  --color-rose-600: oklch(0.586 0.127 17.6);
+  --color-rose-700: oklch(0.514 0.111 16.9);
+  --color-rose-800: oklch(0.455 0.094 13.7);
+  --color-rose-900: oklch(0.41 0.08 10.3);
+  --color-rose-950: oklch(0.271 0.052 12.1);
+  --color-amber-50: oklch(0.987 0.011 95.3);
+  --color-amber-100: oklch(0.962 0.029 95.6);
+  --color-amber-200: oklch(0.924 0.06 95.7);
+  --color-amber-300: oklch(0.879 0.085 91.6);
+  --color-amber-400: oklch(0.828 0.095 84.4);
+  --color-amber-500: oklch(0.769 0.094 70.1);
+  --color-amber-600: oklch(0.666 0.089 58.3);
+  --color-amber-700: oklch(0.555 0.082 49);
+  --color-amber-800: oklch(0.473 0.069 46.2);
+  --color-amber-900: oklch(0.414 0.056 45.9);
+  --color-amber-950: oklch(0.279 0.038 45.6);
+  --color-sky-50: oklch(0.977 0.006 236.6);
+  --color-sky-100: oklch(0.951 0.013 236.8);
+  --color-sky-200: oklch(0.901 0.029 230.9);
+  --color-sky-300: oklch(0.828 0.056 230.3);
+  --color-sky-400: oklch(0.746 0.08 232.7);
+  --color-sky-500: oklch(0.685 0.085 237.3);
+  --color-sky-600: oklch(0.588 0.079 242);
+  --color-sky-700: oklch(0.5 0.067 242.7);
+  --color-sky-800: oklch(0.443 0.055 240.8);
+  --color-sky-900: oklch(0.391 0.045 240.9);
+  --color-sky-950: oklch(0.293 0.033 243.2);
+  --color-violet-50: oklch(0.969 0.008 293.8);
+  --color-violet-100: oklch(0.943 0.015 294.6);
+  --color-violet-200: oklch(0.894 0.029 293.3);
+  --color-violet-300: oklch(0.811 0.056 293.6);
+  --color-violet-400: oklch(0.702 0.091 293.5);
+  --color-violet-500: oklch(0.606 0.125 292.7);
+  --color-violet-600: oklch(0.541 0.141 293);
+  --color-violet-700: oklch(0.491 0.135 292.6);
+  --color-violet-800: oklch(0.432 0.116 292.8);
+  --color-violet-900: oklch(0.38 0.095 293.7);
+  --color-violet-950: oklch(0.283 0.07 291.1);
+}
+.dark[data-dark-palette='neutral'] {
+  --color-slate-50: oklch(0.965 0 0);
+  --color-slate-100: oklch(0.935 0 0);
+  --color-slate-200: oklch(0.885 0 0);
+  --color-slate-300: oklch(0.82 0 0);
+  --color-slate-400: oklch(0.73 0 0);
+  --color-slate-500: oklch(0.635 0 0);
+  --color-slate-600: oklch(0.47 0 0);
+  --color-slate-700: oklch(0.395 0 0);
+  --color-slate-800: oklch(0.33 0 0);
+  --color-slate-900: oklch(0.275 0 0);
+  --color-slate-950: oklch(0.225 0 0);
+  --color-accent-50: oklch(0.96 0.008 185);
+  --color-accent-100: oklch(0.92 0.016 185);
+  --color-accent-200: oklch(0.87 0.04 185);
+  --color-accent-300: oklch(0.8 0.06 185);
+  --color-accent-400: oklch(0.72 0.07 185);
+  --color-accent-500: oklch(0.6 0.055 185);
+  --color-accent-600: oklch(0.5 0.055 185);
+  --color-accent-700: oklch(0.44 0.05 185);
+  --color-accent-800: oklch(0.4 0.045 185);
+  --color-accent-900: oklch(0.34 0.035 185);
+}
+.dark[data-dark-palette='warm'] {
+  --color-slate-50: oklch(0.965 0.006 85);
+  --color-slate-100: oklch(0.935 0.006 85);
+  --color-slate-200: oklch(0.885 0.006 85);
+  --color-slate-300: oklch(0.82 0.006 85);
+  --color-slate-400: oklch(0.73 0.006 85);
+  --color-slate-500: oklch(0.635 0.004 85);
+  --color-slate-600: oklch(0.47 0.004 85);
+  --color-slate-700: oklch(0.395 0.004 85);
+  --color-slate-800: oklch(0.33 0.004 85);
+  --color-slate-900: oklch(0.275 0.004 85);
+  --color-slate-950: oklch(0.225 0.004 85);
+  --color-accent-50: oklch(0.965 0.012 55);
+  --color-accent-100: oklch(0.93 0.025 52);
+  --color-accent-200: oklch(0.87 0.045 50);
+  --color-accent-300: oklch(0.79 0.07 47);
+  --color-accent-400: oklch(0.71 0.09 44);
+  --color-accent-500: oklch(0.63 0.1 42);
+  --color-accent-600: oklch(0.55 0.1 40);
+  --color-accent-700: oklch(0.48 0.09 40);
+  --color-accent-800: oklch(0.4 0.07 40);
+  --color-accent-900: oklch(0.33 0.05 40);
+}
+/* 記録のグラフの「その他」の色も、青みのないグレーにする */
+.dark[data-dark-palette='neutral'],
+.dark[data-dark-palette='warm'] {
+  --viz-neutral: oklch(0.45 0.004 85);
+}
+/* 背景を暗くするときの幕も、青みのない黒にする */
+.dark[data-dark-palette='neutral'] dialog::backdrop,
+.dark[data-dark-palette='warm'] dialog::backdrop {
+  background: rgb(0 0 0 / 0.55);
+}
