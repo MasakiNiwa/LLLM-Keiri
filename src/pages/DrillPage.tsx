@@ -6,7 +6,14 @@ import { PageBody, PageHeader } from '@/app/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Progress } from '@/components/ui/Progress';
+import { ReactionBubble } from '@/features/ai/ReactionBubble';
+import type { ReactionKey } from '@/features/ai/personas';
+import { useFocus } from '@/features/ai/useFocus';
+import type { AiFocus } from '@/features/ai/focusStore';
 import { recordAttempt } from '@/features/drill/records';
+import type { JudgeResult } from '@/lib/journal/judge';
+import { formatShiwake } from '@/lib/journal/parse';
+import type { JournalLine } from '@/lib/journal/types';
 import { ShiwakeExercise, type ExerciseOutcome } from '@/features/journal/ShiwakeExercise';
 import { BasisInfo } from '@/features/learn/MetaBadges';
 import { useFontZoom } from '@/features/settings/useFontZoom';
@@ -39,6 +46,11 @@ function Summary({
   const wrong = order.filter((id) => !answered.get(id)?.first);
   return (
     <Card className="space-y-4 p-5">
+      <ReactionBubble
+        trigger={1}
+        reactionKey={firstCorrect >= order.length * 0.8 ? 'finishGood' : 'finishSoSo'}
+        n={firstCorrect}
+      />
       <div className="text-center">
         <p className="text-sm text-slate-500">おつかれさまでした</p>
         <p className="mt-1 text-3xl font-bold tabular-nums">
@@ -97,6 +109,19 @@ export default function DrillPage() {
   const [order, setOrder] = useState<string[] | null>(null);
   const [pos, setPos] = useState(0);
   const [answered, setAnswered] = useState<Map<string, Answered>>(new Map());
+  /** いまの問題の最後の答え合わせ（AI に伝える） */
+  const [last, setLast] = useState<{
+    qid: string;
+    result: JudgeResult;
+    lines: JournalLine[];
+  } | null>(null);
+  const [revealedQ, setRevealedQ] = useState<string | null>(null);
+  /** 答え合わせの回数（ひとことを出し直す合図）と、続けて正解した数 */
+  const [reaction, setReaction] = useState<{ n: number; key: ReactionKey; streak: number }>({
+    n: 0,
+    key: 'correct',
+    streak: 0,
+  });
   const zoom = useFontZoom();
 
   useEffect(() => {
@@ -122,9 +147,19 @@ export default function DrillPage() {
   const question = useMemo(() => set?.questions.find((q) => q.id === qid), [set, qid]);
   const finished = !!order && pos >= order.length;
 
-  const onJudged = ({ result, revealed }: ExerciseOutcome) => {
+  const onJudged = ({ result, revealed, lines }: ExerciseOutcome) => {
     if (!set || !qid) return;
     const prev = answered.get(qid);
+    setLast({ qid, result, lines });
+    // 初めての答え合わせで答えを見ずに正解したら、連続正解を数える
+    const firstTry = !prev && !revealed;
+    const streak =
+      result.correct && firstTry ? reaction.streak + 1 : result.correct ? reaction.streak : 0;
+    setReaction({
+      n: reaction.n + 1,
+      key: result.correct && streak >= 3 ? 'streak' : result.kind,
+      streak,
+    });
     setAnswered(
       new Map(answered).set(qid, {
         first: prev ? prev.first : result.correct && !revealed,
@@ -151,6 +186,35 @@ export default function DrillPage() {
     setPos(pos + 1);
     document.querySelector('[data-scroll-root]')?.scrollTo(0, 0);
   };
+
+  // 見ている問題と、プログラムの採点結果を AI に伝える
+  const judged = last && last.qid === qid ? last : null;
+  const revealed = revealedQ === qid || !!judged?.result.correct;
+  const focus: AiFocus | null =
+    set && question && order && !finished
+      ? {
+          kind: 'drill',
+          setId: set.id,
+          setTitle: set.title,
+          questionId: question.id,
+          question: question.question,
+          position: `${pos + 1}/${order.length} 問目`,
+          revealed,
+          answer: revealed ? question.answer : undefined,
+          explanation: revealed ? question.explanation : undefined,
+          userAnswer: judged ? formatShiwake({ lines: judged.lines }) : undefined,
+          judge: judged
+            ? {
+                kind: judged.result.kind,
+                correct: judged.result.correct,
+                messages: judged.result.messages,
+              }
+            : undefined,
+        }
+      : set
+        ? { kind: 'other', page: `問題「${set.title}」の結果` }
+        : null;
+  useFocus(focus);
 
   return (
     <>
@@ -196,6 +260,15 @@ export default function DrillPage() {
                     question={question}
                     seed={`${set.id}:${question.id}`}
                     onJudged={onJudged}
+                    onReveal={() => setRevealedQ(question.id)}
+                    reaction={
+                      <ReactionBubble
+                        trigger={reaction.n}
+                        reactionKey={reaction.key}
+                        n={reaction.streak}
+                        focus={focus ?? undefined}
+                      />
+                    }
                     footer={
                       <div className="flex justify-end">
                         <Button

@@ -4,11 +4,14 @@ import { PageBody, PageHeader } from '@/app/PageHeader';
 import { ACCOUNTS_ITEM, NAV_ITEMS } from '@/app/navItems';
 import { Card } from '@/components/ui/Card';
 import { ContinueCard } from '@/features/home/ContinueCard';
+import { Greeting } from '@/features/home/Greeting';
+import { useFocus } from '@/features/ai/useFocus';
 import { APP_TAGLINE, APP_TITLE } from '@/lib/constants';
 
 const MENU = [...NAV_ITEMS.filter((n) => n.to !== '/'), ACCOUNTS_ITEM];
 
 export default function HomePage() {
+  useFocus({ kind: 'home' });
   return (
     <>
       <PageHeader title={APP_TITLE} />
@@ -24,6 +27,7 @@ export default function HomePage() {
           </div>
         </Card>
 
+        <Greeting />
         <ContinueCard />
 
         <div className="grid gap-3 sm:grid-cols-2">

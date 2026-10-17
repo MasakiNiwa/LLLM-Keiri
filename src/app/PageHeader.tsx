@@ -78,7 +78,8 @@ export function PageBody({
     <div className="min-h-0 flex-1 overflow-y-auto" data-scroll-root>
       <div
         className={cn(
-          'mx-auto w-full space-y-4 px-3 py-4 sm:px-4 sm:py-6',
+          // 下は右下の AI のボタンに隠れないよう広めにあける
+          'mx-auto w-full space-y-4 px-3 pt-4 pb-24 sm:px-4 sm:pt-6',
           wide ? 'max-w-5xl' : 'max-w-3xl',
           className,
         )}

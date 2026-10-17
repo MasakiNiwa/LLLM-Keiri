@@ -34,6 +34,20 @@ export interface JournalRecord {
   createdAt: number;
 }
 
+/** AI とのチャットの 1 発言 */
+export interface ChatRecord {
+  id: string;
+  role: 'user' | 'assistant';
+  text: string;
+  /** ユーザーの発話の前に付けたアプリの状態（<app_state>）やヘルプの抜粋 */
+  context?: string;
+  thinking?: string;
+  /** 使ったツール */
+  tools?: string[];
+  error?: string;
+  createdAt: number;
+}
+
 /**
  * このアプリのデータベース（IndexedDB）。
  * テーブルを増やすときは version を上げて stores に足す（既存のデータは残る）。
@@ -42,6 +56,7 @@ export class KeiriDB extends Dexie {
   lessonProgress!: EntityTable<LessonProgress, 'lessonId'>;
   drillAttempts!: EntityTable<DrillAttempt, 'id'>;
   journal!: EntityTable<JournalRecord, 'id'>;
+  chat!: EntityTable<ChatRecord, 'id'>;
 
   constructor(name = STORAGE_PREFIX) {
     super(name);
@@ -53,6 +68,9 @@ export class KeiriDB extends Dexie {
     });
     this.version(3).stores({
       journal: 'id, date, createdAt',
+    });
+    this.version(4).stores({
+      chat: 'id, createdAt',
     });
   }
 }

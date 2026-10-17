@@ -26,6 +26,10 @@ interface ShiwakeExerciseProps {
   seed: string;
   /** 答え合わせをしたとき（最初の 1 回だけでなく毎回） */
   onJudged?: (outcome: ExerciseOutcome) => void;
+  /** 「答えを見る」を押したとき */
+  onReveal?: () => void;
+  /** 答え合わせの結果の下（解答の上）に出すもの（AI のひとことなど） */
+  reaction?: React.ReactNode;
   /** 答え合わせのあとに、下に出すもの（次の問題へのボタンなど） */
   footer?: React.ReactNode;
 }
@@ -34,7 +38,14 @@ interface ShiwakeExerciseProps {
  * 仕訳の問題を解く（科目を選び、金額を入れ、プログラムが採点する）。
  * 練習ページとレッスンの確認問題で共通に使う。
  */
-export function ShiwakeExercise({ question, seed, onJudged, footer }: ShiwakeExerciseProps) {
+export function ShiwakeExercise({
+  question,
+  seed,
+  onJudged,
+  onReveal,
+  reaction,
+  footer,
+}: ShiwakeExerciseProps) {
   const book = useContent((s) => s.book);
   const answer = useMemo(() => parseShiwake(question.answer).entries[0], [question.answer]);
   const candidates = useMemo(() => {
@@ -103,7 +114,13 @@ export function ShiwakeExercise({ question, seed, onJudged, footer }: ShiwakeExe
           </Button>
         )}
         {!revealed && (
-          <Button variant="ghost" onClick={() => setRevealed(true)}>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setRevealed(true);
+              onReveal?.();
+            }}
+          >
             <Eye />
             答えを見る
           </Button>
@@ -145,6 +162,7 @@ export function ShiwakeExercise({ question, seed, onJudged, footer }: ShiwakeExe
           )}
         </div>
       )}
+      {result && reaction}
       {(revealed || result?.correct) && answer && (
         <div className="space-y-2">
           <h3 className="text-sm font-semibold">正解の仕訳</h3>
