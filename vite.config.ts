@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 import { VitePWA } from 'vite-plugin-pwa';
+import { contentPlugin } from './build/vite-plugin-content.ts';
 
 const appPkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 
@@ -14,6 +15,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    contentPlugin(),
     VitePWA({
       // 生成中・ダウンロード中に勝手にリロードしないよう、更新はユーザーが選ぶ
       registerType: 'prompt',
@@ -44,9 +46,16 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png}'],
+        globIgnores: ['content/**'],
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,
         runtimeCaching: [
+          {
+            // 学習データ（更新されるので、キャッシュを使いつつ裏で取り直す）
+            urlPattern: ({ url }) => url.pathname.includes('/content/'),
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'content', expiration: { maxEntries: 500 } },
+          },
           {
             // ライセンス一覧（更新されうるので裏で取り直す）
             urlPattern: ({ url }) => url.pathname.endsWith('/licenses.json'),

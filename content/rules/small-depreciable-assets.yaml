@@ -1,0 +1,10 @@
+id: small-depreciable-asset-limit
+title: 少額の減価償却資産として一度に費用にできる取得価額（未満）
+unit: yen
+description: 取得価額がこの金額未満（または使用可能期間が 1 年未満）の減価償却資産は、使い始めた年度に全額を損金にできる（法人税）
+basis:
+  - name: 法人税法施行令 第 133 条
+    url: https://www.nta.go.jp/taxes/shiraberu/taxanswer/hojin/5403.htm
+values:
+  - from: '1998-04-01'
+    value: 100000

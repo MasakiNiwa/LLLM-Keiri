@@ -24,6 +24,8 @@ jobs:
       - run: npm ci
       - name: Third-party notices are up to date
         run: npm run licenses:check
+      - name: Learning content is valid
+        run: npm run content:check
       - run: npm run format:check
       - run: npm run lint
       - run: npm run typecheck
