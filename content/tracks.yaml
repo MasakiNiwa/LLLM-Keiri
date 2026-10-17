@@ -1,0 +1,25 @@
+# 分野（トラック）。この順に表示する
+- id: basics
+  title: 簿記のきほん
+  description: 簿記・経理の役割、5 つの要素、仕訳のルール、転記と試算表。まずはここから
+  icon: sprout
+- id: trade
+  title: 日々の取引
+  description: 商品の売買、現金・預金、売掛金・買掛金など、毎日の取引の仕訳
+  icon: shopping-cart
+- id: closing
+  title: 決算
+  description: 決算整理（売上原価・減価償却・貸倒引当金・経過勘定）から決算書まで
+  icon: calendar-check
+- id: tax
+  title: 税金
+  description: 消費税（税抜経理・インボイス）、源泉所得税、法人税などの基本
+  icon: landmark
+- id: practice
+  title: 経理の実務
+  description: 経費精算・請求と入金消込・給与・月次決算など、会社の経理の仕事
+  icon: briefcase
+- id: standards
+  title: 会計基準
+  description: 収益認識・リース・減損・税効果など、会計基準の考え方
+  icon: scale

@@ -1,0 +1,730 @@
+# 勘定科目のマスタ。
+# element: asset（資産）/ liability（負債）/ equity（純資産）/ revenue（収益）/ expense（費用）/ other（その他）
+# contra: true は評価勘定（区分とは逆の側で増える。例: 減価償却累計額は資産のマイナスで、貸方で増える）
+# examples は仕訳の書き方（借方科目 金額 / 貸方科目 金額）。ビルド時に貸借の一致を確かめる
+# level: 1〜2 簿記 3 級、3 簿記 2 級、4〜5 実務・会計基準（目安）
+
+# ---------------- 資産 ----------------
+- name: 現金
+  kana: げんきん
+  element: asset
+  group: 流動資産
+  description: 紙幣・硬貨のほか、他人が振り出した小切手・送金小切手・郵便為替証書など、すぐに現金にかえられる「通貨代用証券」も含む。
+  usage: 現金で受け取ったら借方、支払ったら貸方に記入する。
+  examples:
+    - '現金 30,000 / 売上 30,000'
+    - '消耗品費 2,000 / 現金 2,000'
+  related: [小口現金, 普通預金, 当座預金, 現金過不足]
+- name: 小口現金
+  kana: こぐちげんきん
+  element: asset
+  group: 流動資産
+  description: 少額の支払い（文房具・交通費など）のために、用度係（担当者）に前渡ししておく現金。
+  usage: 定額資金前渡法（インプレスト・システム）では、使った分を補給して一定額を保つ。
+  examples:
+    - '小口現金 50,000 / 普通預金 50,000'
+  related: [現金]
+  level: 2
+- name: 当座預金
+  kana: とうざよきん
+  element: asset
+  group: 流動資産
+  description: 小切手や手形の支払いに使う、利息のつかない預金。小切手を振り出すと減る。
+  usage: 自分で小切手を振り出して支払ったら貸方。他人振出の小切手を受け取ったときは現金。
+  examples:
+    - '買掛金 80,000 / 当座預金 80,000'
+  related: [現金, 普通預金]
+- name: 普通預金
+  kana: ふつうよきん
+  element: asset
+  group: 流動資産
+  description: いつでも預け入れ・引き出しができる預金。会社の入金・振込・引き落としの多くはこの口座で行う。
+  examples:
+    - '普通預金 100,000 / 売掛金 100,000'
+    - '水道光熱費 12,000 / 普通預金 12,000'
+  related: [当座預金, 定期預金]
+- name: 定期預金
+  kana: ていきよきん
+  element: asset
+  group: 流動資産
+  description: 期間を決めて預ける預金。満期まで原則として引き出せない。決算日の翌日から 1 年を超えて満期が来るものは固定資産（長期性預金）。
+  examples:
+    - '定期預金 500,000 / 普通預金 500,000'
+  related: [普通預金]
+- name: 受取手形
+  kana: うけとりてがた
+  element: asset
+  group: 流動資産
+  description: 商品の代金などとして受け取った約束手形の、代金を受け取る権利。
+  examples:
+    - '受取手形 200,000 / 売上 200,000'
+  related: [支払手形, 電子記録債権, 売掛金]
+  level: 2
+- name: 電子記録債権
+  kana: でんしきろくさいけん
+  element: asset
+  group: 流動資産
+  description: 電子債権記録機関に記録することで発生する債権（でんさい など）。手形にかわる決済手段として使われる。
+  examples:
+    - '電子記録債権 150,000 / 売掛金 150,000'
+  related: [受取手形, 売掛金, 電子記録債務]
+  level: 2
+- name: 売掛金
+  kana: うりかけきん
+  element: asset
+  group: 流動資産
+  aliases: [売掛, 売掛け]
+  description: 商品やサービスを「掛け」（後払い）で売ったときの、代金を受け取る権利。
+  usage: 掛けで売ったら借方、代金を回収したら貸方に記入する。
+  examples:
+    - '売掛金 50,000 / 売上 50,000'
+    - '普通預金 50,000 / 売掛金 50,000'
+  related: [買掛金, 売上, クレジット売掛金, 貸倒引当金]
+- name: クレジット売掛金
+  kana: くれじっとうりかけきん
+  element: asset
+  group: 流動資産
+  description: クレジットカード払いで売ったときの、カード会社から代金を受け取る権利。カード会社への手数料は支払手数料にする。
+  examples:
+    - "# 10,000 円の商品をカード払いで販売（手数料 4%）\nクレジット売掛金 9,600 / 売上 10,000\n支払手数料 400 /"
+  related: [売掛金, 支払手数料]
+  level: 2
+- name: 繰越商品
+  kana: くりこししょうひん
+  element: asset
+  group: 流動資産
+  description: 三分法で、期末に残っている商品（在庫）の原価。決算整理で仕入勘定と振り替えて売上原価を計算する。
+  examples:
+    - "# 決算整理（期首 30,000・期末 40,000）\n仕入 30,000 / 繰越商品 30,000\n繰越商品 40,000 / 仕入 40,000"
+  related: [仕入, 売上原価, 商品]
+  level: 2
+- name: 商品
+  kana: しょうひん
+  element: asset
+  group: 流動資産
+  description: 販売するために持っている物品。分記法・売上原価対立法では、仕入れたときに商品勘定（資産）で記録する。
+  related: [繰越商品, 仕入, 売上原価]
+  level: 3
+- name: 前払金
+  kana: まえばらいきん
+  element: asset
+  group: 流動資産
+  aliases: [前渡金]
+  description: 商品などを受け取る前に支払った内金・手付金。商品を受け取ったら仕入代金に充てる。
+  examples:
+    - '前払金 20,000 / 普通預金 20,000'
+    - "# 商品 100,000 円を受け取り、内金を差し引いた残りは掛け\n仕入 100,000 / 前払金 20,000\n/ 買掛金 80,000"
+  related: [前受金, 仕入]
+- name: 前払費用
+  kana: まえばらいひよう
+  element: asset
+  group: 流動資産
+  description: まだサービスを受けていない期間の費用を先に支払った分（家賃・保険料など）。決算で、翌期分を費用から差し引いて資産にする。
+  examples:
+    - '前払費用 30,000 / 保険料 30,000'
+  related: [未払費用, 保険料, 支払家賃]
+  level: 2
+- name: 未収入金
+  kana: みしゅうにゅうきん
+  element: asset
+  group: 流動資産
+  aliases: [未収金]
+  description: 商品以外のもの（不要になった備品など）を売って、まだ受け取っていない代金。商品の代金は売掛金にする。
+  examples:
+    - '未収入金 30,000 / 備品 30,000'
+  related: [未払金, 売掛金]
+- name: 未収収益
+  kana: みしゅうしゅうえき
+  element: asset
+  group: 流動資産
+  description: 継続してサービスを提供していて、当期分の収益がまだ入金されていないもの（利息・家賃など）。決算で計上する。
+  examples:
+    - '未収収益 5,000 / 受取利息 5,000'
+  related: [前受収益, 受取利息]
+  level: 2
+- name: 仮払金
+  kana: かりばらいきん
+  element: asset
+  group: 流動資産
+  description: 支払ったが、内容や金額がまだ確定していないもの（出張の旅費の概算払いなど）。確定したら正しい科目に振り替える。
+  examples:
+    - '仮払金 30,000 / 現金 30,000'
+    - "# 精算: 旅費 26,000 円を使い、残りを現金で受け取った\n旅費交通費 26,000 / 仮払金 30,000\n現金 4,000 /"
+  related: [仮受金]
+- name: 立替金
+  kana: たてかえきん
+  element: asset
+  group: 流動資産
+  description: 取引先や従業員が負担すべき金額を、一時的に立て替えて支払ったもの。
+  examples:
+    - '立替金 5,000 / 現金 5,000'
+  related: [預り金]
+- name: 貸付金
+  kana: かしつけきん
+  element: asset
+  group: 流動資産
+  description: 取引先などにお金を貸したときの、返してもらう権利。決算日の翌日から 1 年を超えて返済されるものは長期貸付金（固定資産）。
+  examples:
+    - '貸付金 300,000 / 普通預金 300,000'
+  related: [借入金, 受取利息]
+- name: 仮払消費税等
+  kana: かりばらいしょうひぜいとう
+  element: asset
+  group: 流動資産
+  aliases: [仮払消費税]
+  description: 税抜経理で、仕入や経費の支払いのときに払った消費税（国税と地方消費税）。決算で仮受消費税等と相殺する。
+  examples:
+    - "仕入 100,000 / 買掛金 110,000\n仮払消費税等 10,000 /"
+  related: [仮受消費税等, 未払消費税等]
+- name: 仮払法人税等
+  kana: かりばらいほうじんぜいとう
+  element: asset
+  group: 流動資産
+  description: 法人税・住民税・事業税の中間申告で納めた額。決算で法人税等に振り替える。
+  examples:
+    - '仮払法人税等 200,000 / 普通預金 200,000'
+  related: [法人税等, 未払法人税等]
+  level: 2
+- name: 受取商品券
+  kana: うけとりしょうひんけん
+  element: asset
+  group: 流動資産
+  description: 商品を売って、代金として他社が発行した商品券（共通商品券など）を受け取ったもの。
+  examples:
+    - '受取商品券 10,000 / 売上 10,000'
+  level: 2
+- name: 差入保証金
+  kana: さしいれほしょうきん
+  element: asset
+  group: 投資その他の資産
+  aliases: [敷金]
+  description: 建物などを借りるときに預けた敷金・保証金。返ってくる分は資産になる。
+  examples:
+    - '差入保証金 200,000 / 普通預金 200,000'
+  level: 2
+- name: 建物
+  kana: たてもの
+  element: asset
+  group: 有形固定資産
+  description: 店舗・事務所・倉庫など。買ったときの代金に、仲介手数料などの付随費用を含めた額（取得原価）で記録する。
+  examples:
+    - '建物 5,000,000 / 普通預金 5,000,000'
+  related: [減価償却費, 減価償却累計額]
+- name: 備品
+  kana: びひん
+  element: asset
+  group: 有形固定資産
+  description: 机・椅子・パソコン・コピー機など、長く使う器具・備品。
+  examples:
+    - '備品 300,000 / 未払金 300,000'
+  related: [減価償却費, 減価償却累計額, 消耗品費]
+- name: 車両運搬具
+  kana: しゃりょううんぱんぐ
+  element: asset
+  group: 有形固定資産
+  aliases: [車両]
+  description: 営業用の自動車・トラック・バイクなど。
+  examples:
+    - '車両運搬具 1,800,000 / 未払金 1,800,000'
+  related: [減価償却費]
+- name: 土地
+  kana: とち
+  element: asset
+  group: 有形固定資産
+  description: 店舗や駐車場などのための土地。使っても価値が減らないとされるので、減価償却をしない。
+  examples:
+    - '土地 10,000,000 / 普通預金 10,000,000'
+- name: ソフトウェア
+  kana: そふとうぇあ
+  element: asset
+  group: 無形固定資産
+  description: 会社で使うために買った、または作ったソフトウェア。自社で使うものは通常 5 年で償却する。
+  examples:
+    - 'ソフトウェア 600,000 / 未払金 600,000'
+  level: 3
+- name: 減価償却累計額
+  kana: げんかしょうきゃくるいけいがく
+  element: asset
+  group: 有形固定資産
+  contra: true
+  description: これまでに減価償却した額の合計。固定資産のマイナス（評価勘定）で、貸方で増える。間接法で使う。
+  examples:
+    - '減価償却費 60,000 / 減価償却累計額 60,000'
+  related: [減価償却費, 建物, 備品]
+  level: 2
+- name: 貸倒引当金
+  kana: かしだおれひきあてきん
+  element: asset
+  group: 流動資産
+  contra: true
+  description: 売掛金などのうち、将来回収できなくなりそうな額の見積り。売掛金などのマイナス（評価勘定）で、貸方で増える。
+  examples:
+    - '貸倒引当金繰入 3,000 / 貸倒引当金 3,000'
+  related: [貸倒引当金繰入, 貸倒損失, 売掛金]
+  level: 2
+
+# ---------------- 負債 ----------------
+- name: 支払手形
+  kana: しはらいてがた
+  element: liability
+  group: 流動負債
+  description: 代金の支払いのために振り出した約束手形の、支払う義務。
+  examples:
+    - '仕入 200,000 / 支払手形 200,000'
+  related: [受取手形, 電子記録債務]
+  level: 2
+- name: 電子記録債務
+  kana: でんしきろくさいむ
+  element: liability
+  group: 流動負債
+  description: 電子債権記録機関に記録することで発生する債務（でんさい など）。
+  examples:
+    - '買掛金 150,000 / 電子記録債務 150,000'
+  related: [電子記録債権, 買掛金]
+  level: 2
+- name: 買掛金
+  kana: かいかけきん
+  element: liability
+  group: 流動負債
+  aliases: [買掛, 買掛け]
+  description: 商品や材料を「掛け」（後払い）で買ったときの、代金を支払う義務。
+  usage: 掛けで仕入れたら貸方、代金を支払ったら借方に記入する。
+  examples:
+    - '仕入 80,000 / 買掛金 80,000'
+    - '買掛金 80,000 / 普通預金 80,000'
+  related: [売掛金, 仕入, 未払金]
+- name: 前受金
+  kana: まえうけきん
+  element: liability
+  group: 流動負債
+  description: 商品を渡す前に受け取った内金・手付金。商品を渡す義務がある。
+  examples:
+    - '現金 30,000 / 前受金 30,000'
+  related: [前払金, 売上]
+- name: 未払金
+  kana: みばらいきん
+  element: liability
+  group: 流動負債
+  description: 商品以外のもの（備品・車両・サービスなど）を買って、まだ支払っていない代金。商品の代金は買掛金にする。
+  examples:
+    - '備品 300,000 / 未払金 300,000'
+  related: [買掛金, 未収入金, 未払費用]
+- name: 未払費用
+  kana: みばらいひよう
+  element: liability
+  group: 流動負債
+  description: 継続してサービスを受けていて、当期分の費用がまだ支払われていないもの（利息・給料・家賃など）。決算で計上する。
+  examples:
+    - '支払利息 4,000 / 未払費用 4,000'
+  related: [前払費用, 未払金]
+  level: 2
+- name: 前受収益
+  kana: まえうけしゅうえき
+  element: liability
+  group: 流動負債
+  description: まだサービスを提供していない期間の収益を先に受け取った分（家賃・利息など）。決算で、翌期分を収益から差し引く。
+  examples:
+    - '受取家賃 50,000 / 前受収益 50,000'
+  related: [未収収益]
+  level: 2
+- name: 預り金
+  kana: あずかりきん
+  element: liability
+  group: 流動負債
+  description: 一時的に預かっているお金。給料から差し引いた源泉所得税・住民税・社会保険料などを、納付するまで記録する。
+  examples:
+    - "給料 300,000 / 預り金 45,000\n/ 普通預金 255,000"
+  related: [所得税預り金, 社会保険料預り金, 立替金]
+- name: 所得税預り金
+  kana: しょとくぜいあずかりきん
+  element: liability
+  group: 流動負債
+  aliases: [源泉所得税預り金]
+  description: 給料や報酬を支払うときに差し引いた（源泉徴収した）所得税。原則として翌月 10 日までに納付する。
+  examples:
+    - '所得税預り金 8,000 / 普通預金 8,000'
+  related: [預り金]
+- name: 社会保険料預り金
+  kana: しゃかいほけんりょうあずかりきん
+  element: liability
+  group: 流動負債
+  description: 給料から差し引いた、従業員負担分の健康保険料・厚生年金保険料など。会社負担分と合わせて納付する。
+  examples:
+    - "社会保険料預り金 40,000 / 普通預金 80,000\n法定福利費 40,000 /"
+  related: [預り金, 法定福利費]
+  level: 2
+- name: 仮受金
+  kana: かりうけきん
+  element: liability
+  group: 流動負債
+  description: 入金があったが、内容がまだわからないもの。内容がわかったら正しい科目に振り替える。
+  examples:
+    - '普通預金 70,000 / 仮受金 70,000'
+    - '仮受金 70,000 / 売掛金 70,000'
+  related: [仮払金]
+- name: 借入金
+  kana: かりいれきん
+  element: liability
+  group: 流動負債
+  description: 銀行などから借りたお金の、返す義務。決算日の翌日から 1 年を超えて返済するものは長期借入金（固定負債）。
+  examples:
+    - '普通預金 1,000,000 / 借入金 1,000,000'
+    - "借入金 100,000 / 普通預金 102,000\n支払利息 2,000 /"
+  related: [貸付金, 支払利息]
+- name: 仮受消費税等
+  kana: かりうけしょうひぜいとう
+  element: liability
+  group: 流動負債
+  aliases: [仮受消費税]
+  description: 税抜経理で、売上のときに受け取った消費税（国税と地方消費税）。決算で仮払消費税等と相殺し、差額を納付する。
+  examples:
+    - "売掛金 110,000 / 売上 100,000\n/ 仮受消費税等 10,000"
+  related: [仮払消費税等, 未払消費税等]
+- name: 未払消費税等
+  kana: みばらいしょうひぜいとう
+  element: liability
+  group: 流動負債
+  description: 決算で計算した、納付すべき消費税の額（仮受消費税等 − 仮払消費税等 など）。
+  examples:
+    - "仮受消費税等 50,000 / 仮払消費税等 30,000\n/ 未払消費税等 20,000"
+  related: [仮受消費税等, 仮払消費税等]
+- name: 未払法人税等
+  kana: みばらいほうじんぜいとう
+  element: liability
+  group: 流動負債
+  description: 決算で計算した法人税・住民税・事業税のうち、まだ納めていない額。
+  examples:
+    - "法人税等 500,000 / 仮払法人税等 200,000\n/ 未払法人税等 300,000"
+  related: [法人税等, 仮払法人税等]
+  level: 2
+- name: リース債務
+  kana: りーすさいむ
+  element: liability
+  group: 流動負債
+  description: リース取引で、リース料を支払う義務。ファイナンス・リースなどで、借りた資産（使用権資産・リース資産）と一緒に計上する。
+  level: 4
+
+# ---------------- 純資産 ----------------
+- name: 資本金
+  kana: しほんきん
+  element: equity
+  group: 株主資本
+  aliases: [元入金]
+  description: 株主（個人事業では店主）が出資した元手。株式会社では、払い込まれた額のうち資本金にした額。
+  examples:
+    - '普通預金 3,000,000 / 資本金 3,000,000'
+  related: [繰越利益剰余金]
+- name: 利益準備金
+  kana: りえきじゅんびきん
+  element: equity
+  group: 株主資本
+  description: 会社法で積み立てが決められている準備金。配当をするとき、一定額を積み立てる。
+  level: 2
+- name: 繰越利益剰余金
+  kana: くりこしりえきじょうよきん
+  element: equity
+  group: 株主資本
+  description: 会社がこれまでに稼いだ利益のうち、配当などに使わずに残っている額。当期純利益は決算でここに振り替える。
+  examples:
+    - '損益 800,000 / 繰越利益剰余金 800,000'
+  related: [損益, 資本金]
+  level: 2
+
+# ---------------- 収益 ----------------
+- name: 売上
+  kana: うりあげ
+  element: revenue
+  group: 売上高
+  aliases: [売上高]
+  description: 商品を売ったり、サービスを提供したりして得た収益。三分法では売価で記録する。
+  usage: 売ったら貸方。返品（売上戻り）は借方で取り消す。
+  examples:
+    - '売掛金 50,000 / 売上 50,000'
+  related: [売掛金, 仕入, 売上原価]
+- name: 受取利息
+  kana: うけとりりそく
+  element: revenue
+  group: 営業外収益
+  description: 預金や貸付金の利息を受け取ったもの。
+  examples:
+    - '普通預金 1,000 / 受取利息 1,000'
+  related: [支払利息, 貸付金]
+- name: 受取手数料
+  kana: うけとりてすうりょう
+  element: revenue
+  group: 営業外収益
+  description: 仲介などのサービスの手数料を受け取ったもの。本業の手数料なら売上（役務収益）にすることもある。
+  examples:
+    - '現金 20,000 / 受取手数料 20,000'
+  related: [支払手数料]
+- name: 受取家賃
+  kana: うけとりやちん
+  element: revenue
+  group: 営業外収益
+  description: 建物などを貸して受け取った家賃。
+  examples:
+    - '普通預金 80,000 / 受取家賃 80,000'
+  related: [支払家賃]
+- name: 受取地代
+  kana: うけとりちだい
+  element: revenue
+  group: 営業外収益
+  description: 土地を貸して受け取った地代。
+  related: [支払地代]
+  level: 2
+- name: 雑益
+  kana: ざつえき
+  element: revenue
+  group: 営業外収益
+  aliases: [雑収入]
+  description: 金額が小さく、ほかの科目にあてはまらない収益。決算で現金の実際の残高が帳簿より多く、原因がわからないときなどに使う。
+  examples:
+    - '現金過不足 1,000 / 雑益 1,000'
+  related: [雑損, 現金過不足]
+- name: 貸倒引当金戻入
+  kana: かしだおれひきあてきんもどしいれ
+  element: revenue
+  group: 営業外収益
+  description: 差額補充法で、貸倒引当金の残高が見積額より多いとき、その差額を取り崩した収益。
+  examples:
+    - '貸倒引当金 2,000 / 貸倒引当金戻入 2,000'
+  related: [貸倒引当金]
+  level: 2
+- name: 償却債権取立益
+  kana: しょうきゃくさいけんとりたてえき
+  element: revenue
+  group: 営業外収益
+  description: 前期以前に貸倒れとして処理した債権を、当期に回収できたときの収益。
+  examples:
+    - '現金 10,000 / 償却債権取立益 10,000'
+  level: 2
+- name: 固定資産売却益
+  kana: こていしさんばいきゃくえき
+  element: revenue
+  group: 特別利益
+  description: 固定資産を帳簿価額より高く売ったときの差額。
+  examples:
+    - "# 備品（取得原価 300,000・減価償却累計額 180,000）を 150,000 円で売った\n減価償却累計額 180,000 / 備品 300,000\n未収入金 150,000 / 固定資産売却益 30,000"
+  related: [固定資産売却損]
+  level: 2
+
+# ---------------- 費用 ----------------
+- name: 仕入
+  kana: しいれ
+  element: expense
+  group: 売上原価
+  aliases: [仕入高]
+  description: 三分法で、販売するための商品を買ったときの原価。決算で期首・期末の在庫を調整して売上原価にする。
+  usage: 仕入れたら借方。返品（仕入戻し）は貸方で取り消す。引取運賃などの付随費用は仕入に含める。
+  examples:
+    - '仕入 80,000 / 買掛金 80,000'
+  related: [売上, 買掛金, 繰越商品, 売上原価]
+- name: 売上原価
+  kana: うりあげげんか
+  element: expense
+  group: 売上原価
+  description: 売れた商品の原価。期首商品棚卸高 ＋ 当期商品仕入高 − 期末商品棚卸高 で計算する。
+  related: [仕入, 繰越商品]
+  level: 2
+- name: 給料
+  kana: きゅうりょう
+  element: expense
+  group: 販売費及び一般管理費
+  aliases: [給与, 給料手当, 給与手当]
+  description: 従業員に支払う給料・手当。源泉所得税や社会保険料を差し引く前の総額で記録する。
+  examples:
+    - "給料 300,000 / 所得税預り金 8,000\n/ 社会保険料預り金 40,000\n/ 普通預金 252,000"
+  related: [預り金, 法定福利費]
+- name: 法定福利費
+  kana: ほうていふくりひ
+  element: expense
+  group: 販売費及び一般管理費
+  description: 健康保険・厚生年金保険・雇用保険などの、法律で決められた社会保険料の会社負担分。
+  related: [社会保険料預り金, 福利厚生費]
+- name: 福利厚生費
+  kana: ふくりこうせいひ
+  element: expense
+  group: 販売費及び一般管理費
+  description: 従業員の健康診断・慶弔見舞金・社員旅行など、従業員のための費用（法定のもの以外）。
+  related: [法定福利費]
+- name: 旅費交通費
+  kana: りょひこうつうひ
+  element: expense
+  group: 販売費及び一般管理費
+  aliases: [交通費, 旅費]
+  description: 電車・バス・タクシー代、出張の交通費・宿泊費など。
+  examples:
+    - '旅費交通費 1,200 / 現金 1,200'
+- name: 通信費
+  kana: つうしんひ
+  element: expense
+  group: 販売費及び一般管理費
+  description: 電話・インターネット・切手・はがきなどの費用。
+  examples:
+    - '通信費 8,000 / 普通預金 8,000'
+- name: 水道光熱費
+  kana: すいどうこうねつひ
+  element: expense
+  group: 販売費及び一般管理費
+  description: 電気・ガス・水道の料金。
+  examples:
+    - '水道光熱費 12,000 / 普通預金 12,000'
+- name: 消耗品費
+  kana: しょうもうひんひ
+  element: expense
+  group: 販売費及び一般管理費
+  aliases: [事務用品費]
+  description: 文房具・コピー用紙・少額の器具など、すぐに使ってしまうもの・金額の小さいもの。
+  examples:
+    - '消耗品費 3,000 / 現金 3,000'
+  related: [備品]
+- name: 広告宣伝費
+  kana: こうこくせんでんひ
+  element: expense
+  group: 販売費及び一般管理費
+  description: 広告・チラシ・Web 広告など、不特定多数への宣伝の費用。
+- name: 発送費
+  kana: はっそうひ
+  element: expense
+  group: 販売費及び一般管理費
+  aliases: [荷造運賃]
+  description: 商品を売るときに、こちらが負担する送料（発送運賃）。仕入のときの引取運賃は仕入に含める。
+  examples:
+    - '発送費 1,500 / 現金 1,500'
+- name: 支払家賃
+  kana: しはらいやちん
+  element: expense
+  group: 販売費及び一般管理費
+  aliases: [地代家賃]
+  description: 店舗・事務所などの建物を借りて支払う家賃。実務では地代と合わせて「地代家賃」とすることが多い。
+  examples:
+    - '支払家賃 100,000 / 普通預金 100,000'
+  related: [受取家賃, 支払地代]
+- name: 支払地代
+  kana: しはらいちだい
+  element: expense
+  group: 販売費及び一般管理費
+  description: 土地を借りて支払う地代。
+  related: [受取地代, 支払家賃]
+  level: 2
+- name: 保険料
+  kana: ほけんりょう
+  element: expense
+  group: 販売費及び一般管理費
+  description: 火災保険・自動車保険などの保険料。
+  examples:
+    - '保険料 36,000 / 普通預金 36,000'
+  related: [前払費用]
+- name: 租税公課
+  kana: そぜいこうか
+  element: expense
+  group: 販売費及び一般管理費
+  description: 固定資産税・自動車税・印紙税など、費用になる税金と公的な負担金。法人税・住民税・事業税（所得割）は法人税等にする。
+  examples:
+    - '租税公課 2,000 / 現金 2,000'
+  related: [法人税等]
+- name: 修繕費
+  kana: しゅうぜんひ
+  element: expense
+  group: 販売費及び一般管理費
+  description: 建物・備品などの修理の費用。価値を高めたり使える期間を延ばしたりする支出（資本的支出）は資産にする。
+  level: 2
+- name: 支払手数料
+  kana: しはらいてすうりょう
+  element: expense
+  group: 販売費及び一般管理費
+  description: 振込手数料・仲介手数料・カード会社への手数料など。
+  examples:
+    - "買掛金 50,000 / 普通預金 50,440\n支払手数料 440 /"
+  related: [受取手数料]
+- name: 接待交際費
+  kana: せったいこうさいひ
+  element: expense
+  group: 販売費及び一般管理費
+  aliases: [交際費]
+  description: 取引先の接待・贈答などの費用。法人税では損金にできる額に上限がある。
+  level: 2
+- name: 会議費
+  kana: かいぎひ
+  element: expense
+  group: 販売費及び一般管理費
+  description: 会議のための会場費・飲み物・弁当など。
+  level: 2
+- name: 減価償却費
+  kana: げんかしょうきゃくひ
+  element: expense
+  group: 販売費及び一般管理費
+  description: 建物・備品などの固定資産の取得原価を、使う期間に分けて費用にしたもの。
+  examples:
+    - '減価償却費 60,000 / 減価償却累計額 60,000'
+  related: [減価償却累計額, 備品, 建物]
+  level: 2
+- name: 貸倒引当金繰入
+  kana: かしだおれひきあてきんくりいれ
+  element: expense
+  group: 販売費及び一般管理費
+  description: 決算で貸倒引当金を設定（追加）したときの費用。
+  examples:
+    - '貸倒引当金繰入 3,000 / 貸倒引当金 3,000'
+  related: [貸倒引当金, 貸倒損失]
+  level: 2
+- name: 貸倒損失
+  kana: かしだおれそんしつ
+  element: expense
+  group: 販売費及び一般管理費
+  description: 売掛金などが回収できなくなったときの損失（貸倒引当金で足りない分や、当期に発生した債権の貸倒れ）。
+  examples:
+    - '貸倒損失 20,000 / 売掛金 20,000'
+  related: [貸倒引当金]
+  level: 2
+- name: 支払利息
+  kana: しはらいりそく
+  element: expense
+  group: 営業外費用
+  description: 借入金などの利息を支払ったもの。
+  examples:
+    - '支払利息 2,000 / 普通預金 2,000'
+  related: [受取利息, 借入金]
+- name: 雑損
+  kana: ざっそん
+  element: expense
+  group: 営業外費用
+  aliases: [雑損失]
+  description: 金額が小さく、ほかの科目にあてはまらない損失。決算で現金の不足の原因がわからないときなどに使う。
+  examples:
+    - '雑損 500 / 現金過不足 500'
+  related: [雑益, 現金過不足]
+- name: 固定資産売却損
+  kana: こていしさんばいきゃくそん
+  element: expense
+  group: 特別損失
+  description: 固定資産を帳簿価額より安く売ったときの差額。
+  related: [固定資産売却益]
+  level: 2
+- name: 法人税等
+  kana: ほうじんぜいとう
+  element: expense
+  group: 法人税、住民税及び事業税
+  aliases: [法人税、住民税及び事業税, 法人税住民税及び事業税]
+  description: 会社の利益にかかる法人税・住民税・事業税（所得割）。損益計算書では税引前当期純利益から差し引く。
+  examples:
+    - "法人税等 500,000 / 仮払法人税等 200,000\n/ 未払法人税等 300,000"
+  related: [仮払法人税等, 未払法人税等, 租税公課]
+  level: 2
+
+# ---------------- その他 ----------------
+- name: 現金過不足
+  kana: げんきんかぶそく
+  element: other
+  group: 一時的な勘定
+  description: 現金の実際の残高と帳簿の残高が合わないとき、原因がわかるまで一時的に記録する勘定。決算までに原因がわからなければ雑損・雑益にする。
+  examples:
+    - '現金過不足 1,000 / 現金 1,000'
+  related: [現金, 雑損, 雑益]
+- name: 損益
+  kana: そんえき
+  element: other
+  group: 決算の勘定
+  description: 決算で、収益と費用の勘定の残高を集めて当期純利益（純損失）を計算するための勘定。
+  related: [繰越利益剰余金]
+  level: 2

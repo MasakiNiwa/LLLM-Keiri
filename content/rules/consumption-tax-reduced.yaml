@@ -1,0 +1,11 @@
+id: consumption-tax-reduced
+title: 消費税の軽減税率（国税と地方消費税の合計）
+unit: percent
+description: 飲食料品（酒類・外食を除く）と、定期購読の新聞に適用される税率
+basis:
+  - name: 消費税法（軽減税率制度）
+    url: https://www.nta.go.jp/taxes/shiraberu/zeimokubetsu/shohi/keigenzeiritsu/index.htm
+values:
+  - from: '2019-10-01'
+    value: 8
+    note: 国税 6.24%・地方消費税 1.76%

@@ -32,7 +32,22 @@ npm run typecheck  # TypeScript
 npm test           # Vitest
 npm run format     # Prettier
 npm run licenses   # サードパーティのライセンス一覧の生成
+npm run content:check  # 学習データ（content/）の検証
 ```
+
+### 学習データを追加・更新するには
+
+学習内容はコードから分けて `content/` に置いています（会計基準・税制の改正があっても、データを直すだけで更新できます）。
+
+| ファイル                      | 内容                                                         |
+| ----------------------------- | ------------------------------------------------------------ |
+| `content/tracks.yaml`         | 分野の一覧と表示順                                           |
+| `content/lessons/<分野>/*.md` | レッスン（先頭に YAML。根拠 `basis` と基準日 `asOf` を書く） |
+| `content/accounts.yaml`       | 勘定科目のマスタ                                             |
+| `content/rules/*.yaml`        | 税率など、適用期間つきの値                                   |
+
+レッスンの中では ` ```shiwake `（仕訳）・` ```quiz `（確認問題）・`> [!POINT]` などの囲みが使えます（[仕様書](docs/SPEC.md#レッスンの書き方markdown-の拡張)）。
+ビルド時に形式・仕訳の貸借の一致・勘定科目の存在をプログラムで確かめます（`npm run content:check`）。
 
 `main` ブランチへの push で GitHub Actions が GitHub Pages にデプロイします
 （リポジトリの Settings → Pages → Source を **GitHub Actions** にしてください）。
@@ -54,7 +69,7 @@ npm run licenses   # サードパーティのライセンス一覧の生成
 | PWA           | vite-plugin-pwa（Workbox）                |
 | テスト / 品質 | Vitest, ESLint, Prettier                  |
 
-ローカル AI（LiteRT-LM）・本文（react-markdown）・検索（MiniSearch）などは、各フェーズで追加します。
+ローカル AI（LiteRT-LM）などは、各フェーズで追加します。
 
 ## ライセンス
 

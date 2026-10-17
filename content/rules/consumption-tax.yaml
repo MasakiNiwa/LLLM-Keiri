@@ -1,0 +1,20 @@
+id: consumption-tax-standard
+title: 消費税の標準税率（国税と地方消費税の合計）
+unit: percent
+description: 軽減税率の対象以外の、ふつうの取引に適用される税率
+basis:
+  - name: 消費税法・地方税法
+    url: https://www.nta.go.jp/taxes/shiraberu/zeimokubetsu/shohi.htm
+values:
+  - from: '1989-04-01'
+    to: '1997-03-31'
+    value: 3
+  - from: '1997-04-01'
+    to: '2014-03-31'
+    value: 5
+  - from: '2014-04-01'
+    to: '2019-09-30'
+    value: 8
+  - from: '2019-10-01'
+    value: 10
+    note: 国税 7.8%・地方消費税 2.2%

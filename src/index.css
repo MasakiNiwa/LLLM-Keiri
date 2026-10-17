@@ -277,3 +277,51 @@
 .dark[data-dark-palette='warm'] dialog::backdrop {
   background: rgb(0 0 0 / 0.55);
 }
+
+/* ---- レッスンの本文（Markdown） ---- */
+.prose-lesson {
+  @apply leading-relaxed break-words;
+}
+.prose-lesson > * + * {
+  @apply mt-4;
+}
+.prose-lesson h2 {
+  @apply mt-10 scroll-mt-20 border-b border-slate-200 pb-1.5 text-xl font-bold dark:border-slate-700;
+}
+.prose-lesson h3 {
+  @apply mt-7 scroll-mt-20 text-lg font-bold;
+}
+.prose-lesson h2:first-child {
+  @apply mt-2;
+}
+.prose-lesson ul {
+  @apply list-disc space-y-1 pl-6;
+}
+.prose-lesson ol {
+  @apply list-decimal space-y-1 pl-6;
+}
+.prose-lesson a {
+  @apply text-accent-700 underline underline-offset-2 dark:text-accent-300;
+}
+.prose-lesson strong {
+  @apply font-bold text-slate-900 dark:text-white;
+}
+.prose-lesson blockquote {
+  @apply border-l-4 border-slate-300 pl-3 text-slate-600 dark:border-slate-600 dark:text-slate-400;
+}
+.prose-lesson :not(pre) > code {
+  @apply rounded bg-slate-200/70 px-1.5 py-0.5 font-mono text-[0.85em] dark:bg-slate-700/70;
+}
+.prose-lesson pre {
+  @apply overflow-x-auto rounded-lg bg-slate-900 p-3 font-mono text-[0.82rem] leading-normal text-slate-100;
+}
+.prose-lesson table {
+  @apply w-full border-collapse text-[0.92em];
+}
+.prose-lesson th,
+.prose-lesson td {
+  @apply border border-slate-300 px-2.5 py-1.5 align-top dark:border-slate-600;
+}
+.prose-lesson th {
+  @apply bg-slate-100 text-left font-semibold dark:bg-slate-800;
+}

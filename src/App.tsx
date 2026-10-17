@@ -6,9 +6,13 @@ import { AppLayout } from '@/app/AppLayout';
 import { useTheme } from '@/app/useTheme';
 import HomePage from '@/pages/HomePage';
 import { ComingSoon } from '@/pages/ComingSoonPage';
+import { AccountSheet } from '@/features/accounts/AccountSheet';
 import { useSettings } from '@/features/settings/settingsStore';
 
 // ホーム以外のページは必要になってから読み込む
+const LearnPage = lazy(() => import('@/pages/LearnPage'));
+const LessonPage = lazy(() => import('@/pages/LessonPage'));
+const AccountsPage = lazy(() => import('@/pages/AccountsPage'));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
 const HelpPage = lazy(() => import('@/pages/HelpPage'));
 
@@ -21,12 +25,9 @@ export default function App() {
       <AppLayout>
         <Suspense fallback={null}>
           <Switch>
-            <Route path="/learn/*?">
-              <ComingSoon title="学ぶ" phase="フェーズ 1" />
-            </Route>
-            <Route path="/accounts">
-              <ComingSoon title="勘定科目" phase="フェーズ 1" />
-            </Route>
+            <Route path="/learn" component={LearnPage} />
+            <Route path="/learn/:id" component={LessonPage} />
+            <Route path="/accounts" component={AccountsPage} />
             <Route path="/drill/*?">
               <ComingSoon title="練習" phase="フェーズ 2" />
             </Route>
@@ -45,6 +46,7 @@ export default function App() {
           </Switch>
         </Suspense>
       </AppLayout>
+      <AccountSheet />
       <Toaster
         theme={theme}
         position="top-center"
