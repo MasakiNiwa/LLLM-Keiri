@@ -13,6 +13,9 @@ import { useSettings } from '@/features/settings/settingsStore';
 const LearnPage = lazy(() => import('@/pages/LearnPage'));
 const LessonPage = lazy(() => import('@/pages/LessonPage'));
 const AccountsPage = lazy(() => import('@/pages/AccountsPage'));
+const DrillListPage = lazy(() => import('@/pages/DrillListPage'));
+const DrillPage = lazy(() => import('@/pages/DrillPage'));
+const LedgerPage = lazy(() => import('@/pages/LedgerPage'));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
 const HelpPage = lazy(() => import('@/pages/HelpPage'));
 
@@ -28,12 +31,9 @@ export default function App() {
             <Route path="/learn" component={LearnPage} />
             <Route path="/learn/:id" component={LessonPage} />
             <Route path="/accounts" component={AccountsPage} />
-            <Route path="/drill/*?">
-              <ComingSoon title="練習" phase="フェーズ 2" />
-            </Route>
-            <Route path="/ledger/*?">
-              <ComingSoon title="帳簿" phase="フェーズ 2" />
-            </Route>
+            <Route path="/drill" component={DrillListPage} />
+            <Route path="/drill/:id" component={DrillPage} />
+            <Route path="/ledger/:tab?" component={LedgerPage} />
             <Route path="/chat">
               <ComingSoon title="AI" phase="フェーズ 3" />
             </Route>

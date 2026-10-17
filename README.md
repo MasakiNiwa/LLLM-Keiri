@@ -45,6 +45,8 @@ npm run content:check  # 学習データ（content/）の検証
 | `content/lessons/<分野>/*.md` | レッスン（先頭に YAML。根拠 `basis` と基準日 `asOf` を書く） |
 | `content/accounts.yaml`       | 勘定科目のマスタ                                             |
 | `content/rules/*.yaml`        | 税率など、適用期間つきの値                                   |
+| `content/drills/*.yaml`       | 仕訳問題のセット                                             |
+| `content/scenarios/*.yaml`    | 帳簿のサンプルの取引                                         |
 
 レッスンの中では ` ```shiwake `（仕訳）・` ```quiz `（確認問題）・`> [!POINT]` などの囲みが使えます（[仕様書](docs/SPEC.md#レッスンの書き方markdown-の拡張)）。
 ビルド時に形式・仕訳の貸借の一致・勘定科目の存在をプログラムで確かめます（`npm run content:check`）。

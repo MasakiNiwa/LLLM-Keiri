@@ -18,6 +18,7 @@ import {
   LessonFrontmatterSchema,
   QuizSchema,
   RuleSchema,
+  ScenarioSchema,
   TrackSchema,
   type ContentIndex,
   type Heading,
@@ -280,6 +281,23 @@ export function buildContent(root: string): BuildResult {
     drills.push(r.data);
   }
 
+  // ---- 帳簿のサンプル ----
+  const scenarios = [];
+  for (const p of listFiles(path.join(contentDir, 'scenarios'), '.yaml')) {
+    const where = rel(p);
+    const r = ScenarioSchema.safeParse(readYaml(p));
+    if (!r.success) {
+      errors.push(`${where}: ${formatZod(r.error)}`);
+      continue;
+    }
+    checkId(r.data.id, where);
+    r.data.entries.forEach((e, i) => {
+      const entries = checkShiwake(e.shiwake, `${where}（${i + 1} 件目 ${e.date}）`);
+      if (entries.length > 1) errors.push(`${where}（${i + 1} 件目）: 仕訳は 1 つにします`);
+    });
+    scenarios.push(r.data);
+  }
+
   const byOrder = <T extends { track: string; order: number }>(a: T, b: T) => {
     const ta = tracks.findIndex((t) => t.id === a.track);
     const tb = tracks.findIndex((t) => t.id === b.track);
@@ -295,6 +313,7 @@ export function buildContent(root: string): BuildResult {
     drills: drills.map(({ questions, ...meta }) => ({ ...meta, questionCount: questions.length })),
     accounts,
     rules,
+    scenarios,
   };
   files.set('content/index.json', JSON.stringify(index));
   for (const l of lessons) files.set(`content/lessons/${l.meta.id}.json`, JSON.stringify(l));

@@ -1,10 +1,9 @@
 import { useMemo, useState } from 'react';
-import { CheckCircle2, CircleHelp, Eye, RotateCcw, XCircle } from 'lucide-react';
+import { CheckCircle2, CircleHelp, RotateCcw, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { QuizSchema, type Quiz } from '@/lib/content/schema';
-import { parseShiwake } from '@/lib/journal/parse';
 import { cn } from '@/lib/utils/cn';
-import { JournalTable } from '@/features/journal/JournalTable';
+import { ShiwakeExercise } from '@/features/journal/ShiwakeExercise';
 
 function parseQuiz(json: string): Quiz | null {
   try {
@@ -86,26 +85,6 @@ function ChoiceQuiz({ quiz }: { quiz: Extract<Quiz, { type: 'choice' }> }) {
   );
 }
 
-/** 仕訳の確認問題（答えを見る形。入力して採点する形は「練習」と同じ部品にする予定） */
-function ShiwakeQuiz({ quiz }: { quiz: Extract<Quiz, { type: 'shiwake' }> }) {
-  const [shown, setShown] = useState(false);
-  const entry = useMemo(() => parseShiwake(quiz.answer).entries[0], [quiz.answer]);
-  if (!shown) {
-    return (
-      <Button size="sm" onClick={() => setShown(true)}>
-        <Eye />
-        答えを見る
-      </Button>
-    );
-  }
-  return (
-    <div className="space-y-2">
-      {entry && <JournalTable entry={entry} />}
-      {quiz.explanation && <p className="leading-relaxed">{quiz.explanation}</p>}
-    </div>
-  );
-}
-
 /** レッスンの中の確認問題（` ```quiz `）。採点はプログラムが行う */
 export function QuizBlock({ json }: { json: string }) {
   const quiz = useMemo(() => parseQuiz(json), [json]);
@@ -117,7 +96,11 @@ export function QuizBlock({ json }: { json: string }) {
         確認問題
       </div>
       <p className="mb-3 font-medium leading-relaxed">{quiz.question}</p>
-      {quiz.type === 'choice' ? <ChoiceQuiz quiz={quiz} /> : <ShiwakeQuiz quiz={quiz} />}
+      {quiz.type === 'choice' ? (
+        <ChoiceQuiz quiz={quiz} />
+      ) : (
+        <ShiwakeExercise question={quiz} seed={quiz.question} />
+      )}
     </section>
   );
 }
