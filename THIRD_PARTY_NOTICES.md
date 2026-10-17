@@ -22,6 +22,7 @@ LLLM 経理（LLLM-Keiri）は以下のオープンソースソフトウェア�
 | **sonner** | 2.0.8 | MIT | https://github.com/emilkowalski/sonner |
 | **tailwind-merge** | 3.7.0 | MIT | https://github.com/dcastil/tailwind-merge |
 | **wouter** | 3.13.0 | Unlicense | https://github.com/molefrog/wouter |
+| **yaml** | 2.9.1 | ISC | https://github.com/eemeli/yaml |
 | **zod** | 4.6.5 | MIT | https://github.com/colinhacks/zod |
 | **zustand** | 5.0.15 | MIT | https://github.com/pmndrs/zustand |
 | @litertjs/wasm-utils | 2.5.3 | Apache-2.0 | https://github.com/google-ai-edge/LiteRT |

@@ -15,7 +15,7 @@ import { LessonMarkdown } from '@/features/learn/LessonMarkdown';
 import { BasisInfo, LevelBadge } from '@/features/learn/MetaBadges';
 import { markLessonOpened, setLessonRead, useLessonProgress } from '@/features/learn/progress';
 import { useFontZoom } from '@/features/settings/useFontZoom';
-import { fetchLesson } from '@/lib/content/load';
+import { loadLesson } from '@/features/studio/userContentRepo';
 import type { Lesson, LessonMeta } from '@/lib/content/schema';
 import { cn } from '@/lib/utils/cn';
 import { errorMessage } from '@/lib/utils/format';
@@ -121,7 +121,7 @@ export default function LessonPage() {
 
   useEffect(() => {
     let stale = false;
-    fetchLesson(id).then(
+    loadLesson(id).then(
       (lesson) => {
         if (stale) return;
         setLoaded({ id, lesson });

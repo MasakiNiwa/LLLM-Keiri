@@ -8,6 +8,7 @@ import {
   Settings,
   Sparkles,
   Tags,
+  Wand2,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -57,12 +58,24 @@ export const ACCOUNTS_ITEM: NavItem = {
   icon: Tags,
   description: '勘定科目の意味・分類・使い方を調べる',
 };
+export const STUDIO_ITEM: NavItem = {
+  to: '/studio',
+  label: '外部 AI と連携',
+  icon: Wand2,
+  description: '外部の AI に教材を作ってもらって取り込む・難しい質問を聞く',
+};
 export const MODELS_ITEM: NavItem = { to: '/models', label: 'AI モデル', icon: Boxes };
 export const SETTINGS_ITEM: NavItem = { to: '/settings', label: '設定', icon: Settings };
 export const HELP_ITEM: NavItem = { to: '/help', label: 'ヘルプ', icon: CircleHelp };
 
 /** PC のサイドバー下部 */
-export const SUB_NAV_ITEMS: NavItem[] = [ACCOUNTS_ITEM, MODELS_ITEM, SETTINGS_ITEM, HELP_ITEM];
+export const SUB_NAV_ITEMS: NavItem[] = [
+  ACCOUNTS_ITEM,
+  STUDIO_ITEM,
+  MODELS_ITEM,
+  SETTINGS_ITEM,
+  HELP_ITEM,
+];
 
 /** スマホの下部ナビ（メイン＋設定） */
 export const BOTTOM_NAV_ITEMS: NavItem[] = [...NAV_ITEMS, SETTINGS_ITEM];

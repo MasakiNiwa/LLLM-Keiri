@@ -13,21 +13,25 @@ import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { AccountBook } from '../src/lib/content/accounts.ts';
 import {
+  compileDrill,
+  compileLesson,
+  compileScenario,
+  ContentChecker,
+  formatZod,
+  plainText,
+} from '../src/lib/content/compile.ts';
+import {
   AccountSchema,
-  DrillSetSchema,
-  LessonFrontmatterSchema,
-  QuizSchema,
   RuleSchema,
-  ScenarioSchema,
   TrackSchema,
   type ContentIndex,
-  type Heading,
+  type DrillSet,
   type Lesson,
-  type LessonMeta,
+  type Scenario,
   type SearchDoc,
 } from '../src/lib/content/schema.ts';
-import { isBalanced, totals } from '../src/lib/journal/balance.ts';
-import { parseShiwake } from '../src/lib/journal/parse.ts';
+
+export { extractHeadings } from '../src/lib/content/compile.ts';
 
 export interface BuildResult {
   /** 出力するファイル（public からの相対パス → 中身） */
@@ -51,37 +55,6 @@ function listFiles(dir: string, ext: string): string[] {
     else if (name.endsWith(ext)) out.push(p);
   }
   return out;
-}
-
-function formatZod(e: z.ZodError): string {
-  return e.issues.map((i) => `${i.path.join('.') || '(全体)'}: ${i.message}`).join('; ');
-}
-
-/** 本文から ``` で囲まれたブロックを探す */
-const FENCE_RE = /^```([\w-]+)?[^\n]*\n([\s\S]*?)^```[ \t]*$/gm;
-
-/** 見出し（h2・h3）を本文の順に取り出す。コードブロックの中は除く */
-export function extractHeadings(body: string): Heading[] {
-  const withoutCode = body.replace(FENCE_RE, '');
-  const headings: Heading[] = [];
-  for (const m of withoutCode.matchAll(/^(#{2,3})\s+(.+?)\s*#*\s*$/gm)) {
-    headings.push({
-      id: `sec-${headings.length + 1}`,
-      depth: m[1].length as 2 | 3,
-      text: m[2].replace(/[*_`]/g, ''),
-    });
-  }
-  return headings;
-}
-
-/** 検索用に Markdown の記号を落とした本文 */
-function plainText(body: string): string {
-  return body
-    .replace(/^```quiz[\s\S]*?^```$/gm, '')
-    .replace(/[#>*_`|[\]()-]/g, ' ')
-    .replace(/\[!\w+\]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
 }
 
 export function buildContent(root: string): BuildResult {
@@ -125,32 +98,11 @@ export function buildContent(root: string): BuildResult {
   }
   const book = new AccountBook(accounts);
 
-  /** 仕訳の書き方を検証する（読めない行・貸借の不一致・知らない科目） */
-  const checkShiwake = (text: string, where: string, { allowEmpty = false } = {}) => {
-    const { entries, issues } = parseShiwake(text);
-    for (const i of issues)
-      errors.push(`${where}: ${i.line ? `${i.line} 行目: ` : ''}${i.message}`);
-    if (!allowEmpty && entries.length === 0 && issues.length === 0)
-      errors.push(`${where}: 仕訳がありません`);
-    for (const e of entries) {
-      if (!isBalanced(e)) {
-        const t = totals(e.lines);
-        errors.push(
-          `${where}: 貸借が一致していません（借方 ${t.dr.toLocaleString()} / 貸方 ${t.cr.toLocaleString()}）${e.caption ? `「${e.caption}」` : ''}`,
-        );
-      }
-      for (const l of e.lines) {
-        if (!book.find(l.account))
-          errors.push(`${where}: 勘定科目「${l.account}」が content/accounts.yaml にありません`);
-        if (l.amount <= 0) errors.push(`${where}: 金額は正の数で書きます（${l.account}）`);
-      }
-    }
-    return entries;
-  };
+  const checker = new ContentChecker(book, errors);
 
   for (const a of accounts) {
     a.examples.forEach((ex, i) =>
-      checkShiwake(ex, `${rel(accountsPath)}: ${a.name} の例 ${i + 1}`),
+      checker.checkShiwake(ex, `${rel(accountsPath)}: ${a.name} の例 ${i + 1}`),
     );
     for (const r of a.related) {
       if (!book.find(r))
@@ -176,126 +128,37 @@ export function buildContent(root: string): BuildResult {
       errors.push(`${where}: 分野「${track}」が content/tracks.yaml にありません`);
   };
 
-  /** 問題の正解・選べる科目を確かめる */
-  const checkQuestion = (q: { answer: string; accounts?: string[] }, where: string) => {
-    const entries = checkShiwake(q.answer, `${where} の正解`);
-    if (entries.length > 1) errors.push(`${where}: 正解の仕訳は 1 つにします`);
-    for (const name of q.accounts ?? []) {
-      if (!book.find(name)) errors.push(`${where}: 選べる科目「${name}」がありません`);
-    }
-    if (q.accounts && entries[0]) {
-      const choices = new Set(q.accounts.map((n) => book.canonical(n)));
-      for (const l of entries[0].lines) {
-        if (!choices.has(book.canonical(l.account)))
-          errors.push(`${where}: 正解の科目「${l.account}」が選べる科目にありません`);
-      }
-    }
-  };
-
   // ---- レッスン ----
   const lessons: Lesson[] = [];
   for (const p of listFiles(path.join(contentDir, 'lessons'), '.md')) {
     sources.push(p);
     const where = rel(p);
-    const raw = readFileSync(p, 'utf8').replace(/\r\n/g, '\n');
-    const fm = /^---\n([\s\S]*?)\n---\n?/.exec(raw);
-    if (!fm) {
-      errors.push(`${where}: 先頭に --- で囲んだ YAML（frontmatter）がありません`);
-      continue;
-    }
-    let data: unknown;
-    try {
-      data = parseYaml(fm[1]);
-    } catch (e) {
-      errors.push(`${where}: frontmatter を読めません: ${(e as Error).message}`);
-      continue;
-    }
-    const parsed = LessonFrontmatterSchema.safeParse(data);
-    if (!parsed.success) {
-      errors.push(`${where}: ${formatZod(parsed.error)}`);
-      continue;
-    }
-    const front = parsed.data;
-    checkId(front.id, where);
-    checkTrack(front.track, where);
-
-    let quizCount = 0;
-    const body = raw
-      .slice(fm[0].length)
-      .replace(FENCE_RE, (block, lang: string | undefined, code: string) => {
-        if (lang === 'shiwake') {
-          checkShiwake(code, `${where}（仕訳）`);
-          return block;
-        }
-        if (lang === 'quiz') {
-          quizCount++;
-          let q: unknown;
-          try {
-            q = parseYaml(code);
-          } catch (e) {
-            errors.push(
-              `${where}（確認問題 ${quizCount}）: YAML を読めません: ${(e as Error).message}`,
-            );
-            return block;
-          }
-          const r = QuizSchema.safeParse(q);
-          if (!r.success) {
-            errors.push(`${where}（確認問題 ${quizCount}）: ${formatZod(r.error)}`);
-            return block;
-          }
-          if (r.data.type === 'choice' && r.data.answer >= r.data.choices.length)
-            errors.push(`${where}（確認問題 ${quizCount}）: answer が選択肢の数を超えています`);
-          if (r.data.type === 'shiwake') checkQuestion(r.data, `${where}（確認問題 ${quizCount}）`);
-          return '```quiz\n' + JSON.stringify(r.data) + '\n```';
-        }
-        return block;
-      });
-    const text = plainText(body);
-    const meta: LessonMeta = {
-      ...front,
-      headings: extractHeadings(body),
-      // 日本語は 1 分あたり 500 字ほどを目安にする
-      minutes: Math.max(1, Math.round(text.length / 500)),
-      quizCount,
-    };
-    lessons.push({ meta, body });
+    const lesson = compileLesson(readFileSync(p, 'utf8'), where, checker);
+    if (!lesson) continue;
+    checkId(lesson.meta.id, where);
+    checkTrack(lesson.meta.track, where);
+    lessons.push(lesson);
   }
 
   // ---- 問題セット ----
-  const drills = [];
+  const drills: DrillSet[] = [];
   for (const p of listFiles(path.join(contentDir, 'drills'), '.yaml')) {
     const where = rel(p);
-    const r = DrillSetSchema.safeParse(readYaml(p));
-    if (!r.success) {
-      errors.push(`${where}: ${formatZod(r.error)}`);
-      continue;
-    }
-    checkId(r.data.id, where);
-    checkTrack(r.data.track, where);
-    const qids = new Set<string>();
-    for (const q of r.data.questions) {
-      if (qids.has(q.id)) errors.push(`${where}: 問題の id「${q.id}」が重複しています`);
-      qids.add(q.id);
-      checkQuestion(q, `${where}（問題 ${q.id}）`);
-    }
-    drills.push(r.data);
+    const drill = compileDrill(readYaml(p), where, checker);
+    if (!drill) continue;
+    checkId(drill.id, where);
+    checkTrack(drill.track, where);
+    drills.push(drill);
   }
 
   // ---- 帳簿のサンプル ----
-  const scenarios = [];
+  const scenarios: Scenario[] = [];
   for (const p of listFiles(path.join(contentDir, 'scenarios'), '.yaml')) {
     const where = rel(p);
-    const r = ScenarioSchema.safeParse(readYaml(p));
-    if (!r.success) {
-      errors.push(`${where}: ${formatZod(r.error)}`);
-      continue;
-    }
-    checkId(r.data.id, where);
-    r.data.entries.forEach((e, i) => {
-      const entries = checkShiwake(e.shiwake, `${where}（${i + 1} 件目 ${e.date}）`);
-      if (entries.length > 1) errors.push(`${where}（${i + 1} 件目）: 仕訳は 1 つにします`);
-    });
-    scenarios.push(r.data);
+    const scenario = compileScenario(readYaml(p), where, checker);
+    if (!scenario) continue;
+    checkId(scenario.id, where);
+    scenarios.push(scenario);
   }
 
   const byOrder = <T extends { track: string; order: number }>(a: T, b: T) => {

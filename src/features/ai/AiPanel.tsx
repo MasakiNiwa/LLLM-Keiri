@@ -1,5 +1,13 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { ArrowUp, MessageSquareShare, RotateCcw, Sparkles, Square, X } from 'lucide-react';
+import {
+  ArrowUp,
+  ExternalLink,
+  MessageSquareShare,
+  RotateCcw,
+  Sparkles,
+  Square,
+  X,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/Button';
@@ -234,6 +242,20 @@ function AiPanelBody() {
         )}
       </div>
 
+      <div className="shrink-0 border-t border-slate-200 px-3 py-1.5 text-right dark:border-slate-800">
+        <button
+          type="button"
+          onClick={() => {
+            useAiFocus.getState().attach(focus);
+            setOpen(false);
+            navigate('/studio/ask');
+          }}
+          className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-accent-700 dark:hover:text-accent-300"
+        >
+          <ExternalLink className="size-3.5" />
+          難しい質問は外部の AI に聞く
+        </button>
+      </div>
       {ready && (
         <form
           className="flex shrink-0 items-end gap-2 border-t border-slate-200 p-2 dark:border-slate-800"
