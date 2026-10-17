@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie';
 import { STORAGE_PREFIX } from '@/lib/constants';
+import type { JournalLine } from '@/lib/journal/types';
 
 /** レッスンの進み具合 */
 export interface LessonProgress {
@@ -10,17 +11,48 @@ export interface LessonProgress {
   openedAt: number;
 }
 
+/** 仕訳問題の答え合わせの記録（1 問につき、答え合わせのたびに 1 件） */
+export interface DrillAttempt {
+  id?: number;
+  setId: string;
+  questionId: string;
+  correct: boolean;
+  /** 答えを見てから答え合わせした */
+  revealed: boolean;
+  /** 採点の種類（judge.ts の JudgeKind） */
+  kind: string;
+  at: number;
+}
+
+/** 帳簿（自分で入れた仕訳） */
+export interface JournalRecord {
+  id: string;
+  /** YYYY-MM-DD */
+  date: string;
+  memo: string;
+  lines: JournalLine[];
+  createdAt: number;
+}
+
 /**
  * このアプリのデータベース（IndexedDB）。
  * テーブルを増やすときは version を上げて stores に足す（既存のデータは残る）。
  */
 export class KeiriDB extends Dexie {
   lessonProgress!: EntityTable<LessonProgress, 'lessonId'>;
+  drillAttempts!: EntityTable<DrillAttempt, 'id'>;
+  journal!: EntityTable<JournalRecord, 'id'>;
 
   constructor(name = STORAGE_PREFIX) {
     super(name);
     this.version(1).stores({
       lessonProgress: 'lessonId, readAt, openedAt',
+    });
+    this.version(2).stores({
+      drillAttempts: '++id, setId, [setId+questionId], at',
+    });
+    this.version(3).stores({
+      journal: 'id, date, createdAt',
     });
   }
 }

@@ -175,6 +175,25 @@ export const DrillSetSchema = z.object({
 export type DrillSet = z.infer<typeof DrillSetSchema>;
 export type DrillMeta = Omit<DrillSet, 'questions'> & { questionCount: number };
 
+/** 帳簿のサンプル（一連の取引。帳簿ページで読み込める） */
+export const ScenarioSchema = z.object({
+  id,
+  title: z.string().min(1),
+  summary: z.string().min(1),
+  level,
+  entries: z
+    .array(
+      z.object({
+        date,
+        memo: z.string().min(1),
+        /** 仕訳の書き方（1 つの仕訳） */
+        shiwake: z.string().min(1),
+      }),
+    )
+    .min(1),
+});
+export type Scenario = z.infer<typeof ScenarioSchema>;
+
 /** content/index.json（一覧に必要なものだけ。本文は別ファイル） */
 export interface ContentIndex {
   version: 1;
@@ -183,6 +202,7 @@ export interface ContentIndex {
   drills: DrillMeta[];
   accounts: Account[];
   rules: Rule[];
+  scenarios: Scenario[];
 }
 
 /** 検索の対象（content/search.json） */

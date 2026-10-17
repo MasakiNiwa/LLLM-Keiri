@@ -15,6 +15,7 @@ import {
   type FontScale,
   type ThemeSetting,
 } from '@/features/settings/settingsStore';
+import { db } from '@/lib/db/db';
 import { clearAppData } from '@/lib/storage/clearData';
 import { cn } from '@/lib/utils/cn';
 import { errorMessage, formatBytes } from '@/lib/utils/format';
@@ -56,7 +57,7 @@ function StorageUsage() {
   );
 }
 
-type ConfirmKind = null | 'reset' | 'all';
+type ConfirmKind = null | 'reset' | 'progress' | 'all';
 
 export default function SettingsPage() {
   const s = useSettings();
@@ -160,6 +161,15 @@ export default function SettingsPage() {
             </Button>
           </Field>
           <Field
+            label="学習記録を消す"
+            hint="読んだレッスンの印と、問題の答え合わせの記録を消します"
+          >
+            <Button size="sm" onClick={() => setConfirm('progress')}>
+              <Trash2 />
+              クリア
+            </Button>
+          </Field>
+          <Field
             label="すべてのデータを消す"
             hint="設定・学習記録・帳簿・チャットなど、このアプリのデータをすべて消します。AI モデルは消えません"
           >
@@ -180,6 +190,20 @@ export default function SettingsPage() {
           s.reset();
           toast.success('設定を初期値に戻しました');
         }}
+        onClose={() => setConfirm(null)}
+      />
+      <ConfirmDialog
+        open={confirm === 'progress'}
+        title="学習記録を消しますか？"
+        description="読んだレッスンの印と、問題の答え合わせの記録を消します。帳簿やチャットは残ります。元に戻せません。"
+        confirmLabel="消す"
+        danger
+        onConfirm={() =>
+          void Promise.all([db.lessonProgress.clear(), db.drillAttempts.clear()]).then(
+            () => toast.success('学習記録を消しました'),
+            (e) => toast.error(`消せませんでした: ${errorMessage(e)}`),
+          )
+        }
         onClose={() => setConfirm(null)}
       />
       <ConfirmDialog
