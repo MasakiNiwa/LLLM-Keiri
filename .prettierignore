@@ -3,3 +3,4 @@ node_modules
 package-lock.json
 THIRD_PARTY_NOTICES.md
 public/licenses.json
+docs/CONTENT_FORMAT.md

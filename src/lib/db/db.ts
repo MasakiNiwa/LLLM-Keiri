@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie';
 import { STORAGE_PREFIX } from '@/lib/constants';
+import type { DrillSet, Lesson } from '@/lib/content/schema';
 import type { JournalLine } from '@/lib/journal/types';
 
 /** レッスンの進み具合 */
@@ -48,6 +49,11 @@ export interface ChatRecord {
   createdAt: number;
 }
 
+/** 外部 AI などで作って取り込んだ教材（マイ教材） */
+export type UserContent =
+  | { id: string; kind: 'lesson'; title: string; data: Lesson; createdAt: number }
+  | { id: string; kind: 'drill'; title: string; data: DrillSet; createdAt: number };
+
 /**
  * このアプリのデータベース（IndexedDB）。
  * テーブルを増やすときは version を上げて stores に足す（既存のデータは残る）。
@@ -57,6 +63,7 @@ export class KeiriDB extends Dexie {
   drillAttempts!: EntityTable<DrillAttempt, 'id'>;
   journal!: EntityTable<JournalRecord, 'id'>;
   chat!: EntityTable<ChatRecord, 'id'>;
+  userContent!: EntityTable<UserContent, 'id'>;
 
   constructor(name = STORAGE_PREFIX) {
     super(name);
@@ -71,6 +78,9 @@ export class KeiriDB extends Dexie {
     });
     this.version(4).stores({
       chat: 'id, createdAt',
+    });
+    this.version(5).stores({
+      userContent: 'id, kind, createdAt',
     });
   }
 }

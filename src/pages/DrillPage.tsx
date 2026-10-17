@@ -17,7 +17,7 @@ import type { JournalLine } from '@/lib/journal/types';
 import { ShiwakeExercise, type ExerciseOutcome } from '@/features/journal/ShiwakeExercise';
 import { BasisInfo } from '@/features/learn/MetaBadges';
 import { useFontZoom } from '@/features/settings/useFontZoom';
-import { fetchDrill } from '@/lib/content/load';
+import { loadDrill } from '@/features/studio/userContentRepo';
 import type { DrillSet } from '@/lib/content/schema';
 import { cn } from '@/lib/utils/cn';
 import { errorMessage } from '@/lib/utils/format';
@@ -126,7 +126,7 @@ export default function DrillPage() {
 
   useEffect(() => {
     let stale = false;
-    fetchDrill(id).then(
+    loadDrill(id).then(
       (set) => {
         if (stale) return;
         setLoaded({ id, set });

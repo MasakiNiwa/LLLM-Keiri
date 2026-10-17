@@ -63,9 +63,7 @@ describe('buildContent', () => {
     );
     const { errors } = buildContent(root);
     expect(errors.some((e) => e.includes('貸借が一致していません'))).toBe(true);
-    expect(errors.some((e) => e.includes('「売掛金」が content/accounts.yaml にありません'))).toBe(
-      true,
-    );
+    expect(errors.some((e) => e.includes('「売掛金」が勘定科目の一覧にありません'))).toBe(true);
     expect(errors.some((e) => e.includes('answer が選択肢の数を超えています'))).toBe(true);
   });
 });

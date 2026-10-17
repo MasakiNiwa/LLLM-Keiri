@@ -4,7 +4,8 @@
  * AI は判断の材料が必要なときにこれらを呼び、アプリ（プログラム）が調べた・計算した結果を返す。
  * 仕訳の検証・税額の計算・集計はプログラムが正確に行い、AI はその結果をもとに話す。
  */
-import { fetchContentIndex, fetchLesson } from '@/lib/content/load';
+import { fetchContentIndex } from '@/lib/content/load';
+import { loadLesson } from '@/features/studio/userContentRepo';
 import { sectionText } from '@/lib/content/sections';
 import { AccountBook } from '@/lib/content/accounts';
 import { ruleValueAt, today } from '@/lib/content/rules';
@@ -284,7 +285,7 @@ async function getLedger(): Promise<JsonValue> {
 async function getLesson(args: Record<string, JsonValue>): Promise<JsonValue> {
   const id = str(args.lesson_id).trim();
   try {
-    const lesson = await fetchLesson(id);
+    const lesson = await loadLesson(id);
     const section = str(args.section).trim();
     const body = section ? (sectionText(lesson.body, section) ?? lesson.body) : lesson.body;
     return {

@@ -10,7 +10,7 @@
 
 > 現在は初期版です。[ロードマップ](docs/SPEC.md#ロードマップ)に沿って、フェーズごとに機能を追加しています。
 
-## 特長（予定を含む）
+## 特長
 
 - 📚 **学びたいことを直感的に** — 分野ごとのレッスンと全文検索。仕訳は教科書と同じ「借方 / 貸方」の形で表示
 - 🔁 **会計基準・税制の改正に追従** — 学習内容はコードから分けたデータ（Markdown / YAML）。根拠と基準日を表示
@@ -33,6 +33,7 @@ npm test           # Vitest
 npm run format     # Prettier
 npm run licenses   # サードパーティのライセンス一覧の生成
 npm run content:check  # 学習データ（content/）の検証
+npm run docs       # 学習データの形式の文書（docs/CONTENT_FORMAT.md）の生成
 ```
 
 ### 学習データを追加・更新するには
@@ -68,6 +69,7 @@ npm run content:check  # 学習データ（content/）の検証
 ## ドキュメント
 
 - [仕様書・ロードマップ](docs/SPEC.md)
+- [学習データの形式](docs/CONTENT_FORMAT.md)（外部 AI に渡す仕様。自動生成）
 - [共通モデル保存仕様](docs/SHARED_MODEL_STORAGE.md)（github.io のサイト間で AI モデルを共有する取り決め）
 
 ## 技術スタック

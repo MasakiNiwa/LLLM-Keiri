@@ -1,11 +1,20 @@
 import { useState } from 'react';
-import { BookOpenText, CheckCircle2, ChevronRight, Circle, PenLine, Tags } from 'lucide-react';
+import {
+  BookOpenText,
+  CheckCircle2,
+  ChevronRight,
+  Circle,
+  FolderHeart,
+  PenLine,
+  Tags,
+} from 'lucide-react';
 import { Link } from 'wouter';
 import { PageBody, PageHeader } from '@/app/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { useAccountSheet } from '@/features/accounts/accountSheetStore';
 import { useFocus } from '@/features/ai/useFocus';
+import { useUserContent } from '@/features/studio/userContentRepo';
 import { useContentIndex } from '@/features/content/contentStore';
 import { LevelBadge } from '@/features/learn/MetaBadges';
 import { useLessonProgress } from '@/features/learn/progress';
@@ -81,8 +90,42 @@ function SearchResults({ query, index }: { query: string; index: ContentIndex })
 
 function TrackList({ index }: { index: ContentIndex }) {
   const progress = useLessonProgress();
+  const mine = useUserContent()?.filter((c) => c.kind === 'lesson');
   return (
     <div className="space-y-4">
+      {mine && mine.length > 0 && (
+        <Card className="overflow-hidden">
+          <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3 dark:border-slate-800">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+              <FolderHeart className="size-5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <h2 className="font-semibold">マイ教材</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                外部の AI で作って取り込んだレッスン
+              </p>
+            </div>
+          </div>
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+            {mine.map((c) => (
+              <li key={c.id}>
+                <Link
+                  href={`/learn/${c.id}`}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                >
+                  {progress?.get(c.id)?.readAt ? (
+                    <CheckCircle2 className="size-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                  ) : (
+                    <Circle className="size-5 shrink-0 text-slate-300 dark:text-slate-600" />
+                  )}
+                  <span className="min-w-0 flex-1 truncate font-medium">{c.title}</span>
+                  <ChevronRight className="size-4 shrink-0 text-slate-400" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
       {index.tracks.map((track) => {
         const lessons = index.lessons.filter((l) => l.track === track.id);
         const read = lessons.filter((l) => progress?.get(l.id)?.readAt).length;
