@@ -5,6 +5,7 @@ import { PageBody, PageHeader } from '@/app/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { useAccountSheet } from '@/features/accounts/accountSheetStore';
+import { useFocus } from '@/features/ai/useFocus';
 import { useContentIndex } from '@/features/content/contentStore';
 import { LevelBadge } from '@/features/learn/MetaBadges';
 import { useLessonProgress } from '@/features/learn/progress';
@@ -147,6 +148,7 @@ function TrackList({ index }: { index: ContentIndex }) {
 export default function LearnPage() {
   const { index, error } = useContentIndex();
   const [query, setQuery] = useState('');
+  useFocus({ kind: 'other', page: 'レッスンの一覧' });
   return (
     <>
       <PageHeader title="学ぶ" />

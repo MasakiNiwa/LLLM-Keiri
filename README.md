@@ -54,6 +54,17 @@ npm run content:check  # 学習データ（content/）の検証
 `main` ブランチへの push で GitHub Actions が GitHub Pages にデプロイします
 （リポジトリの Settings → Pages → Source を **GitHub Actions** にしてください）。
 
+## ローカル AI のしくみ
+
+- **AI に全部を任せない**: 仕訳の採点（`src/lib/journal/judge.ts`）・帳簿の集計（`src/lib/ledger/ledger.ts`）・消費税の計算（`src/lib/tax/`）はプログラム。AI はその結果をもとにリアクション・解説・相談をする
+- **構造化データで連携**: 各ページが「見ているもの」（レッスンの読んでいる節・問題と採点結果・帳簿の残高）を `src/features/ai/focusStore.ts` に入れ、`<app_state>` の JSON にして AI に渡す
+- **ツール（関数呼び出し）**: 勘定科目の検索・仕訳の検証・消費税の計算・レッスンの検索と本文・学習記録・帳簿の集計・ヘルプの検索（`src/features/ai/tools.ts`）
+- **性格タイプ**: 経理の先輩・やさしい先生・簿記コーチ・ねこ部長・執事・カスタム（`src/features/ai/personas.ts`）。モデルがなくても出せる「ひとこと」のテンプレート付き
+- **モデルの保存**: [共通モデル保存仕様](docs/SHARED_MODEL_STORAGE.md) に従い、同じ github.io のほかのサイトが保存したモデルも使える。端末への書き出し（バックアップ）・取り込みにも対応
+- LLM の組み込み部分（`src/lib/llm/`・`src/features/engine/`・`src/features/models/`）は [LLLM Study](https://github.com/MasakiNiwa/LLLM-Study) と共通（[組み込みガイド](https://github.com/MasakiNiwa/LLLM-Study/blob/main/docs/LOCAL_LLM_GUIDE.md)）
+
+推奨環境: WebGPU に対応した最新の Chrome / Edge（PC・Android）。学習機能だけならモデルは不要です。
+
 ## ドキュメント
 
 - [仕様書・ロードマップ](docs/SPEC.md)
@@ -70,8 +81,6 @@ npm run content:check  # 学習データ（content/）の検証
 | データ        | Dexie（IndexedDB）, zod                   |
 | PWA           | vite-plugin-pwa（Workbox）                |
 | テスト / 品質 | Vitest, ESLint, Prettier                  |
-
-ローカル AI（LiteRT-LM）などは、各フェーズで追加します。
 
 ## ライセンス
 

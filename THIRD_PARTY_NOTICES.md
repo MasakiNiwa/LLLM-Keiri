@@ -7,6 +7,7 @@ LLLM 経理（LLLM-Keiri）は以下のオープンソースソフトウェア�
 
 | Package | Version | License | Repository |
 | --- | --- | --- | --- |
+| **@litert-lm/core** | 0.18.0 | Apache-2.0 | https://github.com/google-ai-edge/LiteRT-LM |
 | **clsx** | 2.1.1 | MIT | https://github.com/lukeed/clsx |
 | **comlink** | 4.4.2 | Apache-2.0 | https://github.com/GoogleChromeLabs/comlink |
 | **dexie** | 4.4.6 | Apache-2.0 | https://github.com/dexie/Dexie.js |
@@ -23,6 +24,7 @@ LLLM 経理（LLLM-Keiri）は以下のオープンソースソフトウェア�
 | **wouter** | 3.13.0 | Unlicense | https://github.com/molefrog/wouter |
 | **zod** | 4.6.5 | MIT | https://github.com/colinhacks/zod |
 | **zustand** | 5.0.15 | MIT | https://github.com/pmndrs/zustand |
+| @litertjs/wasm-utils | 2.5.3 | Apache-2.0 | https://github.com/google-ai-edge/LiteRT |
 | @types/debug | 4.1.13 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped |
 | @types/estree | 1.0.9 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped |
 | @types/estree-jsx | 1.0.5 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped |

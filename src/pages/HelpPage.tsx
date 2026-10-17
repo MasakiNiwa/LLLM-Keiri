@@ -3,12 +3,19 @@ import {
   BookOpenText,
   ExternalLink,
   Info,
+  LifeBuoy,
+  MonitorCheck,
   Scale,
   Smartphone,
   Sparkles,
   ShieldCheck,
 } from 'lucide-react';
+import { useLocation } from 'wouter';
 import { PageBody, PageHeader } from '@/app/PageHeader';
+import { Button } from '@/components/ui/Button';
+import { useChat } from '@/features/chat/chatStore';
+import { ModelStatusChip } from '@/features/engine/ModelStatusChip';
+import { CapabilityCheck } from '@/features/help/CapabilityCheck';
 import { Card, Section } from '@/components/ui/Card';
 import { LicenseList } from '@/features/help/LicenseList';
 import {
@@ -39,6 +46,12 @@ function Body({ children }: { children: ReactNode }) {
 }
 
 export default function HelpPage() {
+  const [, navigate] = useLocation();
+  /** チャットを使い方モードで開く */
+  const askAi = () => {
+    useChat.getState().setHelpMode(true);
+    navigate('/chat');
+  };
   return (
     <>
       <PageHeader title="ヘルプ" />
@@ -54,6 +67,12 @@ export default function HelpPage() {
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
             <dt className="text-slate-500 dark:text-slate-400">バージョン</dt>
             <dd className="font-mono">v{__APP_VERSION__}</dd>
+            <dt className="text-slate-500 dark:text-slate-400">推論エンジン</dt>
+            <dd className="font-mono">LiteRT-LM {__LITERTLM_VERSION__}</dd>
+            <dt className="text-slate-500 dark:text-slate-400">AI モデル</dt>
+            <dd>
+              <ModelStatusChip className="max-w-56" />
+            </dd>
             <dt className="text-slate-500 dark:text-slate-400">ライセンス</dt>
             <dd>MIT License</dd>
             <dt className="text-slate-500 dark:text-slate-400">ソースコード</dt>
@@ -61,6 +80,15 @@ export default function HelpPage() {
               <ExtLink href={REPOSITORY_URL}>GitHub リポジトリ</ExtLink>
             </dd>
           </dl>
+          <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+            <Button size="sm" variant="secondary" onClick={askAi}>
+              <LifeBuoy />
+              AI に使い方を聞く
+            </Button>
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              このヘルプをもとに、AI が答えます（AI モデルが必要）
+            </span>
+          </div>
         </Card>
 
         <Section
@@ -130,6 +158,16 @@ export default function HelpPage() {
               ほかのサイトで保存済みのモデルは、そのまま使えます。
             </p>
           </Body>
+        </Section>
+
+        <Section
+          title="動作環境の確認"
+          description="この端末で AI が動くかを調べます"
+          icon={<MonitorCheck />}
+          collapsible
+          storageKey="help"
+        >
+          <CapabilityCheck />
         </Section>
 
         <Section title="スマホで使う" icon={<Smartphone />} collapsible storageKey="help">

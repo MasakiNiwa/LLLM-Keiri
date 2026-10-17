@@ -6,6 +6,7 @@ import { Chip } from '@/components/ui/Chip';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { ElementBadge } from '@/features/accounts/AccountSheet';
 import { useAccountSheet } from '@/features/accounts/accountSheetStore';
+import { useFocus } from '@/features/ai/useFocus';
 import { useContentIndex } from '@/features/content/contentStore';
 import { normalizeName } from '@/lib/content/accounts';
 import { ELEMENTS, ELEMENT_LABELS, type Account, type Element } from '@/lib/content/schema';
@@ -22,6 +23,8 @@ export default function AccountsPage() {
   const [query, setQuery] = useState('');
   const [element, setElement] = useState<Element | null>(null);
   const open = useAccountSheet((s) => s.open);
+  const opened = useAccountSheet((s) => s.name);
+  useFocus({ kind: 'accounts', account: opened ?? undefined });
 
   const groups = useMemo(() => {
     const list = (index?.accounts ?? []).filter(

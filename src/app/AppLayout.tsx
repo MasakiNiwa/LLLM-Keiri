@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { cn } from '@/lib/utils/cn';
 import { APP_TITLE } from '@/lib/constants';
+import { ModelStatusChip } from '@/features/engine/ModelStatusChip';
 import { BOTTOM_NAV_ITEMS, NAV_ITEMS, SUB_NAV_ITEMS, isActivePath, type NavItem } from './navItems';
 
 function Logo() {
@@ -59,7 +60,10 @@ function SideNav() {
           <SideLink key={item.to} item={item} location={location} />
         ))}
       </nav>
-      <div className="mt-auto px-3 pt-4 text-[0.7rem] text-slate-400">v{__APP_VERSION__}</div>
+      <div className="mt-auto space-y-2 pt-4">
+        <ModelStatusChip className="w-full justify-start" />
+        <div className="px-3 text-[0.7rem] text-slate-400">v{__APP_VERSION__}</div>
+      </div>
     </aside>
   );
 }

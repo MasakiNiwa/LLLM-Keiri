@@ -1,4 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useFocus } from '@/features/ai/useFocus';
+import { getPersona, reactionText } from '@/features/ai/personas';
+import { useSettings } from '@/features/settings/settingsStore';
+import { toast } from 'sonner';
+import { excerptForAi, sectionText } from '@/lib/content/sections';
 import { CheckCircle2, ChevronLeft, ChevronRight, CircleHelp, Clock, ListTree } from 'lucide-react';
 import { Link, useParams } from 'wouter';
 import { BackButton } from '@/app/BackButton';
@@ -75,6 +80,36 @@ function NeighborLink({ meta, dir }: { meta?: LessonMeta; dir: 'prev' | 'next' }
   );
 }
 
+/** 画面の上のほうに見えている見出し（読んでいる部分） */
+function useCurrentSection(meta: LessonMeta | undefined): string | null {
+  const [current, setCurrent] = useState<string | null>(null);
+  useEffect(() => {
+    const root = document.querySelector<HTMLElement>('[data-scroll-root]');
+    if (!meta || !root) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const limit = root.getBoundingClientRect().top + root.clientHeight * 0.35;
+      let found: string | null = null;
+      for (const h of meta.headings) {
+        const el = document.getElementById(h.id);
+        if (el && el.getBoundingClientRect().top <= limit) found = h.text;
+      }
+      setCurrent(found);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    root.addEventListener('scroll', onScroll, { passive: true });
+    raf = requestAnimationFrame(update);
+    return () => {
+      root.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [meta]);
+  return current;
+}
+
 export default function LessonPage() {
   const { id = '' } = useParams<{ id: string }>();
   const { index } = useContentIndex();
@@ -108,6 +143,25 @@ export default function LessonPage() {
   const siblings = index?.lessons.filter((l) => l.track === meta?.track) ?? [];
   const pos = siblings.findIndex((l) => l.id === id);
   const read = !!progress?.get(id)?.readAt;
+  const section = useCurrentSection(meta);
+
+  // いま読んでいる部分を AI に伝える（フロートの解説・チャットで使う）
+  useFocus(
+    meta && lesson
+      ? {
+          kind: 'lesson',
+          lessonId: meta.id,
+          title: meta.title,
+          track: track?.title ?? meta.track,
+          summary: meta.summary,
+          asOf: meta.asOf,
+          basis: meta.basis.map((b) => b.name),
+          headings: meta.headings.map((h) => h.text),
+          section: section ?? undefined,
+          excerpt: excerptForAi((section && sectionText(lesson.body, section)) || lesson.body),
+        }
+      : null,
+  );
 
   return (
     <>
@@ -172,7 +226,14 @@ export default function LessonPage() {
               <Button
                 variant={read ? 'secondary' : 'primary'}
                 size="lg"
-                onClick={() => void setLessonRead(id, !read)}
+                onClick={() => {
+                  void setLessonRead(id, !read);
+                  const s = useSettings.getState();
+                  if (!read && s.reaction !== 'off') {
+                    const p = getPersona(s.persona, s.customPersona);
+                    toast(`${p.emoji} ${reactionText(p, 'lessonRead')}`);
+                  }
+                }}
               >
                 <CheckCircle2 />
                 {read ? '読んだ（取り消す）' : '読んだ！'}

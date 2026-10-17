@@ -7,6 +7,7 @@ import { BottomSheet } from '@/components/ui/BottomSheet';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Tabs } from '@/components/ui/Tabs';
+import { useFocus } from '@/features/ai/useFocus';
 import { useContent, useContentIndex } from '@/features/content/contentStore';
 import { JournalForm } from '@/features/ledger/JournalForm';
 import { clearJournal, loadScenario, useJournal } from '@/features/ledger/journalRepo';
@@ -41,6 +42,17 @@ export default function LedgerPage() {
   );
   const tb = useMemo(() => trialBalance(ledger), [ledger]);
   const statements = useMemo(() => buildStatements(ledger), [ledger]);
+
+  // 帳簿の集計（プログラムが計算した数字）を AI に伝える
+  useFocus({
+    kind: 'ledger',
+    tab: TABS.find((t) => t.value === tab)?.label ?? tab,
+    entryCount: records?.length ?? 0,
+    balances: Object.fromEntries(ledger.map((l) => [l.account, l.balance])),
+    trialBalanced: tb.drTotal === tb.crTotal,
+    netIncome: statements.netIncome,
+    unsettled: statements.unsettled.map((u) => u.account),
+  });
 
   const load = async (s: Scenario) => {
     if (!book) return;

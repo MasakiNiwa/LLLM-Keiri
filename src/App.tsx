@@ -3,10 +3,11 @@ import { Toaster } from 'sonner';
 import { Route, Router, Switch } from 'wouter';
 import { useHashLocation } from 'wouter/use-hash-location';
 import { AppLayout } from '@/app/AppLayout';
+import { useStartup } from '@/app/useStartup';
 import { useTheme } from '@/app/useTheme';
 import HomePage from '@/pages/HomePage';
-import { ComingSoon } from '@/pages/ComingSoonPage';
 import { AccountSheet } from '@/features/accounts/AccountSheet';
+import { AiFab, AiPanel } from '@/features/ai/AiPanel';
 import { useSettings } from '@/features/settings/settingsStore';
 
 // ホーム以外のページは必要になってから読み込む
@@ -16,11 +17,14 @@ const AccountsPage = lazy(() => import('@/pages/AccountsPage'));
 const DrillListPage = lazy(() => import('@/pages/DrillListPage'));
 const DrillPage = lazy(() => import('@/pages/DrillPage'));
 const LedgerPage = lazy(() => import('@/pages/LedgerPage'));
+const ChatPage = lazy(() => import('@/pages/ChatPage'));
+const ModelsPage = lazy(() => import('@/pages/ModelsPage'));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
 const HelpPage = lazy(() => import('@/pages/HelpPage'));
 
 export default function App() {
   useTheme();
+  useStartup();
   const theme = useSettings((s) => s.theme);
   return (
     // GitHub Pages ではサーバー側のルーティングができないためハッシュルーティングを使う
@@ -34,12 +38,8 @@ export default function App() {
             <Route path="/drill" component={DrillListPage} />
             <Route path="/drill/:id" component={DrillPage} />
             <Route path="/ledger/:tab?" component={LedgerPage} />
-            <Route path="/chat">
-              <ComingSoon title="AI" phase="フェーズ 3" />
-            </Route>
-            <Route path="/models">
-              <ComingSoon title="AI モデル" phase="フェーズ 3" />
-            </Route>
+            <Route path="/chat" component={ChatPage} />
+            <Route path="/models" component={ModelsPage} />
             <Route path="/settings" component={SettingsPage} />
             <Route path="/help" component={HelpPage} />
             <Route component={HomePage} />
@@ -47,6 +47,8 @@ export default function App() {
         </Suspense>
       </AppLayout>
       <AccountSheet />
+      <AiFab />
+      <AiPanel />
       <Toaster
         theme={theme}
         position="top-center"

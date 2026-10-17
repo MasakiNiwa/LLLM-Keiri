@@ -3,6 +3,7 @@ import { Link } from 'wouter';
 import { PageBody, PageHeader } from '@/app/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { Progress } from '@/components/ui/Progress';
+import { useFocus } from '@/features/ai/useFocus';
 import { useContentIndex } from '@/features/content/contentStore';
 import { useDrillStats } from '@/features/drill/records';
 import { LevelBadge } from '@/features/learn/MetaBadges';
@@ -11,6 +12,7 @@ import { TrackIcon } from '@/features/learn/trackIcons';
 export default function DrillListPage() {
   const { index, error } = useContentIndex();
   const stats = useDrillStats();
+  useFocus({ kind: 'other', page: '仕訳問題の一覧' });
   return (
     <>
       <PageHeader title="練習" />
