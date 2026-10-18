@@ -253,8 +253,8 @@
   kana: あーるおーいー
   aliases: [自己資本利益率]
   description: 当期純利益 ÷ 自己資本。株主の出したお金に対して、どれだけ利益を上げたかを表す。
-  lessons: [analysis-ratios]
-  related: [自己資本比率]
+  lessons: [analysis-ratios, finance-roe-dupont]
+  related: [自己資本比率, デュポン分解]
 - term: 流動比率
   kana: りゅうどうひりつ
   description: 流動資産 ÷ 流動負債。1 年以内に払う負債に対して、1 年以内にお金になる資産がどれだけあるか。
@@ -299,10 +299,9 @@
   related: [原価差異]
 - term: 限界利益
   kana: げんかいりえき
-  aliases: [貢献利益]
   description: 売上高から変動費を引いた利益。固定費をまかない、残りが営業利益になる。
-  lessons: [cost-cvp]
-  related: [損益分岐点]
+  lessons: [cost-cvp, finance-segment-pl]
+  related: [損益分岐点, 貢献利益]
 - term: 損益分岐点
   kana: そんえきぶんきてん
   aliases: [損益分岐点売上高]
@@ -470,3 +469,37 @@
   description: 仕入れの支払いから売上の回収まで、お金が寝ている日数。売上債権回転日数 ＋ 棚卸資産回転日数 − 仕入債務回転日数。
   lessons: [finance-working-capital]
   related: [運転資金]
+- term: 予実差異
+  kana: よじつさい
+  aliases: [予算実績差異, 予実分析]
+  description: 実績と予算の差。売上高・利益は実績が上回れば有利差異、費用は上回れば不利差異。売上高は価格差異と数量差異に分けて原因を探る。
+  lessons: [finance-budget-variance]
+  related: [着地見込み]
+- term: 着地見込み
+  kana: ちゃくちみこみ
+  aliases: [着地予想, フォーキャスト]
+  description: 期首からの実績に残りの月の見込みを足した、年度末の見込みの数字。予算との差を早めにつかみ、手を打つために使う。
+  lessons: [finance-budget-variance]
+  related: [予実差異]
+- term: デュポン分解
+  kana: でゅぽんぶんかい
+  aliases: [デュポン・システム]
+  description: ROE を、売上高純利益率 × 総資産回転率 × 財務レバレッジ に分けて、どの要素が ROE を動かしているかを見る方法。
+  lessons: [finance-roe-dupont]
+  related: [ROE]
+- term: フリー・キャッシュ・フロー
+  kana: ふりーきゃっしゅふろー
+  aliases: [FCF]
+  description: 営業キャッシュ・フローから事業を続けるための投資を引いた、自由に使えるお金。簡便には営業 CF ＋ 投資 CF。
+  lessons: [finance-free-cash-flow]
+  related: [キャッシュ・フロー計算書]
+- term: EBITDA
+  kana: いーびっとだー
+  description: 営業利益に減価償却費を足した、本業の稼ぐ力の目安（簡便な計算）。有利子負債 ÷ EBITDA で返済能力を見ることもある。
+  lessons: [finance-free-cash-flow]
+  related: [フリー・キャッシュ・フロー]
+- term: 貢献利益
+  kana: こうけんりえき
+  description: 限界利益から、その部門・製品だけにかかる固定費を引いた利益。部門をやめるかどうかの判断や、部門長の評価に使う。
+  lessons: [finance-segment-pl]
+  related: [限界利益]

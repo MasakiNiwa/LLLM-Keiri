@@ -10,6 +10,7 @@ import { ImpairmentWidget, LeaseWidget, PointsWidget } from './StandardsWidgets'
 import { DeficiencyWidget } from './JsoxWidgets';
 import { Beppyo4Widget } from './TaxWidgets';
 import { MonthlyPayrollWidget, YearEndWidget } from './PayrollWidgets';
+import { DupontWidget, SalesVarianceWidget } from './ManagementWidgets';
 import { CashPlanWidget, WorkingCapitalWidget } from './CashWidgets';
 import { CvpWidget, OverheadWidget, ProcessCostingWidget, StandardCostWidget } from './CostWidgets';
 import {
@@ -335,6 +336,8 @@ const TITLES: Record<Widget['type'], string> = {
   'year-end': '年末調整を計算してみる',
   'working-capital': '運転資金と CCC を計算してみる',
   'cash-plan': '資金繰り表を作ってみる',
+  'sales-variance': '売上の予実差異を分けてみる',
+  dupont: 'ROE を分解してみる',
 };
 
 /** レッスンの中の計算の部品（` ```widget `）。仕訳はプログラムが作る */
@@ -375,6 +378,8 @@ export function WidgetBlock({ json }: { json: string }) {
       {w.type === 'year-end' && <YearEndWidget w={w} />}
       {w.type === 'working-capital' && <WorkingCapitalWidget w={w} />}
       {w.type === 'cash-plan' && <CashPlanWidget w={w} />}
+      {w.type === 'sales-variance' && <SalesVarianceWidget w={w} />}
+      {w.type === 'dupont' && <DupontWidget w={w} />}
     </section>
   );
 }

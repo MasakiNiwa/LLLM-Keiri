@@ -329,6 +329,20 @@ export const WidgetSchema = z.discriminatedUnion('type', [
     minimumCash: yenAmount.default(1000000),
   }),
   z.object({
+    type: z.literal('sales-variance'),
+    budgetPrice: yenAmount.default(1000),
+    budgetQuantity: z.number().min(0).default(10000),
+    actualPrice: yenAmount.default(950),
+    actualQuantity: z.number().min(0).default(11000),
+  }),
+  z.object({
+    type: z.literal('dupont'),
+    netIncome: z.number().int().default(40000000),
+    sales: yenAmount.default(800000000),
+    totalAssets: yenAmount.default(1000000000),
+    equity: yenAmount.default(400000000),
+  }),
+  z.object({
     type: z.literal('tax-settlement'),
     received: yenAmount.default(150000),
     paid: yenAmount.default(105000),

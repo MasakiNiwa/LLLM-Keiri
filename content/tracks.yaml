@@ -33,7 +33,7 @@
   icon: shield-check
 - id: finance
   title: 資金繰り・経営への報告
-  description: 利益とお金の違い、資金繰り表、運転資金と CCC、資金調達、予実分析と経営陣への報告
+  description: 利益とお金の違い、資金繰り表、運転資金と CCC、資金調達、予実分析・ROE・FCF・部門別損益と経営陣への報告
   icon: wallet
 - id: analysis
   title: 財務諸表の読み方
