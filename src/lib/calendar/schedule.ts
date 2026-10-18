@@ -1,8 +1,9 @@
 /**
  * 経理の年間スケジュール（主な期限をプログラムが計算する）。
- * 期限が土曜・日曜にあたるときは、翌月曜日にずらす（国税・地方税・社会保険の期限は、休日なら翌日）。
- * 祝日・年末年始は考えていないので、実際の期限は必ず確かめる。
+ * 期限が土曜・日曜・祝日・年末年始（12 月 29 日〜1 月 3 日）にあたるときは、次の平日にずらす
+ * （国税・地方税・社会保険の期限は、休日なら翌日）。祝日は holiday-jp/holiday_jp のデータを使う。
  */
+import type { HolidayLookup } from './holidays.ts';
 
 export type ScheduleCategory = 'closing' | 'tax' | 'payroll' | 'social' | 'monthly';
 
@@ -26,6 +27,8 @@ export interface ScheduleItem {
   lesson?: string;
   /** 期間で行うものの開始日 */
   from?: string;
+  /** 期限をずらした理由（土日・祝日の名前・年末年始） */
+  shiftedBecause?: string;
 }
 
 export interface ScheduleOptions {
@@ -37,6 +40,8 @@ export interface ScheduleOptions {
   months?: number;
   /** 源泉所得税の納期の特例を受けている（給与の支払いを受ける人が常時 10 人未満） */
   specialWithholding?: boolean;
+  /** 祝日（無ければ土日だけで判断する） */
+  holidays?: HolidayLookup;
 }
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -44,35 +49,50 @@ const ymd = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.ge
 /** 月末の日 */
 const endOfMonth = (y: number, m: number) => new Date(y, m, 0);
 
-/** 土日なら翌月曜にする */
-export function nextBusinessDay(d: Date): Date {
+/** 休みの日なら、その理由（平日なら null） */
+export function closedReason(d: Date, holidays?: HolidayLookup): string | null {
+  const name = holidays?.nameOf(ymd(d));
+  if (name) return name;
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  if ((m === 12 && day >= 29) || (m === 1 && day <= 3)) return '年末年始';
+  if (d.getDay() === 0) return '日曜日';
+  if (d.getDay() === 6) return '土曜日';
+  return null;
+}
+
+/** 休みの日なら、次の平日にする */
+export function nextBusinessDay(d: Date, holidays?: HolidayLookup): Date {
   const r = new Date(d);
-  while (r.getDay() === 0 || r.getDay() === 6) r.setDate(r.getDate() + 1);
+  while (closedReason(r, holidays)) r.setDate(r.getDate() + 1);
   return r;
 }
 
-function item(
-  due: Date,
-  title: string,
-  category: ScheduleCategory,
-  description: string,
-  lesson?: string,
-  from?: Date,
-): ScheduleItem {
-  return {
-    date: ymd(nextBusinessDay(due)),
+/** 期限の項目を作る関数（休日なら次の平日にずらす） */
+const itemMaker =
+  (holidays?: HolidayLookup) =>
+  (
+    due: Date,
+    title: string,
+    category: ScheduleCategory,
+    description: string,
+    lesson?: string,
+    from?: Date,
+  ): ScheduleItem => ({
+    date: ymd(nextBusinessDay(due, holidays)),
     dueDate: ymd(due),
+    shiftedBecause: closedReason(due, holidays) ?? undefined,
     title,
     category,
     description,
     lesson,
     from: from ? ymd(from) : undefined,
-  };
-}
+  });
 
 /** 期間の主な期限を、日付の順に返す */
 export function buildSchedule(opts: ScheduleOptions): ScheduleItem[] {
   const months = opts.months ?? 12;
+  const item = itemMaker(opts.holidays);
   const [sy, sm] = opts.start.split('-').map(Number);
   const items: ScheduleItem[] = [];
   for (let i = 0; i < months; i++) {

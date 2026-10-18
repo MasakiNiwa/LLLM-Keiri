@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { buildSchedule, nextBusinessDay } from './schedule';
+import data from '../../data/holidays.json';
+import { createHolidayLookup, parseHolidaysYml, type HolidayData } from './holidays';
+import { buildSchedule, closedReason, nextBusinessDay } from './schedule';
+
+const holidays = createHolidayLookup(data as HolidayData);
 
 describe('経理の年間スケジュール', () => {
   const items = buildSchedule({ closingMonth: 3, start: '2026-04' });
@@ -38,5 +42,29 @@ describe('経理の年間スケジュール', () => {
     expect(items.filter((i) => i.dueDate === '2027-01-31').map((i) => i.title)).toEqual(
       expect.arrayContaining(['償却資産の申告', '給与支払報告書の提出']),
     );
+  });
+});
+
+describe('祝日', () => {
+  it('holidays.yml を読む', () => {
+    expect(parseHolidaysYml('---\n2026-01-01: 元日\n# x\n2026-01-12: 成人の日\n')).toEqual({
+      '2026-01-01': '元日',
+      '2026-01-12': '成人の日',
+    });
+  });
+  it('同梱のデータ', () => {
+    expect(holidays.nameOf('2026-10-12')).toBe('スポーツの日');
+    expect(holidays.isOutOfRange('2060-01-01')).toBe(true);
+  });
+  it('祝日・年末年始は次の平日にずらす', () => {
+    // 2026-10-12（月）はスポーツの日 → 10-13
+    expect(nextBusinessDay(new Date(2026, 9, 10), holidays).getDate()).toBe(13);
+    expect(closedReason(new Date(2026, 11, 30), holidays)).toBe('年末年始');
+    const s = buildSchedule({ closingMonth: 3, start: '2026-10', months: 1, holidays });
+    expect(s.find((i) => i.title.startsWith('源泉所得税'))).toMatchObject({
+      dueDate: '2026-10-10',
+      date: '2026-10-13',
+      shiftedBecause: '土曜日',
+    });
   });
 });

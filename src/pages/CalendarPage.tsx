@@ -16,6 +16,10 @@ import {
   type ScheduleItem,
 } from '@/lib/calendar/schedule';
 import { cn } from '@/lib/utils/cn';
+import holidayData from '@/data/holidays.json';
+import { createHolidayLookup, type HolidayData } from '@/lib/calendar/holidays';
+
+const holidays = createHolidayLookup(holidayData as HolidayData);
 
 const WEEK = ['日', '月', '火', '水', '木', '金', '土'];
 const CATEGORY_STYLE: Record<ScheduleCategory, string> = {
@@ -57,7 +61,8 @@ function ItemRow({ item, past }: { item: ScheduleItem; past: boolean }) {
         <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
           {item.description}
           {item.from && `（${label(item.from)} から）`}
-          {item.date !== item.dueDate && `（期限の ${label(item.dueDate)} が土日のため、翌月曜）`}
+          {item.date !== item.dueDate &&
+            `（期限の ${label(item.dueDate)} が休み（${item.shiftedBecause}）のため、次の平日）`}
         </p>
         {lesson && (
           <Link
@@ -73,6 +78,23 @@ function ItemRow({ item, past }: { item: ScheduleItem; past: boolean }) {
   );
 }
 
+/** その月の祝日 */
+function MonthHolidays({ ym }: { ym: string }) {
+  const [y, m] = ym.split('-').map(Number);
+  const days: string[] = [];
+  for (let d = 1; d <= new Date(y, m, 0).getDate(); d++) {
+    const ds = `${ym}-${String(d).padStart(2, '0')}`;
+    const name = holidays.nameOf(ds);
+    if (name) days.push(`${d} 日 ${name}`);
+  }
+  if (!days.length) return null;
+  return (
+    <span className="mt-0.5 block text-xs font-normal text-rose-600 dark:text-rose-400">
+      祝日: {days.join('、')}
+    </span>
+  );
+}
+
 export default function CalendarPage() {
   const closingMonth = useSettings((s) => s.closingMonth);
   const special = useSettings((s) => s.specialWithholding);
@@ -81,7 +103,7 @@ export default function CalendarPage() {
   const today = todayStr();
   const start = today.slice(0, 7);
   const items = useMemo(
-    () => buildSchedule({ closingMonth, start, months: 12, specialWithholding: special }),
+    () => buildSchedule({ closingMonth, start, months: 12, specialWithholding: special, holidays }),
     [closingMonth, start, special],
   );
   const shown = items.filter((i) => !hidden.has(i.category));
@@ -167,6 +189,7 @@ export default function CalendarPage() {
           <Card key={ym} className="overflow-hidden">
             <h2 className="bg-slate-50 px-4 py-2 font-semibold dark:bg-slate-800/50">
               {Number(ym.slice(0, 4))} 年 {Number(ym.slice(5))} 月
+              <MonthHolidays ym={ym} />
             </h2>
             <ul className="divide-y divide-slate-100 dark:divide-slate-800">
               {list.map((i) => (
@@ -176,7 +199,10 @@ export default function CalendarPage() {
           </Card>
         ))}
         <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-          主な期限の目安です。土日にあたる期限は翌月曜日にずらしていますが、祝日・年末年始は考えていません。会社の規模・届出・自治体によって違うものもあるので、実際の期限は税務署・年金事務所・市区町村などの案内で必ず確かめてください。
+          主な期限の目安です。土日・祝日・年末年始（12 月 29 日〜1 月 3
+          日）にあたる期限は、次の平日にずらしています（祝日は holiday-jp/holiday_jp のデータ。
+          {holidays.meta.range.to.slice(0, 4)}
+          年まで）。会社の規模・届出・自治体によって違うものもあるので、実際の期限は税務署・年金事務所・市区町村などの案内で必ず確かめてください。
         </p>
       </PageBody>
     </>
