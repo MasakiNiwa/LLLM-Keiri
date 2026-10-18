@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Building2, FileSpreadsheet, Landmark, Wrench } from 'lucide-react';
+import { Banknote, Building2, FileSpreadsheet, Landmark, Wrench } from 'lucide-react';
+import { CashFlowView } from '@/features/cashflow/CashFlowView';
+import { consolidatedCashFlow } from '@/lib/consolidation/cashflow';
 import { Link, useLocation, useParams } from 'wouter';
 import { BackButton } from '@/app/BackButton';
 import { PageBody, PageHeader } from '@/app/PageHeader';
@@ -24,12 +26,13 @@ import { loadConsolidation } from '@/features/studio/userContentRepo';
 import type { ConsolidationCase } from '@/lib/content/schema';
 import { errorMessage } from '@/lib/utils/format';
 
-type Tab = 'entities' | 'eliminations' | 'worksheet' | 'statements';
+type Tab = 'entities' | 'eliminations' | 'worksheet' | 'statements' | 'cashflow';
 const TABS: { value: Tab; label: string; icon: React.ReactNode }[] = [
   { value: 'entities', label: '各社', icon: <Building2 /> },
   { value: 'eliminations', label: '修正仕訳', icon: <Wrench /> },
   { value: 'worksheet', label: '精算表', icon: <FileSpreadsheet /> },
   { value: 'statements', label: '連結財務諸表', icon: <Landmark /> },
+  { value: 'cashflow', label: 'CF', icon: <Banknote /> },
 ];
 
 export default function ConsolidationPage() {
@@ -71,6 +74,12 @@ export default function ConsolidationPage() {
     () => (c && book ? consolidate(c, book, enabled) : null),
     [c, book, enabled],
   );
+  const cashFlow = useMemo(
+    () => (c && book && result ? consolidatedCashFlow(c, book, result) : null),
+    [c, book, result],
+  );
+  // キャッシュ・フローのタブは、期首の連結貸借対照表がある事例だけ
+  const tabs = TABS.filter((t) => t.value !== 'cashflow' || c?.opening);
   const openAccount = (account: string) => drill.open({ kind: 'account', account });
 
   // 連結の数字（プログラムが計算したもの）と、ドリルダウンで見ている内訳を AI に伝える
@@ -142,7 +151,7 @@ export default function ConsolidationPage() {
             )}
             <Tabs
               value={tab}
-              items={TABS}
+              items={tabs}
               onChange={(t) => navigate(`/consolidation/${id}/${t}`, { replace: true })}
             />
             {tab === 'entities' && <EntitiesView result={result} onAccount={openAccount} />}
@@ -157,6 +166,14 @@ export default function ConsolidationPage() {
               />
             )}
             {tab === 'worksheet' && <WorksheetView c={c} result={result} onAccount={openAccount} />}
+            {tab === 'cashflow' && cashFlow && (
+              <CashFlowView
+                cf={cashFlow}
+                unit={c.unit}
+                onAccount={openAccount}
+                note={`期首の連結貸借対照表: ${c.opening?.note ?? ''}。修正仕訳の反映を外すと、キャッシュ・フロー計算書も変わります（現金の増減と合わなくなる修正もあります）。`}
+              />
+            )}
             {tab === 'statements' && (
               <ConsolidatedStatementsView c={c} result={result} onAccount={openAccount} />
             )}

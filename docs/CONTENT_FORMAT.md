@@ -146,6 +146,7 @@ explanation: 解説
 - 親会社（role: parent）は 1 社で、通貨は JPY。子会社には ownership（持分 %）を書く
 - 海外の子会社は currency: "USD"、unit: "千ドル"、rates: { "CR": 決算日レート, "AR": 期中平均レート, "HR": 取得時レート } を書き、試算表はドルで書く（アプリが円に換算し、差額を為替換算調整勘定にする）
 - category は capital（投資と資本の相殺消去）・goodwill（のれんの償却）・nci（非支配株主への配分）・intercompany（内部取引）・balances（債権債務）・unrealized（未実現利益）・dividend（配当金）・translation（換算差額の配分）・other のどれか
+- opening（任意）: { "note": "説明", "balanceSheet": "前期末の連結貸借対照表（仕訳の書き方）" } を書くと、アプリが連結キャッシュ・フロー計算書を作る（利益剰余金は前期までの利益を含めた残高）
 - eliminations の shiwake は 1 つの仕訳で、貸借を一致させる。連結の金額は、各社の試算表の合計に修正仕訳を加えてアプリが計算する
 
 ## 守ること

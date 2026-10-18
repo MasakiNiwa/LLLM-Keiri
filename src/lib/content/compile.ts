@@ -240,6 +240,15 @@ export function compileConsolidation(
         checker.errors.push(`${w}: historical の科目「${name}」がありません`);
     }
   }
+  if (c.opening) {
+    const w = `${where}（期首の連結貸借対照表）`;
+    const entries = checker.checkShiwake(c.opening.balanceSheet, w);
+    for (const l of entries.flatMap((e) => e.lines)) {
+      const el = checker.book.find(l.account)?.element;
+      if (el === 'revenue' || el === 'expense')
+        checker.errors.push(`${w}: 「${l.account}」は貸借対照表の科目ではありません`);
+    }
+  }
   const elimIds = new Set<string>();
   for (const el of c.eliminations) {
     const w = `${where}（修正仕訳 ${el.id}）`;

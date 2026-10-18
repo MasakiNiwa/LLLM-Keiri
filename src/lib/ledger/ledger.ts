@@ -184,3 +184,20 @@ export function normalSide(a: Pick<Account, 'element' | 'contra'>): Side {
   const dr = a.element === 'asset' || a.element === 'expense' || a.element === 'other';
   return dr !== a.contra ? 'dr' : 'cr';
 }
+
+/**
+ * 期末の貸借対照表の残高（借方が正）。当期純利益は繰越利益剰余金に加える（締めたあとの形）。
+ * 収益・費用・その他の科目は含めない。キャッシュ・フロー計算書を作るのに使う。
+ */
+export function closingBalanceSheet(
+  ledger: AccountLedger[],
+  netIncome: number,
+): Map<string, number> {
+  const m = new Map<string, number>();
+  for (const l of ledger) {
+    if (l.element === 'revenue' || l.element === 'expense' || l.element === 'other') continue;
+    m.set(l.account, l.balance);
+  }
+  m.set('繰越利益剰余金', (m.get('繰越利益剰余金') ?? 0) - netIncome);
+  return m;
+}

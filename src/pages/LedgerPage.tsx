@@ -1,5 +1,15 @@
 import { useMemo, useState } from 'react';
-import { BookCopy, FileSpreadsheet, Landmark, NotebookPen, Sparkle, Trash2 } from 'lucide-react';
+import {
+  Banknote,
+  BookCopy,
+  FileSpreadsheet,
+  Landmark,
+  NotebookPen,
+  Sparkle,
+  Trash2,
+} from 'lucide-react';
+import { CashFlowView } from '@/features/cashflow/CashFlowView';
+import { buildIndirectCashFlow } from '@/lib/cashflow/indirect';
 import { toast } from 'sonner';
 import { useLocation, useParams } from 'wouter';
 import { PageBody, PageHeader } from '@/app/PageHeader';
@@ -16,15 +26,21 @@ import { clearJournal, loadScenario, useJournal } from '@/features/ledger/journa
 import { JournalList, LedgerView, StatementsView, TrialBalanceView } from '@/features/ledger/views';
 import { LevelBadge } from '@/features/learn/MetaBadges';
 import type { Scenario } from '@/lib/content/schema';
-import { buildLedger, buildStatements, trialBalance } from '@/lib/ledger/ledger';
+import {
+  buildLedger,
+  buildStatements,
+  closingBalanceSheet,
+  trialBalance,
+} from '@/lib/ledger/ledger';
 import { errorMessage } from '@/lib/utils/format';
 
-type Tab = 'journal' | 'ledger' | 'trial' | 'statements';
+type Tab = 'journal' | 'ledger' | 'trial' | 'statements' | 'cashflow';
 const TABS: { value: Tab; label: string; icon: React.ReactNode }[] = [
   { value: 'journal', label: '仕訳帳', icon: <NotebookPen /> },
   { value: 'ledger', label: '元帳', icon: <BookCopy /> },
   { value: 'trial', label: '試算表', icon: <FileSpreadsheet /> },
   { value: 'statements', label: '決算書', icon: <Landmark /> },
+  { value: 'cashflow', label: 'CF', icon: <Banknote /> },
 ];
 
 export default function LedgerPage() {
@@ -46,6 +62,19 @@ export default function LedgerPage() {
   );
   const tb = useMemo(() => trialBalance(ledger), [ledger]);
   const statements = useMemo(() => buildStatements(ledger), [ledger]);
+  // 帳簿は会社をつくったところから始まるので、期首の貸借対照表は空とする
+  const cashFlow = useMemo(
+    () =>
+      book
+        ? buildIndirectCashFlow({
+            opening: new Map(),
+            closing: closingBalanceSheet(ledger, statements.netIncome),
+            netIncome: statements.netIncome,
+            book,
+          })
+        : null,
+    [ledger, statements, book],
+  );
 
   // 帳簿の集計（プログラムが計算した数字）を AI に伝える
   useFocus({
@@ -118,6 +147,16 @@ export default function LedgerPage() {
         )}
         {tab === 'trial' && <TrialBalanceView tb={tb} onAccount={openAccount} />}
         {tab === 'statements' && <StatementsView s={statements} onAccount={openAccount} />}
+        {tab === 'cashflow' &&
+          (cashFlow && ledger.length > 0 ? (
+            <CashFlowView
+              cf={cashFlow}
+              onAccount={openAccount}
+              note="帳簿は何もないところから始まるとして、期首の残高を 0 にしています。"
+            />
+          ) : (
+            <p className="text-sm text-slate-500">仕訳を入力すると、ここに表示されます。</p>
+          ))}
       </PageBody>
 
       <LedgerDrill
