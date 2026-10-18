@@ -19,6 +19,8 @@ import { PageBody, PageHeader } from '@/app/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
+import { cn } from '@/lib/utils/cn';
+import { SearchInput } from '@/components/ui/SearchInput';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Select } from '@/components/ui/Select';
 import { Tabs } from '@/components/ui/Tabs';
@@ -34,6 +36,7 @@ import {
   saveUserContent,
   userContentHref,
   useUserContent,
+  filterUserContent,
 } from '@/features/studio/userContentRepo';
 import type { ContentIndex } from '@/lib/content/schema';
 import type { UserContent } from '@/lib/db/db';
@@ -348,10 +351,12 @@ function ImportTab({ index, onDone }: { index: ContentIndex; onDone: () => void 
 // ---------------- マイ教材 ----------------
 
 function MineTab() {
-  const items = useUserContent();
+  const all = useUserContent();
   const [deleting, setDeleting] = useState<UserContent | null>(null);
-  if (!items) return null;
-  if (items.length === 0) {
+  const [query, setQuery] = useState('');
+  if (!all) return null;
+  const items = filterUserContent(all, query);
+  if (all.length === 0) {
     return (
       <Card className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
         まだマイ教材はありません。「作る」でプロンプトを作り、外部の AI
@@ -364,7 +369,22 @@ function MineTab() {
       <p className="text-sm text-slate-600 dark:text-slate-400">
         取り込んだ教材は、この端末のブラウザに保存されます。「学ぶ」「練習」の一覧にも「マイ教材」として表示されます。
       </p>
-      <Card className="divide-y divide-slate-100 overflow-hidden dark:divide-slate-800">
+      {all.length > 1 && (
+        <SearchInput
+          value={query}
+          onChange={setQuery}
+          placeholder="マイ教材を検索（タイトル・本文・問題文）"
+        />
+      )}
+      {items.length === 0 && (
+        <p className="text-sm text-slate-500">「{query}」を含むマイ教材はありません。</p>
+      )}
+      <Card
+        className={cn(
+          'divide-y divide-slate-100 overflow-hidden dark:divide-slate-800',
+          items.length === 0 && 'hidden',
+        )}
+      >
         {items.map((c) => (
           <div key={c.id} className="flex items-center gap-3 px-4 py-3">
             {c.kind === 'lesson' ? (
