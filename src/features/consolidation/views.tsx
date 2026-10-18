@@ -1,11 +1,20 @@
 import { useState } from 'react';
-import { ChevronDown, PenLine } from 'lucide-react';
+import { CheckCircle2, ChevronDown, PenLine, RotateCcw, XCircle } from 'lucide-react';
+import { Progress } from '@/components/ui/Progress';
 import { Badge } from './Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Switch } from '@/components/ui/Switch';
 import { JournalTable } from '@/features/journal/JournalTable';
-import { ShiwakeExercise } from '@/features/journal/ShiwakeExercise';
+import { ShiwakeExercise, type ExerciseOutcome } from '@/features/journal/ShiwakeExercise';
+
+export type PracticeResult = 'ok' | 'ng';
+
+/** 練習モードの状態（タブを移っても残るよう、ページが持つ） */
+export interface PracticeState {
+  round: number;
+  results: Record<string, PracticeResult>;
+}
 import { StatementSide } from '@/features/ledger/views';
 import {
   NCI_PROFIT_ACCOUNT,
@@ -135,13 +144,21 @@ function EliminationCard({
   enabled,
   onToggle,
   onAccount,
+  practice,
+  result,
+  onJudged,
 }: {
   el: Elimination;
   enabled: boolean;
   onToggle: (on: boolean) => void;
   onAccount: (a: string) => void;
+  /** 練習モード（答えを隠して解く。反映の切り替えは出さない） */
+  practice?: boolean;
+  result?: PracticeResult;
+  onJudged?: (outcome: ExerciseOutcome) => void;
 }) {
-  const [mode, setMode] = useState<'show' | 'solve'>('show');
+  const [modeState, setMode] = useState<'show' | 'solve'>('show');
+  const mode = practice ? 'solve' : modeState;
   const [open, setOpen] = useState(false);
   const entry = parseShiwake(el.shiwake).entries[0];
   return (
@@ -151,10 +168,34 @@ function EliminationCard({
           <Badge>{ELIMINATION_CATEGORIES[el.category]}</Badge>
           <h3 className="mt-1 font-semibold">{el.title}</h3>
         </div>
-        <label className="flex shrink-0 items-center gap-2 text-xs text-slate-500">
-          反映
-          <Switch checked={enabled} onChange={onToggle} label={`「${el.title}」を連結に反映する`} />
-        </label>
+        {practice ? (
+          result && (
+            <span
+              className={cn(
+                'inline-flex shrink-0 items-center gap-1 text-xs font-medium',
+                result === 'ok'
+                  ? 'text-emerald-700 dark:text-emerald-300'
+                  : 'text-rose-700 dark:text-rose-300',
+              )}
+            >
+              {result === 'ok' ? (
+                <CheckCircle2 className="size-4" />
+              ) : (
+                <XCircle className="size-4" />
+              )}
+              {result === 'ok' ? '一発正解' : 'やり直し'}
+            </span>
+          )
+        ) : (
+          <label className="flex shrink-0 items-center gap-2 text-xs text-slate-500">
+            反映
+            <Switch
+              checked={enabled}
+              onChange={onToggle}
+              label={`「${el.title}」を連結に反映する`}
+            />
+          </label>
+        )}
       </div>
       <div className="space-y-3 px-4 pb-4">
         <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">{el.question}</p>
@@ -183,10 +224,13 @@ function EliminationCard({
             <ShiwakeExercise
               question={{ question: el.question, answer: el.shiwake, explanation: el.explanation }}
               seed={el.id}
+              onJudged={onJudged}
             />
-            <Button size="sm" variant="ghost" onClick={() => setMode('show')}>
-              答えの表示に戻る
-            </Button>
+            {!practice && (
+              <Button size="sm" variant="ghost" onClick={() => setMode('show')}>
+                答えの表示に戻る
+              </Button>
+            )}
           </>
         )}
       </div>
@@ -199,28 +243,83 @@ export function EliminationsView({
   enabled,
   setEnabled,
   onAccount,
+  practice,
+  setPractice,
 }: {
   c: ConsolidationCase;
   enabled: Set<string>;
   setEnabled: (s: Set<string>) => void;
   onAccount: (a: string) => void;
+  practice: PracticeState | null;
+  setPractice: (p: PracticeState | null) => void;
 }) {
+  // 練習モード: 修正仕訳を全部自分で入れる。正解した修正から連結に反映していく
+  const all = () => new Set(c.eliminations.map((e) => e.id));
+  const start = () => {
+    setPractice({ round: (practice?.round ?? 0) + 1, results: {} });
+    setEnabled(new Set());
+  };
+  const stop = () => {
+    setPractice(null);
+    setEnabled(all());
+  };
+  const judged = (id: string, o: ExerciseOutcome) => {
+    if (!practice) return;
+    const prev = practice.results[id];
+    // 最初の答え合わせで、答えを見ずに正解したかを記録する（あとで正解しても「やり直し」のまま）
+    const first: PracticeResult = prev ?? (o.result.correct && !o.revealed ? 'ok' : 'ng');
+    setPractice({ ...practice, results: { ...practice.results, [id]: first } });
+    if (o.result.correct) setEnabled(new Set([...enabled, id]));
+  };
+  const done = practice ? c.eliminations.filter((e) => enabled.has(e.id)).length : 0;
+  const firstOk = practice ? Object.values(practice.results).filter((r) => r === 'ok').length : 0;
+  const total = c.eliminations.length;
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <p className="min-w-0 flex-1 text-sm text-slate-600 dark:text-slate-400">
-          「反映」を切り替えると、精算表と連結財務諸表がその場で変わります。外すと何が変わるか、見比べてみましょう。
-        </p>
-        <Button size="sm" onClick={() => setEnabled(new Set(c.eliminations.map((e) => e.id)))}>
-          すべて反映
-        </Button>
-        <Button size="sm" variant="ghost" onClick={() => setEnabled(new Set())}>
-          すべて外す
-        </Button>
-      </div>
+      {practice ? (
+        <Card className="space-y-2 border-accent-300 p-4 dark:border-accent-700">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="min-w-0 flex-1 font-semibold">
+              練習モード: 正解 {done} / {total}
+              <span className="ml-2 text-sm font-normal text-slate-500">
+                （一発正解 {firstOk}）
+              </span>
+            </p>
+            <Button size="sm" onClick={start}>
+              <RotateCcw />
+              やり直す
+            </Button>
+            <Button size="sm" variant="ghost" onClick={stop}>
+              練習をやめる
+            </Button>
+          </div>
+          <Progress value={done / total} className="h-1.5" />
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            {done === total
+              ? '🎉 すべての修正仕訳を入れました。精算表と連結財務諸表を見て、できあがりを確かめましょう。'
+              : '問題文の数字から連結修正仕訳を入れてください。正解した修正から、精算表と連結財務諸表に反映されます。'}
+          </p>
+        </Card>
+      ) : (
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="min-w-0 flex-1 text-sm text-slate-600 dark:text-slate-400">
+            「反映」を切り替えると、精算表と連結財務諸表がその場で変わります。外すと何が変わるか、見比べてみましょう。
+          </p>
+          <Button size="sm" variant="primary" onClick={start}>
+            <PenLine />
+            全部自分で解く
+          </Button>
+          <Button size="sm" onClick={() => setEnabled(all())}>
+            すべて反映
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setEnabled(new Set())}>
+            すべて外す
+          </Button>
+        </div>
+      )}
       {c.eliminations.map((el) => (
         <EliminationCard
-          key={el.id}
+          key={`${el.id}:${practice?.round ?? 0}`}
           el={el}
           enabled={enabled.has(el.id)}
           onToggle={(on) => {
@@ -230,6 +329,9 @@ export function EliminationsView({
             setEnabled(next);
           }}
           onAccount={onAccount}
+          practice={!!practice}
+          result={practice?.results[el.id]}
+          onJudged={(o) => judged(el.id, o)}
         />
       ))}
     </div>

@@ -14,6 +14,7 @@ import {
   ConsolidatedStatementsView,
   EliminationsView,
   EntitiesView,
+  type PracticeState,
   WorksheetView,
 } from '@/features/consolidation/views';
 import { useContent } from '@/features/content/contentStore';
@@ -41,6 +42,10 @@ export default function ConsolidationPage() {
   });
   const [enabledState, setEnabled] = useState<{ id: string; set: Set<string> } | null>(null);
   const drill = useDrillStack<ConsolidationDrillItem>();
+  const [practiceState, setPractice] = useState<{ id: string; p: PracticeState | null } | null>(
+    null,
+  );
+  const practice = practiceState?.id === id ? practiceState.p : null;
 
   useEffect(() => {
     let stale = false;
@@ -129,6 +134,12 @@ export default function ConsolidationPage() {
         {c && result && (
           <>
             <p className="text-sm text-slate-600 dark:text-slate-400">{c.summary}</p>
+            {practice && tab !== 'eliminations' && (
+              <p className="rounded-xl bg-accent-50 px-3 py-2 text-sm text-accent-900 dark:bg-accent-900/30 dark:text-accent-100">
+                練習モード中: 正解した修正仕訳だけを反映しています（
+                {c.eliminations.filter((e) => enabled.has(e.id)).length} / {c.eliminations.length}）
+              </p>
+            )}
             <Tabs
               value={tab}
               items={TABS}
@@ -141,6 +152,8 @@ export default function ConsolidationPage() {
                 enabled={enabled}
                 setEnabled={(set) => setEnabled({ id, set })}
                 onAccount={openAccount}
+                practice={practice}
+                setPractice={(p) => setPractice({ id, p })}
               />
             )}
             {tab === 'worksheet' && <WorksheetView c={c} result={result} onAccount={openAccount} />}

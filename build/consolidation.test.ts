@@ -107,3 +107,20 @@ describe('consolidate（国内子会社 2 年目）', () => {
     expect(st.totalAssets).toBe(st.totalLiabilities + st.totalEquity + st.netIncome);
   });
 });
+
+describe('consolidate（米国企業の買収・のれんの換算）', () => {
+  const r = consolidate(load('us-acquisition-goodwill'), book);
+  const row = (a: string) => r.rows.find((x) => x.account === a);
+
+  it('のれんは決算日レートの残高になり、換算差額は為替換算調整勘定に入る', () => {
+    expect(row('のれん')?.consolidated).toBe(180 * 140);
+    expect(row('為替換算調整勘定')?.consolidated).toBe(10500 + 1900);
+    expect(row('子会社株式')?.consolidated).toBe(0);
+  });
+
+  it('当期純利益と貸借の一致', () => {
+    expect(r.netIncome).toBe(20000 + 14500 - 2900);
+    const st = r.statements;
+    expect(st.totalAssets).toBe(st.totalLiabilities + st.totalEquity + st.netIncome);
+  });
+});
