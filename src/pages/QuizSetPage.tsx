@@ -10,6 +10,7 @@ import { useFocus } from '@/features/ai/useFocus';
 import { recordAttempt } from '@/features/drill/records';
 import { BasisInfo } from '@/features/learn/MetaBadges';
 import { ChoiceQuiz } from '@/features/learn/QuizBlock';
+import { MatchExercise } from '@/features/learn/MatchExercise';
 import { RcmExercise } from '@/features/learn/RcmExercise';
 import { fetchQuizSet } from '@/lib/content/load';
 import type { QuizSet } from '@/lib/content/schema';
@@ -47,7 +48,9 @@ function QuizSetBody({ id }: { id: string }) {
       m.set(a.questionId, a.correct);
     return m;
   }, [attempts]);
-  const ids = set ? [...(set.rcm?.risks ?? []), ...set.questions].map((q) => q.id) : [];
+  const ids = set
+    ? [...(set.rcm?.risks ?? []), ...(set.match?.items ?? []), ...set.questions].map((q) => q.id)
+    : [];
   const correct = ids.filter((qid) => last.get(qid)).length;
   useFocus(
     set
@@ -90,7 +93,21 @@ function QuizSetBody({ id }: { id: string }) {
                 }
               />
             )}
-            {set.rcm && <h2 className="px-1 pt-2 font-semibold">確認問題</h2>}
+            {set.match && (
+              <MatchExercise
+                match={set.match}
+                onGraded={(itemId, ok) =>
+                  void recordAttempt({
+                    setId,
+                    questionId: itemId,
+                    correct: ok,
+                    revealed: false,
+                    kind: ok ? 'exact' : 'choice',
+                  })
+                }
+              />
+            )}
+            {(set.rcm || set.match) && <h2 className="px-1 pt-2 font-semibold">確認問題</h2>}
             {set.questions.map((q, i) => (
               <Card key={q.id} className="space-y-3 p-4">
                 {q.context && (

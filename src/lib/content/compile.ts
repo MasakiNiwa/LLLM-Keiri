@@ -245,6 +245,18 @@ export function compileQuizSet(
     if (q.answer >= q.choices.length)
       checker.errors.push(`${where}（問題 ${q.id}）: answer が選択肢の数を超えています`);
   }
+  if (r.data.match) {
+    const options = new Set(r.data.match.options.map((o) => o.id));
+    if (options.size !== r.data.match.options.length)
+      checker.errors.push(`${where}: 組み合わせの選択肢の id が重複しています`);
+    for (const item of r.data.match.items) {
+      if (ids.has(item.id))
+        checker.errors.push(`${where}: 項目の id「${item.id}」が重複しています`);
+      ids.add(item.id);
+      if (!options.has(item.answer))
+        checker.errors.push(`${where}（項目 ${item.id}）: 選択肢「${item.answer}」がありません`);
+    }
+  }
   if (r.data.rcm) {
     const steps = new Set<string>();
     for (const st of r.data.rcm.steps) {

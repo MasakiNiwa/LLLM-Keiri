@@ -223,6 +223,20 @@ rcm:                           # RCM の演習（任意。内部統制の分野�
       type: 予防               # 予防・発見
       method: 手作業           # 手作業・自動・IT 依存の手作業
       explanation: 解説
+match:                         # 組み合わせの演習（任意。項目ごとに共通の選択肢から選ぶ）
+  title: 監査人の依頼に、どの資料を出す？
+  intro: 前提の説明（任意）
+  optionsLabel: 提出する資料
+  options:
+    - id: bank
+      text: 銀行の残高証明書
+    - id: aging
+      text: 売掛金の年齢表
+  items:
+    - id: m1                   # questions・rcm の id と重ならないようにする
+      prompt: 預金の残高が本当にあるかを確かめたい
+      answer: bank             # 正解の選択肢の id
+      explanation: 解説
 questions:
   - id: q1
     context: 事例の説明（任意）
