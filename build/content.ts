@@ -15,6 +15,7 @@ import { AccountBook } from '../src/lib/content/accounts.ts';
 import {
   compileConsolidation,
   compileDrill,
+  compileExercise,
   compileLesson,
   compileScenario,
   ContentChecker,
@@ -26,6 +27,7 @@ import {
   GlossaryTermSchema,
   RuleSchema,
   TrackSchema,
+  type ClosingExercise,
   type ConsolidationCase,
   type ContentIndex,
   type DrillSet,
@@ -194,6 +196,17 @@ export function buildContent(root: string): BuildResult {
   }
   consolidations.sort((a, b) => a.level - b.level || a.id.localeCompare(b.id));
 
+  // ---- 決算の総合演習 ----
+  const exercises: ClosingExercise[] = [];
+  for (const p of listFiles(path.join(contentDir, 'exercises'), '.yaml')) {
+    const where = rel(p);
+    const ex = compileExercise(readYaml(p), where, checker);
+    if (!ex) continue;
+    checkId(ex.id, where);
+    exercises.push(ex);
+  }
+  exercises.sort((a, b) => a.level - b.level || a.id.localeCompare(b.id));
+
   // 用語集の関連・レッスンが存在するか
   {
     const terms = new Set(glossary.map((g) => g.term));
@@ -237,12 +250,20 @@ export function buildContent(root: string): BuildResult {
       entities: c.entities.map((e) => ({ name: e.name, currency: e.currency })),
       eliminationCount: c.eliminations.length,
     })),
+    exercises: exercises.map((e) => ({
+      id: e.id,
+      title: e.title,
+      summary: e.summary,
+      level: e.level,
+      adjustmentCount: e.adjustments.length,
+    })),
   };
   files.set('content/index.json', JSON.stringify(index));
   for (const l of lessons) files.set(`content/lessons/${l.meta.id}.json`, JSON.stringify(l));
   for (const d of drills) files.set(`content/drills/${d.id}.json`, JSON.stringify(d));
   for (const c of consolidations)
     files.set(`content/consolidation/${c.id}.json`, JSON.stringify(c));
+  for (const e of exercises) files.set(`content/exercises/${e.id}.json`, JSON.stringify(e));
 
   const search: SearchDoc[] = [
     ...lessons.map((l) => ({

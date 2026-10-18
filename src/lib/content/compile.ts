@@ -14,12 +14,14 @@ import { parseShiwake } from '../journal/parse.ts';
 import type { JournalEntry } from '../journal/types.ts';
 import type { AccountBook } from './accounts.ts';
 import {
+  ClosingExerciseSchema,
   ConsolidationCaseSchema,
   DrillSetSchema,
   LessonFrontmatterSchema,
   QuizSchema,
   WidgetSchema,
   ScenarioSchema,
+  type ClosingExercise,
   type ConsolidationCase,
   type DrillSet,
   type Heading,
@@ -220,6 +222,29 @@ export function compileScenario(
     const entries = checker.checkShiwake(e.shiwake, `${where}（${i + 1} 件目 ${e.date}）`);
     if (entries.length > 1) checker.errors.push(`${where}（${i + 1} 件目）: 仕訳は 1 つにします`);
   });
+  return r.data;
+}
+
+/** 決算の総合演習を検証する（試算表の貸借、決算整理仕訳の形） */
+export function compileExercise(
+  data: unknown,
+  where: string,
+  checker: ContentChecker,
+): ClosingExercise | null {
+  const r = ClosingExerciseSchema.safeParse(data);
+  if (!r.success) {
+    checker.errors.push(`${where}: ${formatZod(r.error)}`);
+    return null;
+  }
+  const tb = checker.checkShiwake(r.data.trialBalance, `${where}（試算表）`);
+  if (tb.length > 1)
+    checker.errors.push(`${where}: 試算表は 1 つのまとまりで書きます（空行を入れない）`);
+  const ids = new Set<string>();
+  for (const q of r.data.adjustments) {
+    if (ids.has(q.id)) checker.errors.push(`${where}: 問題の id「${q.id}」が重複しています`);
+    ids.add(q.id);
+    checker.checkQuestion(q, `${where}（決算整理 ${q.id}）`);
+  }
   return r.data;
 }
 
