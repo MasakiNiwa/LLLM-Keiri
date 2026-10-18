@@ -7,6 +7,7 @@ import { formatAmount } from '@/lib/journal/amount';
 import { amount, useAmounts } from './useAmounts';
 import { AmountField, ResetButton } from './widgetParts';
 import { ImpairmentWidget, LeaseWidget, PointsWidget } from './StandardsWidgets';
+import { CvpWidget, OverheadWidget, ProcessCostingWidget, StandardCostWidget } from './CostWidgets';
 import {
   collectionEntry,
   payrollEntries,
@@ -320,6 +321,10 @@ const TITLES: Record<Widget['type'], string> = {
   points: 'ポイントへの配分を計算してみる',
   impairment: '減損を判定してみる',
   lease: 'リース負債を計算してみる',
+  'process-costing': '総合原価計算をしてみる',
+  overhead: '製造間接費の差異を分析してみる',
+  'standard-cost': '標準原価の差異を分析してみる',
+  cvp: '損益分岐点を計算してみる',
 };
 
 /** レッスンの中の計算の部品（` ```widget `）。仕訳はプログラムが作る */
@@ -340,7 +345,7 @@ export function WidgetBlock({ json }: { json: string }) {
         {TITLES[w.type]}
       </div>
       <p className="text-xs text-slate-600 dark:text-slate-400">
-        数字を変えると、仕訳が作り直されます。
+        数字を変えると、プログラムがその場で計算し直します。
       </p>
       {w.type === 'payroll' && <PayrollWidget w={w} />}
       {w.type === 'collection' && <CollectionWidget w={w} />}
@@ -350,6 +355,10 @@ export function WidgetBlock({ json }: { json: string }) {
       {w.type === 'points' && <PointsWidget w={w} />}
       {w.type === 'impairment' && <ImpairmentWidget w={w} />}
       {w.type === 'lease' && <LeaseWidget w={w} />}
+      {w.type === 'process-costing' && <ProcessCostingWidget w={w} />}
+      {w.type === 'overhead' && <OverheadWidget w={w} />}
+      {w.type === 'standard-cost' && <StandardCostWidget w={w} />}
+      {w.type === 'cvp' && <CvpWidget w={w} />}
     </section>
   );
 }

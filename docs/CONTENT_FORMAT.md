@@ -65,7 +65,7 @@ explanation: 解説
 ````
 
 - 計算の部品: コードブロックの言語を widget にして YAML で書く。数字を変えるとアプリが仕訳を作り直す。
-  type: payroll（給料の仕訳。gross・incomeTax・residentTax・socialInsurance）、type: collection（入金消込。billed・received）、type: withholding（報酬の源泉徴収。fee・consumptionTax）、type: tax-settlement（決算の消費税の精算。received・paid）、type: asset-disposal（固定資産の期中の売却。cost・life・yearsUsed・months・price）、type: points（ポイントへの配分。price・points・usageRate）、type: impairment（減損。bookValue・undiscounted・netSellingPrice・valueInUse）、type: lease（新しいリース会計基準。payment・years・rate）。金額は省略できる
+  type: payroll（給料の仕訳。gross・incomeTax・residentTax・socialInsurance）、type: collection（入金消込。billed・received）、type: withholding（報酬の源泉徴収。fee・consumptionTax）、type: tax-settlement（決算の消費税の精算。received・paid）、type: asset-disposal（固定資産の期中の売却。cost・life・yearsUsed・months・price）、type: points（ポイントへの配分。price・points・usageRate）、type: impairment（減損。bookValue・undiscounted・netSellingPrice・valueInUse）、type: lease（新しいリース会計基準。payment・years・rate）、type: process-costing（総合原価計算）、type: overhead（製造間接費の差異）、type: standard-cost（直接材料費の差異）、type: cvp（損益分岐点。sales・variableCosts・fixedCosts・targetProfit）。金額は省略できる
 
 ````
 ```widget
@@ -178,14 +178,15 @@ gross: 300000
 - consolidation: 連結決算・海外子会社（グループ全体の決算。投資と資本の相殺・のれん・非支配株主・内部取引、米国子会社などの外貨換算）
 - tax: 税金（消費税（税抜経理・インボイス）、源泉所得税、法人税などの基本）
 - practice: 経理の実務（経費精算・請求と入金消込・給与・月次決算など、会社の経理の仕事）
+- cost: 工業簿記・原価計算（製品の原価の計算。費目別・製造間接費の配賦・個別原価計算・総合原価計算・標準原価計算・CVP 分析）
 - analysis: 財務諸表の読み方（収益性・安全性・効率性の比率、連結財務諸表とセグメント情報の読み方。比率の計算はアプリ、読み方の説明は AI）
 - standards: 会計基準（収益認識・リース・減損・税効果など、会計基準の考え方）
 
 ## 使える勘定科目
 
-- 資産: 現金、小口現金、当座預金、普通預金、定期預金、受取手形、電子記録債権、売買目的有価証券、売掛金、契約資産、クレジット売掛金、繰越商品、商品、前払金、前払費用、未収入金、未収収益、仮払金、立替金、貸付金、仮払消費税等、仮払法人税等、受取商品券、関連会社株式、満期保有目的債券、その他有価証券、差入保証金、繰延税金資産、建物、備品、リース資産、使用権資産、車両運搬具、土地、ソフトウェア、のれん、子会社株式、減価償却累計額、貸倒引当金
+- 資産: 現金、小口現金、当座預金、普通預金、定期預金、受取手形、電子記録債権、売買目的有価証券、売掛金、契約資産、クレジット売掛金、繰越商品、商品、材料、仕掛品、製品、前払金、前払費用、未収入金、未収収益、仮払金、立替金、貸付金、仮払消費税等、仮払法人税等、受取商品券、関連会社株式、満期保有目的債券、その他有価証券、差入保証金、繰延税金資産、建物、備品、リース資産、使用権資産、車両運搬具、土地、ソフトウェア、のれん、子会社株式、減価償却累計額、貸倒引当金
 - 負債: 支払手形、電子記録債務、買掛金、前受金、契約負債、返金負債、賞与引当金、未払金、未払費用、前受収益、預り金、所得税預り金、社会保険料預り金、仮受金、借入金、仮受消費税等、未払消費税等、未払法人税等、リース債務、リース負債、退職給付引当金、繰延税金負債
 - 純資産: 資本金、利益剰余金、非支配株主持分、為替換算調整勘定、その他有価証券評価差額金、利益準備金、繰越利益剰余金
 - 収益: 売上、受取利息、受取手数料、受取家賃、受取地代、受取配当金、有価証券利息、有価証券売却益、有価証券評価益、為替差益、持分法による投資損益、雑益、貸倒引当金戻入、償却債権取立益、固定資産売却益
 - 費用: 仕入、棚卸減耗損、商品評価損、売上原価、給料、賞与、法定福利費、福利厚生費、旅費交通費、通信費、水道光熱費、消耗品費、広告宣伝費、発送費、支払家賃、支払地代、支払リース料、保険料、租税公課、修繕費、支払手数料、接待交際費、会議費、減価償却費、賞与引当金繰入、退職給付費用、貸倒引当金繰入、貸倒損失、支払利息、手形売却損、有価証券売却損、有価証券評価損、為替差損、雑損、固定資産売却損、減損損失、のれん償却、非支配株主に帰属する当期純利益、法人税等、法人税等調整額
-- その他: 本店、支店、現金過不足、損益
+- その他: 賃金、製造間接費、原価差異、本店、支店、現金過不足、損益
