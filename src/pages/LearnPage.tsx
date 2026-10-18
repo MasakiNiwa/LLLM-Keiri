@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  BookA,
   BookOpenText,
   CheckCircle2,
   ChevronRight,
@@ -33,10 +34,12 @@ const KIND_LABELS: Record<SearchHit['kind'], string> = {
   lesson: 'レッスン',
   drill: '練習問題',
   account: '勘定科目',
+  term: '用語',
 };
 
 function HitIcon({ kind }: { kind: SearchHit['kind'] }) {
-  const Icon = kind === 'lesson' ? BookOpenText : kind === 'drill' ? PenLine : Tags;
+  const Icon =
+    kind === 'lesson' ? BookOpenText : kind === 'drill' ? PenLine : kind === 'term' ? BookA : Tags;
   return <Icon className="mt-0.5 size-4 shrink-0 text-accent-600 dark:text-accent-400" />;
 }
 
@@ -107,7 +110,7 @@ function SiteResults({ query, index }: { query: string; index: ContentIndex }) {
         const className =
           'flex w-full gap-3 px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50';
         const [kind, id] = [h.kind, h.id.slice(h.id.indexOf(':') + 1)];
-        if (kind === 'account')
+        if (kind === 'account' || kind === 'term')
           return (
             <button key={h.id} type="button" className={className} onClick={() => openAccount(id)}>
               {body}

@@ -15,6 +15,7 @@ import { PageBody, PageHeader } from '@/app/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Section } from '@/components/ui/Card';
 import { BackupControls } from '@/features/settings/BackupControls';
+import { isSpeechSupported } from '@/features/speech/speechStore';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Field } from '@/components/ui/Field';
 import { Select } from '@/components/ui/Select';
@@ -366,6 +367,33 @@ export default function SettingsPage() {
               id="keep-chat"
               checked={s.keepChatContext}
               onChange={(v) => update({ keepChatContext: v })}
+            />
+          </Field>
+          <Field
+            label="AI の返事を自動で読み上げる"
+            htmlFor="auto-speak"
+            hint={
+              isSpeechSupported()
+                ? 'チャットの返事が書き終わったら、端末の音声合成で読み上げます（返事の下のスピーカーのボタンでも読み上げられます）'
+                : 'このブラウザは読み上げに対応していません'
+            }
+          >
+            <Switch
+              id="auto-speak"
+              checked={s.autoSpeak && isSpeechSupported()}
+              disabled={!isSpeechSupported()}
+              onChange={(v) => update({ autoSpeak: v })}
+            />
+          </Field>
+          <Field label="読み上げの速さ" htmlFor="speech-rate">
+            <Slider
+              id="speech-rate"
+              value={s.speechRate}
+              min={0.5}
+              max={2}
+              step={0.1}
+              onChange={(v) => update({ speechRate: v })}
+              format={(v) => `${v.toFixed(1)} 倍`}
             />
           </Field>
         </Section>

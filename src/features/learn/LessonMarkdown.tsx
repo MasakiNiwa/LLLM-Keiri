@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm';
 import { ShiwakeBlock } from '@/features/journal/ShiwakeBlock';
 import { Callout } from './Callout';
 import { QuizBlock } from './QuizBlock';
+import { TermStrong } from './TermStrong';
 import { WidgetBlock } from './WidgetBlock';
 import {
   CALLOUT_TYPES,
@@ -60,6 +61,8 @@ const components: Components = {
       return <Callout type={type}>{children}</Callout>;
     return <blockquote {...props}>{children}</blockquote>;
   },
+  // 太字の用語・勘定科目は、押すと説明が開く
+  strong: ({ children }) => <TermStrong>{children}</TermStrong>,
   table: ({ node: _node, ...props }) => (
     <div className="my-4 overflow-x-auto">
       <table {...props} />

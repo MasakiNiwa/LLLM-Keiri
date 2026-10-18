@@ -1,0 +1,273 @@
+# 用語集。レッスンの太字（**用語**）がここの用語・別名と一致すると、押して説明を開ける
+# related には用語か勘定科目の名前、lessons にはレッスンの id を書く
+- term: 仕訳
+  kana: しわけ
+  description: 取引を、借方（左）と貸方（右）に分けて、勘定科目と金額で記録すること。借方の合計と貸方の合計は必ず一致する。
+  lessons: [basics-journal-rules]
+  related: [転記, 試算表]
+- term: 転記
+  kana: てんき
+  description: 仕訳を、勘定科目ごとの帳簿（総勘定元帳）に書き写すこと。科目ごとの残高がわかるようになる。
+  lessons: [basics-ledger-posting]
+  related: [仕訳, 総勘定元帳]
+- term: 総勘定元帳
+  kana: そうかんじょうもとちょう
+  aliases: [元帳]
+  description: 勘定科目ごとに、増減と残高を記録する帳簿。T 字の形で表すこともある（T 字勘定）。
+  lessons: [basics-ledger-posting]
+  related: [転記]
+- term: 試算表
+  kana: しさんひょう
+  aliases: [残高試算表]
+  description: 総勘定元帳の勘定科目ごとの残高を一覧にした表。借方の合計と貸方の合計が一致するかで、転記の誤りを見つける。
+  lessons: [basics-trial-balance]
+  related: [精算表, 総勘定元帳]
+- term: 精算表
+  kana: せいさんひょう
+  description: 試算表に決算整理の修正を加えて、損益計算書と貸借対照表を作るまでを 1 枚にまとめた表。連結では、各社の金額と連結修正仕訳から連結の金額を出す表（連結精算表）を使う。
+  lessons: [closing-overview]
+  related: [試算表, 決算整理]
+- term: 決算整理
+  kana: けっさんせいり
+  aliases: [決算整理仕訳]
+  description: 決算で、期中の記録を正しい期間の損益と期末の財産の状態に合わせるための修正。売上原価の計算・減価償却・貸倒引当金・経過勘定など。
+  lessons: [closing-overview]
+  related: [精算表, 経過勘定]
+- term: 経過勘定
+  kana: けいかかんじょう
+  description: 前払費用・前受収益・未払費用・未収収益のように、お金のやりとりと費用・収益の期間がずれるときに使う勘定。
+  lessons: [closing-accruals]
+  related: [前払費用, 未払費用, 前受収益, 未収収益]
+- term: 貸借対照表
+  kana: たいしゃくたいしょうひょう
+  aliases: [B/S, BS, バランスシート]
+  description: 決算日の資産・負債・純資産の状態（財政状態）を表す表。資産 ＝ 負債 ＋ 純資産。
+  lessons: [basics-bs-pl]
+  related: [損益計算書]
+- term: 損益計算書
+  kana: そんえきけいさんしょ
+  aliases: [P/L, PL]
+  description: 1 年間などの期間の収益と費用、その差の利益（経営成績）を表す表。売上総利益・営業利益・経常利益・当期純利益の段階がある。
+  lessons: [basics-bs-pl]
+  related: [貸借対照表, 営業利益, 経常利益]
+- term: 営業利益
+  kana: えいぎょうりえき
+  description: 売上総利益から販売費及び一般管理費を引いた、本業のもうけ。
+  lessons: [analysis-ratios]
+  related: [経常利益, 損益計算書]
+- term: 経常利益
+  kana: けいじょうりえき
+  description: 営業利益に、受取利息などの営業外収益を足し、支払利息などの営業外費用を引いた、ふだんの活動のもうけ。
+  lessons: [analysis-ratios]
+  related: [営業利益, 損益計算書]
+- term: キャッシュ・フロー計算書
+  kana: きゃっしゅふろーけいさんしょ
+  aliases: [CF 計算書, キャッシュフロー計算書]
+  description: 期間中のお金（現金及び現金同等物）の増減を、営業・投資・財務の活動に分けて表す表。
+  lessons: [consolidation-cash-flow]
+  related: [間接法]
+- term: 間接法
+  kana: かんせつほう
+  description: キャッシュ・フロー計算書の営業活動の部分を、利益から始めて、お金の動かない費用や売上債権・在庫などの増減を調整して作る方法。
+  lessons: [consolidation-cash-flow]
+  related: [キャッシュ・フロー計算書]
+- term: 発生主義
+  kana: はっせいしゅぎ
+  description: お金のやりとりのときではなく、取引や価値の増減が起きたときに費用・収益を記録する考え方。今の会計の基本。
+  lessons: [closing-accruals]
+  related: [経過勘定]
+- term: 帳簿価額
+  kana: ちょうぼかがく
+  aliases: [簿価]
+  description: 帳簿に載っている金額。固定資産では、取得原価から減価償却累計額（と減損損失）を引いた額。
+  lessons: [closing-asset-disposal]
+  related: [減価償却累計額, 取得原価]
+- term: 取得原価
+  kana: しゅとくげんか
+  description: 資産を手に入れるのにかかった額。購入代価に、引取運賃・手数料・据付費などの付随費用を含める。
+  lessons: [closing-depreciation, trade-securities]
+  related: [帳簿価額]
+- term: 定額法
+  kana: ていがくほう
+  description: 減価償却の方法の 1 つ。毎年同じ額（取得原価 ÷ 耐用年数など）を減価償却費にする。
+  lessons: [closing-depreciation]
+  related: [減価償却費, 耐用年数]
+- term: 耐用年数
+  kana: たいようねんすう
+  description: 固定資産を使える年数。減価償却費の計算に使う。税法では資産の種類ごとに決められている（法定耐用年数）。
+  lessons: [closing-depreciation]
+  related: [定額法, 減価償却費]
+- term: 実地棚卸
+  kana: じっちたなおろし
+  description: 期末に、倉庫や店の在庫を実際に数えること。帳簿の数量との差は棚卸減耗損になる。
+  lessons: [standards-inventory-valuation, closing-cost-of-sales]
+  related: [棚卸減耗損, 商品評価損]
+- term: 正味売却価額
+  kana: しょうみばいきゃくかがく
+  description: 売れる見込みの額（売価・時価）から、売るためにかかる費用を引いた額。棚卸資産の評価や減損の測定に使う。
+  lessons: [standards-inventory-valuation, standards-impairment]
+  related: [商品評価損, 回収可能価額]
+- term: 回収可能価額
+  kana: かいしゅうかのうかがく
+  description: 減損の測定で使う額。正味売却価額と使用価値の高いほう。
+  lessons: [standards-impairment]
+  related: [正味売却価額, 使用価値, 減損損失]
+- term: 使用価値
+  kana: しようかち
+  description: 資産を使い続けたときに生まれる将来キャッシュ・フローの現在価値。
+  lessons: [standards-impairment]
+  related: [回収可能価額, 現在価値]
+- term: 現在価値
+  kana: げんざいかち
+  description: 将来受け取る（支払う）お金を、利率（割引率）で割り引いて、今の価値に直した額。1 年後の 103 円は、割引率 3% なら今の 100 円。
+  lessons: [standards-new-lease, standards-impairment]
+  related: [使用価値, リース負債]
+- term: 履行義務
+  kana: りこうぎむ
+  description: 収益認識基準で、顧客との契約の中の、別々の商品・サービスを渡す約束。履行義務を果たしたときに収益を認識する。
+  lessons: [standards-revenue-recognition]
+  related: [独立販売価格, 契約負債]
+- term: 独立販売価格
+  kana: どくりつはんばいかかく
+  description: 商品・サービスを別々に売るとしたときの価格。取引価格を履行義務に配分するときの比に使う。
+  lessons: [standards-revenue-recognition]
+  related: [履行義務]
+- term: 変動対価
+  kana: へんどうたいか
+  description: 値引き・リベート・返品などで、受け取る額が変わりうる対価。見込みを反映して取引価格を決める。
+  lessons: [standards-revenue-recognition]
+  related: [返金負債]
+- term: 引当金
+  kana: ひきあてきん
+  description: 将来の特定の費用・損失のうち、当期以前の出来事が原因で、発生の可能性が高く、金額を合理的に見積もれるものを、当期の費用として計上したときの貸方の科目。
+  lessons: [standards-provisions, closing-bad-debts]
+  related: [貸倒引当金, 賞与引当金, 退職給付引当金]
+- term: 支配
+  kana: しはい
+  description: 連結で、ほかの会社の意思決定機関（株主総会・取締役会など）を支配していること。ふつう議決権の過半数を持つと支配しているとされ、その会社は子会社になる。
+  lessons: [consolidation-overview]
+  related: [連結財務諸表, 非支配株主]
+- term: 連結財務諸表
+  kana: れんけつざいむしょひょう
+  aliases: [連結決算]
+  description: 親会社と子会社を 1 つの会社とみなして作る財務諸表。グループ内の取引や貸し借りは消去する。
+  lessons: [consolidation-overview]
+  related: [支配, 精算表]
+- term: 非支配株主
+  kana: ひしはいかぶぬし
+  description: 子会社の株主のうち、親会社以外の株主。その持分は連結貸借対照表で非支配株主持分になる。
+  lessons: [consolidation-capital]
+  related: [非支配株主持分, 非支配株主に帰属する当期純利益]
+- term: 未実現利益
+  kana: みじつげんりえき
+  description: グループ内で売買した商品などが、まだグループの外に売れずに残っているとき、その中に含まれる売り手の利益。連結では消去する。
+  lessons: [consolidation-intercompany]
+  related: [連結財務諸表]
+- term: 持分法
+  kana: もちぶんほう
+  description: 関連会社などへの投資について、その会社の純資産と損益のうち持分の分を、投資の額に反映させる方法。合算はしない。
+  lessons: [consolidation-equity-method]
+  related: [持分法による投資損益, 関連会社株式]
+- term: 決算日レート
+  kana: けっさんびれーと
+  aliases: [CR]
+  description: 決算日の為替相場。在外子会社の資産・負債の換算に使う。
+  lessons: [consolidation-foreign-translation]
+  related: [期中平均レート, 取得時レート, 為替換算調整勘定]
+- term: 期中平均レート
+  kana: きちゅうへいきんれーと
+  aliases: [AR]
+  description: 期間中の平均の為替相場。在外子会社の収益・費用の換算に使う（決算日レートも使える）。
+  lessons: [consolidation-foreign-translation]
+  related: [決算日レート, 取得時レート]
+- term: 取得時レート
+  kana: しゅとくじれーと
+  aliases: [HR]
+  description: 子会社の株式を取得したときの為替相場。在外子会社の資本（取得時の資本金など）の換算に使う。
+  lessons: [consolidation-foreign-translation]
+  related: [決算日レート, 期中平均レート]
+- term: セグメント情報
+  kana: せぐめんとじょうほう
+  description: 連結グループを事業や地域の区分（セグメント）に分けて、売上高・利益・資産などを示す情報。経営者が意思決定に使う区分による（マネジメント・アプローチ）。
+  lessons: [consolidation-segments]
+  related: [マネジメント・アプローチ]
+- term: マネジメント・アプローチ
+  kana: まねじめんとあぷろーち
+  description: セグメントの分け方や利益の測り方を、経営者が内部で意思決定・業績評価に使っているものに合わせる考え方。
+  lessons: [consolidation-segments]
+  related: [セグメント情報]
+- term: 仕入税額控除
+  kana: しいれぜいがくこうじょ
+  description: 消費税の計算で、売上で預かった消費税から、仕入や経費で払った消費税を差し引くこと。原則としてインボイスと帳簿の保存が必要。
+  lessons: [tax-consumption-tax-basics, tax-invoice]
+  related: [適格請求書, 仮払消費税等]
+- term: 適格請求書
+  kana: てきかくせいきゅうしょ
+  aliases: [インボイス]
+  description: 登録番号・税率ごとの金額と消費税額などを書いた請求書。税務署に登録した適格請求書発行事業者だけが発行できる。
+  lessons: [tax-invoice]
+  related: [仕入税額控除]
+- term: 簡易課税制度
+  kana: かんいかぜいせいど
+  aliases: [簡易課税]
+  description: 基準期間の課税売上高が 5,000 万円以下の事業者が届け出て選べる、消費税の計算方法。預かった消費税にみなし仕入率をかけて控除する額を出す。
+  lessons: [tax-settlement-simplified]
+  related: [みなし仕入率, 仕入税額控除]
+- term: みなし仕入率
+  kana: みなししいれりつ
+  description: 簡易課税制度で、業種ごとに決められた、控除する消費税の割合（第 1 種 90% 〜 第 6 種 40%）。
+  lessons: [tax-settlement-simplified]
+  related: [簡易課税制度]
+- term: 源泉徴収
+  kana: げんせんちょうしゅう
+  description: 給料や一定の報酬を払う会社が、所得税などを差し引いて預かり、本人に代わって国に納めるしくみ。
+  lessons: [practice-payroll, tax-withholding]
+  related: [所得税預り金]
+- term: 課税所得
+  kana: かぜいしょとく
+  description: 法人税を計算するもとになる所得。会計の利益に、税法の決まり（損金にならない交際費など）による調整を加えて計算する。
+  lessons: [tax-corporate-tax, tax-tax-effect]
+  related: [法人税等, 一時差異]
+- term: 一時差異
+  kana: いちじさい
+  description: 会計と税務の資産・負債の金額のずれのうち、将来解消するもの。税効果会計の対象になる。
+  lessons: [tax-tax-effect]
+  related: [繰延税金資産, 課税所得]
+- term: 月次決算
+  kana: げつじけっさん
+  description: 毎月帳簿を締めて、月ごとの試算表や損益を出すこと。経営者が早く業績をつかむために行う。
+  lessons: [practice-monthly-closing]
+  related: [試算表]
+- term: 入金消込
+  kana: にゅうきんけしこみ
+  aliases: [消込]
+  description: 入金があったとき、どの得意先の、どの請求の分かを突き合わせて、売掛金を消すこと。
+  lessons: [practice-billing-collection]
+  related: [売掛金]
+- term: 電子取引
+  kana: でんしとりひき
+  description: 請求書・領収書などを、メールやウェブ・EDI などのデータでやりとりする取引。そのデータは、データのまま保存する必要がある（電子帳簿保存法）。
+  lessons: [tax-electronic-books]
+  related: [適格請求書]
+- term: ROE
+  kana: あーるおーいー
+  aliases: [自己資本利益率]
+  description: 当期純利益 ÷ 自己資本。株主の出したお金に対して、どれだけ利益を上げたかを表す。
+  lessons: [analysis-ratios]
+  related: [自己資本比率]
+- term: 流動比率
+  kana: りゅうどうひりつ
+  description: 流動資産 ÷ 流動負債。1 年以内に払う負債に対して、1 年以内にお金になる資産がどれだけあるか。
+  lessons: [analysis-ratios]
+  related: [自己資本比率]
+- term: 自己資本比率
+  kana: じこしほんひりつ
+  description: 自己資本 ÷ 総資産。資産のうち、返す必要のない自己資本でまかなっている割合。
+  lessons: [analysis-ratios]
+  related: [ROE, 流動比率]
+- term: IFRS
+  kana: いふぁーす
+  aliases: [国際財務報告基準]
+  description: 国際会計基準審議会（IASB）が作る国際的な会計基準。日本でも一定の会社が連結財務諸表に任意で適用できる。
+  lessons: [standards-ifrs]
+  related: [連結財務諸表]

@@ -8,6 +8,7 @@ import { fetchContentIndex } from '@/lib/content/load';
 import { loadLesson } from '@/features/studio/userContentRepo';
 import { sectionText } from '@/lib/content/sections';
 import { AccountBook } from '@/lib/content/accounts';
+import { findTerm } from '@/lib/content/glossary';
 import { ruleValueAt, today } from '@/lib/content/rules';
 import { ELEMENT_LABELS, increaseSide } from '@/lib/content/schema';
 import { db } from '@/lib/db/db';
@@ -58,10 +59,12 @@ export const TOOL_DECLARATIONS: ToolDeclaration[] = [
   {
     name: 'lookup_account',
     description:
-      '勘定科目を調べる（区分・表示区分・増える側・説明・使い方・仕訳の例）。科目の意味や使い分けを説明するときに使う',
+      '勘定科目または会計・税務の用語を調べる（科目は区分・増える側・説明・仕訳の例、用語は説明・関連するレッスン）。意味や使い分けを説明するときに使う',
     parameters: {
       type: 'object',
-      properties: { name: { type: 'string', description: '勘定科目の名前（例: 売掛金）' } },
+      properties: {
+        name: { type: 'string', description: '勘定科目または用語の名前（例: 売掛金、履行義務）' },
+      },
       required: ['name'],
     },
   },
@@ -141,7 +144,21 @@ async function lookupAccount(name: string): Promise<JsonValue> {
   const book = await getBook();
   const a = book.find(name);
   if (!a) {
-    return { error: `「${name}」は勘定科目の一覧にありません`, hint: 'search_content で探せます' };
+    const index = await fetchContentIndex();
+    const t = findTerm(index.glossary, name);
+    if (t)
+      return {
+        term: t.term,
+        kind: '用語',
+        description: t.description,
+        aliases: t.aliases.length ? t.aliases : undefined,
+        lessons: t.lessons.map((id) => index.lessons.find((l) => l.id === id)?.title ?? id),
+        related: t.related.length ? t.related : undefined,
+      };
+    return {
+      error: `「${name}」は勘定科目の一覧にも用語集にもありません`,
+      hint: 'search_content で探せます',
+    };
   }
   const side = increaseSide(a);
   return {
