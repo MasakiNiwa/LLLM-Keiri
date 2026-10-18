@@ -270,6 +270,7 @@ export function buildContent(root: string): BuildResult {
     })),
     exercises: exercises.map((e) => ({
       id: e.id,
+      kind: e.kind,
       title: e.title,
       summary: e.summary,
       level: e.level,

@@ -168,6 +168,7 @@ export const EXERCISE_FORMAT = `## 決算の総合演習の形式（YAML。conte
 
 \`\`\`yaml
 id: shop-closing
+kind: closing                      # closing（個別の決算。既定）/ consolidation（連結精算表。試算表は単純合算、問題は連結修正仕訳）
 title: 商品売買業の決算
 summary: 1〜2 文の説明
 level: 3

@@ -17,7 +17,7 @@ import { BasisInfo } from '@/features/learn/MetaBadges';
 import { StatementsView } from '@/features/ledger/views';
 import { buildWorksheet, type Worksheet } from '@/lib/closing/worksheet';
 import { fetchExercise } from '@/lib/content/load';
-import type { ClosingExercise } from '@/lib/content/schema';
+import { EXERCISE_LABELS, type ClosingExercise } from '@/lib/content/schema';
 import { db } from '@/lib/db/db';
 import { formatAmount } from '@/lib/journal/amount';
 import { parseShiwake } from '@/lib/journal/parse';
@@ -26,8 +26,8 @@ import { cn } from '@/lib/utils/cn';
 import { errorMessage } from '@/lib/utils/format';
 
 type Tab = 'adjustments' | 'worksheet' | 'statements';
-const TABS: { value: Tab; label: string; icon: React.ReactNode }[] = [
-  { value: 'adjustments', label: '決算整理', icon: <ClipboardList /> },
+const tabsFor = (label: string): { value: Tab; label: string; icon: React.ReactNode }[] => [
+  { value: 'adjustments', label, icon: <ClipboardList /> },
   { value: 'worksheet', label: '精算表', icon: <FileSpreadsheet /> },
   { value: 'statements', label: '財務諸表', icon: <Landmark /> },
 ];
@@ -36,7 +36,7 @@ const mono = 'font-mono tabular-nums';
 const amt = (n: number) => (n ? formatAmount(n) : '');
 const linesOf = (s: string) => parseShiwake(s).entries.flatMap((e) => e.lines);
 
-function TrialBalanceTable({ text }: { text: string }) {
+function TrialBalanceTable({ text, title }: { text: string; title: string }) {
   const open = useAccountSheet((s) => s.open);
   const lines = useMemo(() => linesOf(text), [text]);
   const side = (sd: 'dr' | 'cr', title: string) => {
@@ -69,7 +69,7 @@ function TrialBalanceTable({ text }: { text: string }) {
   };
   return (
     <Card className="overflow-hidden">
-      <h2 className="px-4 pt-3 pb-2 font-semibold">決算整理前残高試算表</h2>
+      <h2 className="px-4 pt-3 pb-2 font-semibold">{title}</h2>
       <div className="grid border-t border-slate-200 sm:grid-cols-2 sm:divide-x dark:divide-slate-700 dark:border-slate-700">
         {side('dr', '借方')}
         {side('cr', '貸方')}
@@ -204,10 +204,14 @@ export default function ExercisePage() {
 function ExerciseBody({ id }: { id: string }) {
   const params = useParams<{ tab?: string }>();
   const [, navigate] = useLocation();
-  const tab: Tab = TABS.some((t) => t.value === params.tab) ? (params.tab as Tab) : 'adjustments';
+  const tab: Tab = tabsFor('').some((t) => t.value === params.tab)
+    ? (params.tab as Tab)
+    : 'adjustments';
   const book = useContent((s) => s.book);
   useContentIndex();
   const [ex, setEx] = useState<ClosingExercise | null>(null);
+  const labels = EXERCISE_LABELS[ex?.kind ?? 'closing'];
+  const TABS = tabsFor(labels.adjustment);
   const [error, setError] = useState<string | null>(null);
   const [applyAll, setApplyAll] = useState(false);
   const setId = `exercise:${id}`;
@@ -263,7 +267,7 @@ function ExerciseBody({ id }: { id: string }) {
       {
         id: 'tb',
         date: ex.closingDate,
-        memo: '決算整理前残高試算表',
+        memo: EXERCISE_LABELS[ex.kind].trialBalance,
         lines: linesOf(ex.trialBalance),
       },
       ...applied.map((a) => ({
@@ -281,7 +285,7 @@ function ExerciseBody({ id }: { id: string }) {
     ex && ws
       ? {
           kind: 'other',
-          page: `決算の総合演習「${ex.title}」（${TABS.find((t) => t.value === tab)?.label}。正解した決算整理 ${solved}/${ex.adjustments.length}。反映した整理での当期純利益 ${ws.netIncome}）`,
+          page: `決算の総合演習「${ex.title}」（${TABS.find((t) => t.value === tab)?.label}。正解した${labels.adjustment} ${solved}/${ex.adjustments.length}。反映した整理での当期純利益 ${ws.netIncome}）`,
         }
       : { kind: 'other', page: '決算の総合演習' },
   );
@@ -326,8 +330,8 @@ function ExerciseBody({ id }: { id: string }) {
                     {ex.note}
                   </Card>
                 )}
-                <TrialBalanceTable text={ex.trialBalance} />
-                <h2 className="px-1 font-semibold">決算整理事項</h2>
+                <TrialBalanceTable text={ex.trialBalance} title={labels.trialBalance} />
+                <h2 className="px-1 font-semibold">{labels.items}</h2>
                 {ex.adjustments.map((a, i) => {
                   const s = status.get(a.id);
                   return (
@@ -373,8 +377,8 @@ function ExerciseBody({ id }: { id: string }) {
               <Card className="flex items-center gap-3 p-4 text-sm">
                 <span className="min-w-0 flex-1">
                   {applyAll
-                    ? 'すべての決算整理（模範解答）を反映しています'
-                    : `正解した・答えを見た決算整理だけを反映しています（${applied.length}/${ex.adjustments.length}）`}
+                    ? `すべての${labels.adjustment}（模範解答）を反映しています`
+                    : `正解した・答えを見た${labels.adjustment}だけを反映しています（${applied.length}/${ex.adjustments.length}）`}
                 </span>
                 <label className="flex items-center gap-2 text-xs">
                   すべて反映
