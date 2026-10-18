@@ -206,6 +206,13 @@ export default function HelpPage() {
               学習内容は本リポジトリの作者が作成したものです（AI
               を利用して作成したものを含みます）。
             </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              経理カレンダーの祝日は{' '}
+              <ExtLink href="https://github.com/holiday-jp/holiday_jp">
+                holiday-jp/holiday_jp
+              </ExtLink>{' '}
+              のデータ（MIT License・Copyright (c) 2016 holiday-jp）を使っています。
+            </p>
           </Body>
           <LicenseList />
         </Section>

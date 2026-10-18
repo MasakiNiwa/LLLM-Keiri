@@ -1,7 +1,7 @@
 {
   "name": "lllm-keiri",
   "private": true,
-  "version": "0.23.0",
+  "version": "0.24.0",
   "description": "LLLM 経理 — 日本の経理を学ぶためのローカルLLM付き学習サイト",
   "license": "MIT",
   "type": "module",
@@ -20,6 +20,7 @@
     "licenses:check": "node scripts/generate-licenses.mjs --check",
     "content:check": "node scripts/check-content.ts",
     "docs": "node scripts/build-docs.ts",
+    "holidays": "node scripts/build-holidays.ts",
     "docs:check": "node scripts/build-docs.ts --check",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
