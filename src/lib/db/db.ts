@@ -2,6 +2,7 @@ import Dexie, { type EntityTable } from 'dexie';
 import { STORAGE_PREFIX } from '@/lib/constants';
 import type { ConsolidationCase, DrillSet, Lesson } from '@/lib/content/schema';
 import type { JournalLine } from '@/lib/journal/types';
+import type { ReviewFields } from '@/lib/srs/review';
 
 /** レッスンの進み具合 */
 export interface LessonProgress {
@@ -61,6 +62,15 @@ export type UserContent =
       createdAt: number;
     };
 
+/** 仕訳問題の復習の予定（FSRS） */
+export interface ReviewRecord extends ReviewFields {
+  /** setId と questionId をつないだもの */
+  key: string;
+  setId: string;
+  questionId: string;
+  updatedAt: number;
+}
+
 /**
  * このアプリのデータベース（IndexedDB）。
  * テーブルを増やすときは version を上げて stores に足す（既存のデータは残る）。
@@ -71,6 +81,7 @@ export class KeiriDB extends Dexie {
   journal!: EntityTable<JournalRecord, 'id'>;
   chat!: EntityTable<ChatRecord, 'id'>;
   userContent!: EntityTable<UserContent, 'id'>;
+  reviews!: EntityTable<ReviewRecord, 'key'>;
 
   constructor(name = STORAGE_PREFIX) {
     super(name);
@@ -88,6 +99,9 @@ export class KeiriDB extends Dexie {
     });
     this.version(5).stores({
       userContent: 'id, kind, createdAt',
+    });
+    this.version(6).stores({
+      reviews: 'key, due, setId',
     });
   }
 }

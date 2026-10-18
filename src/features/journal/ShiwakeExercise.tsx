@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { CheckCircle2, Eraser, Eye, Lightbulb, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { useContent } from '@/features/content/contentStore';
+import { useContent, useContentIndex } from '@/features/content/contentStore';
 import type { ShiwakeQuestion } from '@/lib/content/schema';
 import { accountChoices } from '@/lib/journal/choices';
 import { judgeJournal, type JudgeResult } from '@/lib/journal/judge';
@@ -47,6 +47,7 @@ export function ShiwakeExercise({
   footer,
 }: ShiwakeExerciseProps) {
   const book = useContent((s) => s.book);
+  useContentIndex();
   const answer = useMemo(() => parseShiwake(question.answer).entries[0], [question.answer]);
   const candidates = useMemo(() => {
     if (!book || !answer) return question.accounts;

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { BottomSheet } from '@/components/ui/BottomSheet';
 import { Button } from '@/components/ui/Button';
 import { SearchInput } from '@/components/ui/SearchInput';
-import { useContent } from '@/features/content/contentStore';
+import { useContent, useContentIndex } from '@/features/content/contentStore';
 import { normalizeName } from '@/lib/content/accounts';
 import { ELEMENTS, ELEMENT_LABELS } from '@/lib/content/schema';
 import { cn } from '@/lib/utils/cn';
@@ -24,6 +24,8 @@ const chip =
 /** 勘定科目を選ぶシート（スマホは下から、PC は中央に出る） */
 export function AccountPicker({ open, candidates, current, onPick, onClose }: AccountPickerProps) {
   const book = useContent((s) => s.book);
+  // 直接このページを開いたときも、勘定科目の一覧を読み込む
+  useContentIndex();
   const [all, setAll] = useState(false);
   const [query, setQuery] = useState('');
   const showAll = all || !candidates;

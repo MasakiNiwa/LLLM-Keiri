@@ -11,6 +11,7 @@ import type { ReactionKey } from '@/features/ai/personas';
 import { useFocus } from '@/features/ai/useFocus';
 import type { AiFocus } from '@/features/ai/focusStore';
 import { recordAttempt } from '@/features/drill/records';
+import { updateReview } from '@/features/drill/reviewRepo';
 import type { JudgeResult } from '@/lib/journal/judge';
 import { formatShiwake } from '@/lib/journal/parse';
 import type { JournalLine } from '@/lib/journal/types';
@@ -166,6 +167,8 @@ export default function DrillPage() {
         correct: result.correct,
       }),
     );
+    // 復習の予定は、この学習で最初の答え合わせの結果で決める
+    if (!prev) void updateReview(set.id, qid, result.correct, revealed);
     void recordAttempt({
       setId: set.id,
       questionId: qid,
