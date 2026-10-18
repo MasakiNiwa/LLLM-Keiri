@@ -363,3 +363,48 @@
   description: 内部統制の不備のうち、財務報告に重要な影響を及ぼす可能性が高いもの。期末日にあると、内部統制は有効でないと報告する。金額的重要性の目安の例は、連結税引前利益の概ね 5% 程度。
   lessons: [jsox-deficiency]
   related: [内部統制報告制度]
+- term: 益金
+  kana: えききん
+  description: 法人税の所得の計算での収益にあたるもの。会計の収益とほぼ同じだが、受取配当等の一部など、益金にならないもの（益金不算入）がある。
+  lessons: [tax-corporate-income]
+  related: [損金, 申告調整]
+- term: 損金
+  kana: そんきん
+  description: 法人税の所得の計算での費用・損失にあたるもの。会計の費用とほぼ同じだが、法人税等・交際費の一部・償却超過額など、損金にならないもの（損金不算入）がある。
+  lessons: [tax-corporate-income]
+  related: [益金, 損金経理]
+- term: 申告調整
+  kana: しんこくちょうせい
+  description: 会計の当期利益から、税法の所得を出すための加算・減算。別表四で行う。
+  lessons: [tax-corporate-income, tax-beppyo4-5]
+  related: [別表四]
+- term: 損金経理
+  kana: そんきんけいり
+  description: 決算で費用・損失として計上すること。減価償却費や引当金の繰入などは、損金経理をしていないと損金にできない（確定決算主義）。
+  lessons: [tax-corporate-income]
+  related: [損金]
+- term: 別表四
+  kana: べっぴょうよん
+  description: 法人税の申告書のうち、所得の金額を計算する明細書。当期利益に加算・減算をして所得金額を出し、各項目を留保と社外流出に分ける。
+  lessons: [tax-beppyo4-5]
+  related: [留保, 社外流出, 利益積立金額]
+- term: 留保
+  kana: りゅうほ
+  description: 別表四の区分の 1 つ。会社の中に残る調整（納税充当金・償却超過額など）。別表五(一)の利益積立金額に引き継ぐ。
+  lessons: [tax-beppyo4-5]
+  related: [社外流出, 別表四]
+- term: 社外流出
+  kana: しゃがいりゅうしゅつ
+  description: 別表四の区分の 1 つ。配当・交際費の損金不算入額など、会社の外に出たもの。
+  lessons: [tax-beppyo4-5]
+  related: [留保, 別表四]
+- term: 利益積立金額
+  kana: りえきつみたてきんがく
+  description: 税務上の利益の蓄積（別表五(一)）。会計の利益剰余金に、別表四で留保した調整の累計を加えたもの。
+  lessons: [tax-beppyo4-5]
+  related: [留保]
+- term: 納税充当金
+  kana: のうぜいじゅうとうきん
+  description: 決算で計上した未払法人税等（法人税・住民税・事業税の見積額）の税務上の呼び方。損金にならないので、別表四で加算・留保する。
+  lessons: [tax-beppyo4-5]
+  related: [未払法人税等, 別表四]
