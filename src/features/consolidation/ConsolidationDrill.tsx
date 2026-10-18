@@ -2,7 +2,8 @@ import { ChevronRight, Info } from 'lucide-react';
 import { DrillSheet } from '@/components/ui/DrillSheet';
 import { useAccountSheet } from '@/features/accounts/accountSheetStore';
 import { JournalTable } from '@/features/journal/JournalTable';
-import type { ConsolidationResult } from '@/lib/consolidation/consolidate';
+import { translationGroups, type ConsolidationResult } from '@/lib/consolidation/consolidate';
+import { useContent } from '@/features/content/contentStore';
 import { ELIMINATION_CATEGORIES, type ConsolidationCase } from '@/lib/content/schema';
 import { formatAmount } from '@/lib/journal/amount';
 import { parseShiwake } from '@/lib/journal/parse';
@@ -43,6 +44,7 @@ export function ConsolidationDrill({
 }) {
   const top = stack.at(-1);
   const openInfo = useAccountSheet((s) => s.open);
+  const book = useContent((s) => s.book);
   const row =
     top?.kind === 'account' ? result.rows.find((r) => r.account === top.account) : undefined;
   const el = top?.kind === 'elimination' ? c.eliminations.find((e) => e.id === top.id) : undefined;
@@ -120,6 +122,53 @@ export function ConsolidationDrill({
                 <span className={mono}>{signed(row.consolidated)}</span>
               </div>
             </div>
+            {row.account === '為替換算調整勘定' &&
+              book &&
+              result.entities
+                .filter((r) => r.translationAdjustment !== 0)
+                .map((r) => (
+                  <div
+                    key={r.entity.id}
+                    className="rounded-xl bg-violet-50/60 p-3 dark:bg-violet-950/20"
+                  >
+                    <p className="mb-2 font-medium">{r.entity.name}の換算の差額はどこから来たか</p>
+                    <table className="w-full text-xs">
+                      <thead className="text-slate-500">
+                        <tr>
+                          <th className="py-1 text-left font-medium">項目</th>
+                          <th className="py-1 text-right font-medium">{r.entity.currency}</th>
+                          <th className="py-1 text-right font-medium">レート</th>
+                          <th className="py-1 text-right font-medium">円</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {translationGroups(r, book).map((g) => (
+                          <tr key={g.label + g.rate}>
+                            <td className="py-1">{g.label}</td>
+                            <td className={cn(mono, 'py-1 text-right')}>{signed(g.local)}</td>
+                            <td className="py-1 text-right">
+                              {g.rateType === 'HIST' ? '発生時' : g.rateType} {g.rate}
+                            </td>
+                            <td className={cn(mono, 'py-1 text-right')}>{signed(g.jpy)}</td>
+                          </tr>
+                        ))}
+                        <tr className="border-t border-violet-200 font-semibold dark:border-violet-900">
+                          <td className="py-1" colSpan={3}>
+                            合計（貸借が合わない分）
+                          </td>
+                          <td className={cn(mono, 'py-1 text-right')}>
+                            {signed(-r.translationAdjustment)}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                      現地通貨では貸借が一致していても、項目ごとに違うレートで換算すると円では一致しません。その差（
+                      {signed(-r.translationAdjustment)}）を打ち消すのが為替換算調整勘定（
+                      {signed(r.translationAdjustment)}）です。
+                    </p>
+                  </div>
+                ))}
             {c.eliminations.some((e) => !enabled.has(e.id)) && (
               <p className="text-xs text-slate-500">
                 ※ いま「反映」を外している修正仕訳は含めていません。
