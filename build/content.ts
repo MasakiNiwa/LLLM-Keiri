@@ -7,7 +7,7 @@
  *
  * Vite のプラグイン（vite-plugin-content.ts）と、CI の検証（scripts/check-content.ts）から使う。
  */
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
@@ -23,6 +23,7 @@ import {
 } from '../src/lib/content/compile.ts';
 import {
   AccountSchema,
+  GlossaryTermSchema,
   RuleSchema,
   TrackSchema,
   type ConsolidationCase,
@@ -113,6 +114,25 @@ export function buildContent(root: string): BuildResult {
   }
 
   // ---- 税率など ----
+  // 用語集（勘定科目と名前が重ならないこと、関連・レッスンが存在すること）
+  const glossaryPath = path.join(contentDir, 'glossary.yaml');
+  const glossaryParsed = z
+    .array(GlossaryTermSchema)
+    .safeParse(existsSync(glossaryPath) ? readYaml(glossaryPath) : []);
+  const glossary = glossaryParsed.success ? glossaryParsed.data : [];
+  if (!glossaryParsed.success)
+    errors.push(`${rel(glossaryPath)}: ${formatZod(glossaryParsed.error)}`);
+  {
+    const seen = new Set<string>();
+    for (const g of glossary) {
+      for (const n of [g.term, ...g.aliases]) {
+        if (seen.has(n)) errors.push(`${rel(glossaryPath)}: 「${n}」が重複しています`);
+        if (book.find(n)) errors.push(`${rel(glossaryPath)}: 「${n}」は勘定科目と同じ名前です`);
+        seen.add(n);
+      }
+    }
+  }
+
   const rules = [];
   for (const p of listFiles(path.join(contentDir, 'rules'), '.yaml')) {
     const r = RuleSchema.safeParse(readYaml(p));
@@ -174,6 +194,22 @@ export function buildContent(root: string): BuildResult {
   }
   consolidations.sort((a, b) => a.level - b.level || a.id.localeCompare(b.id));
 
+  // 用語集の関連・レッスンが存在するか
+  {
+    const terms = new Set(glossary.map((g) => g.term));
+    const lessonIds = new Set(lessons.map((l) => l.meta.id));
+    for (const g of glossary) {
+      for (const r of g.related)
+        if (!terms.has(r) && !book.find(r))
+          errors.push(
+            `${rel(glossaryPath)}: ${g.term} の関連「${r}」が用語集にも勘定科目にもありません`,
+          );
+      for (const id of g.lessons)
+        if (!lessonIds.has(id))
+          errors.push(`${rel(glossaryPath)}: ${g.term} のレッスン「${id}」がありません`);
+    }
+  }
+
   const byOrder = <T extends { track: string; order: number }>(a: T, b: T) => {
     const ta = tracks.findIndex((t) => t.id === a.track);
     const tb = tracks.findIndex((t) => t.id === b.track);
@@ -188,6 +224,7 @@ export function buildContent(root: string): BuildResult {
     lessons: lessons.map((l) => l.meta),
     drills: drills.map(({ questions, ...meta }) => ({ ...meta, questionCount: questions.length })),
     accounts,
+    glossary,
     rules,
     scenarios,
     consolidations: consolidations.map((c) => ({
@@ -227,6 +264,12 @@ export function buildContent(root: string): BuildResult {
       kind: 'account' as const,
       title: a.name,
       text: `${a.kana} ${a.aliases.join(' ')} ${a.group} ${a.description} ${a.usage ?? ''}`,
+    })),
+    ...glossary.map((g) => ({
+      id: `term:${g.term}`,
+      kind: 'term' as const,
+      title: g.term,
+      text: `${g.kana} ${g.aliases.join(' ')} ${g.description}`,
     })),
   ];
   files.set('content/search.json', JSON.stringify(search));

@@ -13,6 +13,8 @@ import { Card } from '@/components/ui/Card';
 import { useContentIndex } from '@/features/content/contentStore';
 import { LessonMarkdown } from '@/features/learn/LessonMarkdown';
 import { BasisInfo, LevelBadge } from '@/features/learn/MetaBadges';
+import { SpeakToggle } from '@/features/speech/SpeakToggle';
+import { useSpeech } from '@/features/speech/speechStore';
 import { markLessonOpened, setLessonRead, useLessonProgress } from '@/features/learn/progress';
 import { useFontZoom } from '@/features/settings/useFontZoom';
 import { loadLesson } from '@/features/studio/userContentRepo';
@@ -112,6 +114,8 @@ function useCurrentSection(meta: LessonMeta | undefined): string | null {
 
 export default function LessonPage() {
   const { id = '' } = useParams<{ id: string }>();
+  // ほかのレッスン・ページへ移ったら、読み上げを止める
+  useEffect(() => () => useSpeech.getState().stop(), [id]);
   const { index } = useContentIndex();
   const [loaded, setLoaded] = useState<{ id: string; lesson?: Lesson; error?: string }>({
     id: '',
@@ -205,6 +209,7 @@ export default function LessonPage() {
                 )}
               </div>
               <BasisInfo basis={meta.basis} asOf={meta.asOf} updated={meta.updated} />
+              <SpeakToggle id={`lesson:${meta.id}`} text={`${meta.title}\n${lesson.body}`} />
             </header>
             <Toc meta={meta} />
             <article style={{ zoom }}>

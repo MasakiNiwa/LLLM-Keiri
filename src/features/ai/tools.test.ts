@@ -28,6 +28,17 @@ vi.mock('@/lib/content/load', () => ({
         level: 1,
       },
     ],
+    lessons: [{ id: 'tax-invoice', title: 'インボイス制度' }],
+    glossary: [
+      {
+        term: '適格請求書',
+        kana: 'てきかくせいきゅうしょ',
+        aliases: ['インボイス'],
+        description: '登録番号などを書いた請求書',
+        lessons: ['tax-invoice'],
+        related: [],
+      },
+    ],
     rules: [
       {
         id: 'consumption-tax-standard',
@@ -89,6 +100,12 @@ describe('tools', () => {
         arguments: { fee: 100000, consumption_tax: 10000 },
       }),
     ).toMatchObject({ withholding_tax: 10210, payment: 99790 });
+  });
+
+  it('lookup_account: 用語集も引ける', async () => {
+    expect(
+      await executeTool({ name: 'lookup_account', arguments: { name: 'インボイス' } }),
+    ).toMatchObject({ term: '適格請求書', kind: '用語', lessons: ['インボイス制度'] });
   });
 
   it('lookup_account: 別名でも引ける', async () => {

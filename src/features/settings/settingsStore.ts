@@ -63,6 +63,11 @@ export interface Settings extends Omit<ConversationSettings, 'systemPrompt'> {
   fontScale: FontScale;
   enterToSend: boolean;
   showStats: boolean;
+  // ---- 読み上げ ----
+  /** AI の返事が終わったら自動で読み上げる */
+  autoSpeak: boolean;
+  /** 読み上げの速さ（0.5〜2） */
+  speechRate: number;
   // ---- はじめての案内 ----
   onboarded: boolean;
 }
@@ -98,6 +103,9 @@ export const DEFAULT_SETTINGS: Settings = {
   fontScale: 'md',
   enterToSend: true,
   showStats: true,
+
+  autoSpeak: false,
+  speechRate: 1.1,
 
   onboarded: false,
 };

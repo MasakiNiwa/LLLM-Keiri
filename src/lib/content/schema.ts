@@ -73,6 +73,19 @@ export const AccountSchema = z.object({
 });
 export type Account = z.infer<typeof AccountSchema>;
 
+/** 用語集の 1 語（content/glossary.yaml） */
+export const GlossaryTermSchema = z.object({
+  term: z.string().min(1),
+  kana: z.string().min(1),
+  aliases: z.array(z.string().min(1)).default([]),
+  description: z.string().min(1),
+  /** 詳しく学べるレッスンの id */
+  lessons: z.array(z.string()).default([]),
+  /** 関連する用語・勘定科目 */
+  related: z.array(z.string().min(1)).default([]),
+});
+export type GlossaryTerm = z.infer<typeof GlossaryTermSchema>;
+
 /** 勘定科目が増えるときに記入する側 */
 export function increaseSide(a: Pick<Account, 'element' | 'contra'>): 'dr' | 'cr' | null {
   const side = ELEMENT_INCREASE_SIDE[a.element];
@@ -355,6 +368,7 @@ export interface ContentIndex {
   lessons: LessonMeta[];
   drills: DrillMeta[];
   accounts: Account[];
+  glossary: GlossaryTerm[];
   rules: Rule[];
   scenarios: Scenario[];
   consolidations: ConsolidationMeta[];
@@ -362,9 +376,9 @@ export interface ContentIndex {
 
 /** 検索の対象（content/search.json） */
 export interface SearchDoc {
-  /** lesson:<id> / drill:<id> / account:<科目名> */
+  /** lesson:<id> / drill:<id> / account:<科目名> / term:<用語> */
   id: string;
-  kind: 'lesson' | 'drill' | 'account';
+  kind: 'lesson' | 'drill' | 'account' | 'term';
   title: string;
   track?: string;
   text: string;

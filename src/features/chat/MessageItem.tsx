@@ -1,5 +1,17 @@
-import { lazy, memo, Suspense, useState, type ReactNode } from 'react';
-import { AlertCircle, Brain, Check, ChevronRight, Copy, RotateCcw, Wrench } from 'lucide-react';
+import { lazy, memo, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  AlertCircle,
+  Brain,
+  Check,
+  ChevronRight,
+  Copy,
+  RotateCcw,
+  Square,
+  Volume2,
+  Wrench,
+} from 'lucide-react';
+import { isSpeechSupported, useSpeech } from '@/features/speech/speechStore';
+import { useSettings } from '@/features/settings/settingsStore';
 import { toast } from 'sonner';
 import { ElapsedCounter } from '@/components/ui/ElapsedCounter';
 import { cn } from '@/lib/utils/cn';
@@ -66,6 +78,39 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
+function SpeakButton({ id, text }: { id: string; text: string }) {
+  const speaking = useSpeech((s) => s.speakingId === id);
+  if (!isSpeechSupported()) return null;
+  return (
+    <ActionButton
+      label={speaking ? '読み上げを止める' : '読み上げる'}
+      onClick={() =>
+        speaking ? useSpeech.getState().stop() : useSpeech.getState().speak(id, text)
+      }
+    >
+      {speaking ? <Square /> : <Volume2 />}
+    </ActionButton>
+  );
+}
+
+/** 返事が書き終わったときに、設定が有効なら読み上げる */
+function useAutoSpeak(message: ChatMessage, isLast: boolean) {
+  const prev = useRef(message.status);
+  useEffect(() => {
+    const was = prev.current;
+    prev.current = message.status;
+    if (
+      isLast &&
+      was === 'streaming' &&
+      message.status === 'done' &&
+      !message.error &&
+      message.text &&
+      useSettings.getState().autoSpeak
+    )
+      useSpeech.getState().speak(message.id, message.text);
+  }, [message.status, message.error, message.text, message.id, isLast]);
+}
+
 interface MessageItemProps {
   message: ChatMessage;
   isLast: boolean;
@@ -86,6 +131,7 @@ export const MessageItem = memo(function MessageItem({
   const engineReady = useEngine((s) => s.status === 'ready');
   const toolActivity = useChat((s) => (isLast ? s.toolActivity : null));
   const [showThought, setShowThought] = useState(false);
+  useAutoSpeak(message, isLast);
 
   if (message.role === 'user') {
     return (
@@ -173,6 +219,7 @@ export const MessageItem = memo(function MessageItem({
         {!streaming && (
           <div className="flex items-center gap-0.5">
             {message.text && <CopyButton text={message.text} />}
+            {message.text && !streaming && <SpeakButton id={message.id} text={message.text} />}
             {isLast && !busy && engineReady && (
               <ActionButton label="もう一度生成" onClick={() => void regenerate()}>
                 <RotateCcw />
