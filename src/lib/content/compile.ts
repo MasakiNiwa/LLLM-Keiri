@@ -18,6 +18,7 @@ import {
   DrillSetSchema,
   LessonFrontmatterSchema,
   QuizSchema,
+  WidgetSchema,
   ScenarioSchema,
   type ConsolidationCase,
   type DrillSet,
@@ -50,7 +51,7 @@ export function extractHeadings(body: string): Heading[] {
 /** 検索用に Markdown の記号を落とした本文 */
 export function plainText(body: string): string {
   return body
-    .replace(/^```quiz[\s\S]*?^```$/gm, '')
+    .replace(/^```(quiz|widget)[\s\S]*?^```$/gm, '')
     .replace(/[#>*_`|[\]()-]/g, ' ')
     .replace(/\[!\w+\]/g, ' ')
     .replace(/\s+/g, ' ')
@@ -136,6 +137,21 @@ export function compileLesson(raw: string, where: string, checker: ContentChecke
       if (lang === 'shiwake') {
         checker.checkShiwake(code, `${where}（仕訳）`);
         return block;
+      }
+      if (lang === 'widget') {
+        let w: unknown;
+        try {
+          w = parseYaml(code);
+        } catch (e) {
+          errors.push(`${where}（計算の部品）: YAML を読めません: ${(e as Error).message}`);
+          return block;
+        }
+        const r = WidgetSchema.safeParse(w);
+        if (!r.success) {
+          errors.push(`${where}（計算の部品）: ${formatZod(r.error)}`);
+          return block;
+        }
+        return '```widget\n' + JSON.stringify(r.data) + '\n```';
       }
       if (lang !== 'quiz') return block;
       quizCount++;
