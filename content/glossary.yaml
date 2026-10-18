@@ -408,3 +408,43 @@
   description: 決算で計上した未払法人税等（法人税・住民税・事業税の見積額）の税務上の呼び方。損金にならないので、別表四で加算・留保する。
   lessons: [tax-beppyo4-5]
   related: [未払法人税等, 別表四]
+- term: 年末調整
+  kana: ねんまつちょうせい
+  description: 会社が、1 年間に給与から源泉徴収した所得税と、本当の年税額との過不足を、年末に精算する手続き。
+  lessons: [practice-year-end-1, practice-year-end-2]
+  related: [給与所得控除, 源泉徴収票]
+- term: 給与所得控除
+  kana: きゅうよしょとくこうじょ
+  description: 給与の収入金額から差し引く、会社員の必要経費にあたる控除。2025 年分からは最低 65 万円。
+  lessons: [practice-year-end-2]
+  related: [年末調整]
+- term: 源泉徴収票
+  kana: げんせんちょうしゅうひょう
+  description: 1 年間の給与の額・源泉徴収税額・控除の内容を書いた書類。翌年 1 月 31 日までに本人に渡し、一定の範囲は税務署にも出す。
+  lessons: [practice-statutory-reports]
+  related: [法定調書, 年末調整]
+- term: 法定調書
+  kana: ほうていちょうしょ
+  description: 給与・報酬・不動産の使用料などの支払いを税務署に報告する書類（源泉徴収票・支払調書など）と、その合計表。翌年 1 月 31 日までに出す。
+  lessons: [practice-statutory-reports]
+  related: [源泉徴収票]
+- term: 給与支払報告書
+  kana: きゅうよしはらいほうこくしょ
+  description: 1 年間の給与の支払いを、従業員の 1 月 1 日の住所の市区町村に報告する書類。翌年度の住民税の計算に使われる。
+  lessons: [practice-statutory-reports]
+  related: [源泉徴収票]
+- term: 標準報酬月額
+  kana: ひょうじゅんほうしゅうげつがく
+  description: 健康保険・厚生年金の保険料を計算するもとになる、報酬の月額を等級に当てはめた額。毎年 4〜6 月の報酬で決め直す（算定基礎届）。
+  lessons: [practice-payroll-deductions]
+  related: [社会保険料預り金, 法定福利費]
+- term: 割増賃金
+  kana: わりましちんぎん
+  description: 時間外・深夜・休日の労働に対して払う、通常の賃金に一定の率を上乗せした賃金（時間外 25% 以上、月 60 時間超 50% 以上など）。
+  lessons: [practice-payroll-gross]
+  related: [給料]
+- term: 償却資産
+  kana: しょうきゃくしさん
+  description: 固定資産税の対象になる、事業に使う備品・機械・構築物などの資産。1 月 1 日に持っているものを 1 月 31 日までに市区町村に申告する。
+  lessons: [practice-depreciable-assets-return]
+  related: [租税公課]

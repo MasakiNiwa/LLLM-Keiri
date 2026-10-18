@@ -174,7 +174,7 @@ export function buildSchedule(opts: ScheduleOptions): ScheduleItem[] {
           '年末調整',
           'payroll',
           '1 年間の給料から差し引いた源泉所得税と、本当の年税額との差を精算する（ふつう 12 月の最後の給料で）',
-          'practice-payroll',
+          'practice-year-end-1',
           new Date(y, 10, 1),
         ),
       );
@@ -185,21 +185,21 @@ export function buildSchedule(opts: ScheduleOptions): ScheduleItem[] {
           '法定調書合計表・源泉徴収票の提出',
           'tax',
           '前年に支払った給料・報酬などの法定調書と合計表を税務署に出す',
-          'tax-withholding',
+          'practice-statutory-reports',
         ),
         item(
           new Date(y, 0, 31),
           '給与支払報告書の提出',
           'tax',
           '前年の給料の支払いを、従業員の住む市区町村に報告する（翌年度の住民税の計算に使われる）',
-          'practice-payroll',
+          'practice-statutory-reports',
         ),
         item(
           new Date(y, 0, 31),
           '償却資産の申告',
           'tax',
           '1 月 1 日に持っている事業用の償却資産（備品・機械など）を、市区町村に申告する（固定資産税）',
-          'closing-depreciation',
+          'practice-depreciable-assets-return',
         ),
       );
 
