@@ -8,7 +8,6 @@ summary: 親会社と子会社をひとつの会社のように見て作る決�
 tags: [連結, 子会社, 支配力基準, 連結の範囲]
 basis:
   - name: 連結財務諸表に関する会計基準（企業会計基準第 22 号）
-    url: https://www.asb-j.jp/jp/accounting_standards/y2013/2013-0913.html
 asOf: '2026-10-01'
 updated: '2026-10-18'
 ---

@@ -10,7 +10,6 @@ lessons:
   - consolidation-intercompany
 basis:
   - name: 連結財務諸表に関する会計基準（企業会計基準第 22 号）
-    url: https://www.asb-j.jp/jp/accounting_standards/y2013/2013-0913.html
   - name: 企業結合に関する会計基準（企業会計基準第 21 号）
 asOf: '2026-10-01'
 updated: '2026-10-18'

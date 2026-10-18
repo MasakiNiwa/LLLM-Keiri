@@ -53,3 +53,31 @@ describe('translateEntity', () => {
     expect(r.lines.every((l) => l.rate === 1)).toBe(true);
   });
 });
+
+describe('consolidate（米国子会社 80%）', () => {
+  const c = load('us-subsidiary-80');
+  const r = consolidate(c, book);
+  const s = r.entities.find((e) => e.entity.id === 's')!;
+  const row = (a: string) => r.rows.find((x) => x.account === a);
+
+  it('資産・負債は CR、資本は HR、損益は AR で換算し、差額を為替換算調整勘定にする', () => {
+    const line = (a: string) => s.lines.find((l) => l.account === a)!;
+    expect(line('普通預金')).toMatchObject({ rateType: 'CR', jpy: 56000 });
+    expect(line('資本金')).toMatchObject({ rateType: 'HR', jpy: -150000 });
+    expect(line('売上')).toMatchObject({ rateType: 'AR', jpy: -174000 });
+    expect(s.translationAdjustment).toBe(10500);
+  });
+
+  it('非支配株主持分は、子会社の純資産（決算日レート）の 20% になる', () => {
+    expect(row('非支配株主持分')?.consolidated).toBe(-(1100 * 140 * 0.2));
+    expect(row('為替換算調整勘定')?.consolidated).toBe(8400);
+  });
+
+  it('連結の当期純利益と貸借の一致', () => {
+    expect(r.netIncome).toBe(34500);
+    expect(r.nciProfit).toBe(2900);
+    expect(r.parentNetIncome).toBe(31600);
+    const st = r.statements;
+    expect(st.totalAssets).toBe(st.totalLiabilities + st.totalEquity + st.netIncome);
+  });
+});

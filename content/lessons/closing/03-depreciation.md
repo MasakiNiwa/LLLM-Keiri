@@ -9,7 +9,6 @@ tags: [減価償却, 定額法, 間接法, 固定資産, 月割]
 basis:
   - name: 企業会計原則
   - name: 減価償却資産の耐用年数等に関する省令（法人税）
-    url: https://www.nta.go.jp/taxes/shiraberu/taxanswer/hojin/5400.htm
 asOf: '2026-10-01'
 updated: '2026-10-17'
 ---

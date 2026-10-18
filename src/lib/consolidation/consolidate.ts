@@ -202,3 +202,38 @@ export function consolidate(
     parentNetIncome: statements.netIncome,
   };
 }
+
+export interface TranslationGroup {
+  label: string;
+  rateType: RateType;
+  rate: number;
+  /** 現地通貨（借方が正） */
+  local: number;
+  /** 円（借方が正） */
+  jpy: number;
+}
+
+/**
+ * 換算差額の内訳（ドリルダウン用）: 使ったレートごとに、現地通貨と円の合計を出す。
+ * 各グループの円の合計を足すと、為替換算調整勘定と逆の符号の金額になる（貸借が合わない分）。
+ */
+export function translationGroups(r: EntityResult, book: AccountBook): TranslationGroup[] {
+  const groups = new Map<string, TranslationGroup>();
+  for (const l of r.lines) {
+    const element = book.find(l.account)?.element ?? 'other';
+    const label =
+      l.rateType === 'CR'
+        ? '資産・負債'
+        : l.rateType === 'AR'
+          ? '収益・費用（当期純利益）'
+          : element === 'equity'
+            ? '資本'
+            : l.account;
+    const key = `${label}:${l.rate}`;
+    const g = groups.get(key) ?? { label, rateType: l.rateType, rate: l.rate, local: 0, jpy: 0 };
+    g.local += l.local;
+    g.jpy += l.jpy;
+    groups.set(key, g);
+  }
+  return [...groups.values()];
+}
