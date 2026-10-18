@@ -435,14 +435,37 @@ export const RcmCaseSchema = z.object({
 });
 export type RcmCase = z.infer<typeof RcmCaseSchema>;
 
+/** 組み合わせの演習: 項目ごとに、共通の選択肢から 1 つを選ぶ（監査人の依頼 → 提出する資料など） */
+export const MatchExerciseSchema = z.object({
+  title: z.string().min(1),
+  /** 前提の説明（任意） */
+  intro: z.string().optional(),
+  /** 選択肢の欄の名前（例: 提出する資料） */
+  optionsLabel: z.string().min(1),
+  options: z.array(z.object({ id: z.string().min(1), text: z.string().min(1) })).min(2),
+  items: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        prompt: z.string().min(1),
+        answer: z.string().min(1),
+        explanation: z.string().min(1),
+      }),
+    )
+    .min(1),
+});
+export type MatchExercise = z.infer<typeof MatchExerciseSchema>;
+
 export const QuizSetSchema = z.object({
   ...contentMeta,
   /** RCM の演習（任意。選択問題の前に表示する） */
   rcm: RcmCaseSchema.optional(),
+  /** 組み合わせの演習（任意。選択問題の前に表示する） */
+  match: MatchExerciseSchema.optional(),
   questions: z.array(QuizQuestionSchema).min(1),
 });
 export type QuizSet = z.infer<typeof QuizSetSchema>;
-export type QuizMeta = Omit<QuizSet, 'questions' | 'rcm'> & { questionCount: number };
+export type QuizMeta = Omit<QuizSet, 'questions' | 'rcm' | 'match'> & { questionCount: number };
 
 /** 帳簿のサンプル（一連の取引。帳簿ページで読み込める） */
 export const ScenarioSchema = z.object({
