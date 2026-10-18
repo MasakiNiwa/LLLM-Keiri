@@ -1,5 +1,5 @@
 /**
- * 年末調整の年税額の計算（2025 年分＝令和 7 年分のルール。学習用）。
+ * 年末調整の年税額の計算（学習用）。年分で変わる金額は taxYears.ts の年分ごとのデータを使う。
  *
  * 1. 給与所得 ＝ 給与の収入金額 − 給与所得控除（660 万円未満は 4,000 円単位に切り下げた額で計算する所得税法別表第五の方式）
  * 2. 課税給与所得金額 ＝ 給与所得 − 所得控除（1,000 円未満切り捨て）
@@ -7,15 +7,21 @@
  * 4. 年調年税額 ＝ 年調所得税額 × 102.1%（復興特別所得税を含む。100 円未満切り捨て）
  * 5. 過不足額 ＝ 源泉徴収した税額 − 年調年税額（プラスなら還付、マイナスなら追加で徴収）
  *
- * 2026 年分以降は、税制改正で控除額などが変わることがあるので、その年のルールを確かめる。
+ * 新しい年分は、税制改正の内容を確かめて taxYears.ts に追加する。
  */
+import { rulesFor, type YearEndRules } from './taxYears.ts';
 
+/** 既定の年分（年末調整のレッスンの例はこの年分で説明している） */
 export const RULE_YEAR = 2025;
 
-/** 給与所得控除後の給与等の金額（2025 年分以降の給与所得控除） */
-export function employmentIncome(salary: number): number {
+/** 給与所得控除後の給与等の金額 */
+export function employmentIncome(
+  salary: number,
+  rules: YearEndRules = rulesFor(RULE_YEAR),
+): number {
   if (salary < 0) return 0;
-  if (salary < 1_900_000) return Math.max(0, salary - 650_000);
+  const { flatUntil, minimum } = rules.employment;
+  if (salary < flatUntil) return Math.max(0, salary - minimum);
   if (salary < 6_600_000) {
     // 4,000 円未満を切り捨てた額で計算する（所得税法別表第五）
     const a = Math.floor(salary / 4000) * 4000;
@@ -26,17 +32,12 @@ export function employmentIncome(salary: number): number {
   return salary - 1_950_000;
 }
 
-/** 基礎控除（2025 年分。合計所得金額に応じて） */
-export function basicDeduction(totalIncome: number): number {
-  if (totalIncome <= 1_320_000) return 950_000;
-  if (totalIncome <= 3_360_000) return 880_000;
-  if (totalIncome <= 4_890_000) return 680_000;
-  if (totalIncome <= 6_550_000) return 630_000;
-  if (totalIncome <= 23_500_000) return 580_000;
-  if (totalIncome <= 24_000_000) return 480_000;
-  if (totalIncome <= 24_500_000) return 320_000;
-  if (totalIncome <= 25_000_000) return 160_000;
-  return 0;
+/** 基礎控除（合計所得金額に応じて） */
+export function basicDeduction(
+  totalIncome: number,
+  rules: YearEndRules = rulesFor(RULE_YEAR),
+): number {
+  return rules.basic.find(([limit]) => totalIncome <= limit)?.[1] ?? 0;
 }
 
 /** 所得税の速算表（課税所得金額 → 税額） */
@@ -73,9 +74,12 @@ export interface YearEndInput {
   elderlyDependents: number;
   /** 住宅借入金等特別控除の額 */
   housingLoan: number;
+  /** 年分（省略すると RULE_YEAR） */
+  year?: number;
 }
 
 export interface YearEndResult {
+  rules: YearEndRules;
   employmentIncome: number;
   deductions: { label: string; amount: number }[];
   deductionTotal: number;
@@ -87,7 +91,9 @@ export interface YearEndResult {
 }
 
 export function yearEndAdjustment(i: YearEndInput): YearEndResult {
-  const inc = employmentIncome(i.salary);
+  const rules = rulesFor(i.year ?? RULE_YEAR);
+  const inc = employmentIncome(i.salary, rules);
+  const d = rules.dependents;
   const deductions = [
     { label: '社会保険料控除', amount: i.socialInsurance },
     { label: '生命保険料控除・地震保険料控除', amount: i.insurance },
@@ -95,10 +101,12 @@ export function yearEndAdjustment(i: YearEndInput): YearEndResult {
     {
       label: '扶養控除',
       amount:
-        i.dependents * 380_000 + i.specificDependents * 630_000 + i.elderlyDependents * 480_000,
+        i.dependents * d.general +
+        i.specificDependents * d.specific +
+        i.elderlyDependents * d.elderly,
     },
     // 給与所得のほかに所得がないものとして、給与所得を合計所得金額とみなす
-    { label: '基礎控除', amount: basicDeduction(inc) },
+    { label: '基礎控除', amount: basicDeduction(inc, rules) },
   ];
   const deductionTotal = deductions.reduce((s, d) => s + d.amount, 0);
   const taxable = Math.max(0, Math.floor((inc - deductionTotal) / 1000) * 1000);
@@ -106,6 +114,7 @@ export function yearEndAdjustment(i: YearEndInput): YearEndResult {
   const afterCredit = Math.max(0, computedTax - i.housingLoan);
   const annualTax = Math.floor((afterCredit * 1.021) / 100) * 100;
   return {
+    rules,
     employmentIncome: inc,
     deductions,
     deductionTotal,
