@@ -93,16 +93,50 @@ export function JournalList({ records }: { records: JournalRecord[] }) {
 
 // ---------------- 総勘定元帳（T 字勘定） ----------------
 
-function TSide({ postings, total }: { postings: Posting[]; total: number }) {
+/** ドリルダウン: 勘定科目・仕訳を押したときの動き（無ければ押せない表示） */
+export interface DrillHandlers {
+  onAccount?: (account: string) => void;
+  onEntry?: (entryId: string) => void;
+}
+
+const drillable =
+  'rounded-md text-left hover:bg-accent-50 hover:text-accent-800 dark:hover:bg-accent-900/30 dark:hover:text-accent-200';
+
+function TSide({
+  postings,
+  total,
+  onEntry,
+}: {
+  postings: Posting[];
+  total: number;
+  onEntry?: (entryId: string) => void;
+}) {
   return (
     <div className="min-w-0 text-[0.85rem]">
-      {postings.map((p, i) => (
-        <div key={i} className="flex gap-1.5 px-2 py-0.5" title={p.memo}>
-          <span className={cn(mono, 'shrink-0 text-slate-400')}>{shortDate(p.date)}</span>
-          <span className="min-w-0 flex-1 truncate">{p.counterpart}</span>
-          <span className={mono}>{formatAmount(p.amount)}</span>
-        </div>
-      ))}
+      {postings.map((p, i) => {
+        const body = (
+          <>
+            <span className={cn(mono, 'shrink-0 text-slate-400')}>{shortDate(p.date)}</span>
+            <span className="min-w-0 flex-1 truncate">{p.counterpart}</span>
+            <span className={mono}>{formatAmount(p.amount)}</span>
+          </>
+        );
+        return onEntry ? (
+          <button
+            key={i}
+            type="button"
+            title={`${p.memo}（押すと仕訳を表示）`}
+            onClick={() => onEntry(p.entryId)}
+            className={cn('flex w-full gap-1.5 px-2 py-0.5', drillable)}
+          >
+            {body}
+          </button>
+        ) : (
+          <div key={i} className="flex gap-1.5 px-2 py-0.5" title={p.memo}>
+            {body}
+          </div>
+        );
+      })}
       <div className="mt-1 flex justify-end border-t border-slate-200 px-2 pt-0.5 text-xs text-slate-500 dark:border-slate-700">
         <span className={mono}>{formatAmount(total)}</span>
       </div>
@@ -110,7 +144,13 @@ function TSide({ postings, total }: { postings: Posting[]; total: number }) {
   );
 }
 
-function TAccount({ l }: { l: AccountLedger }) {
+export function TAccount({
+  l,
+  onEntry,
+}: {
+  l: AccountLedger;
+  onEntry?: (entryId: string) => void;
+}) {
   const open = useAccountSheet((s) => s.open);
   const side = l.balance >= 0 ? '借方' : '貸方';
   return (
@@ -133,14 +173,14 @@ function TAccount({ l }: { l: AccountLedger }) {
         </span>
       </div>
       <div className="grid grid-cols-2 divide-x-2 divide-slate-400 py-1 dark:divide-slate-500">
-        <TSide postings={l.debits} total={l.drTotal} />
-        <TSide postings={l.credits} total={l.crTotal} />
+        <TSide postings={l.debits} total={l.drTotal} onEntry={onEntry} />
+        <TSide postings={l.credits} total={l.crTotal} onEntry={onEntry} />
       </div>
     </Card>
   );
 }
 
-export function LedgerView({ ledger }: { ledger: AccountLedger[] }) {
+export function LedgerView({ ledger, onEntry }: { ledger: AccountLedger[] } & DrillHandlers) {
   const [selected, setSelected] = useState<string | null>(null);
   if (ledger.length === 0) return <EmptyHint />;
   const shown = selected ? ledger.filter((l) => l.account === selected) : ledger;
@@ -162,11 +202,11 @@ export function LedgerView({ ledger }: { ledger: AccountLedger[] }) {
       </div>
       <p className="text-xs text-slate-500 dark:text-slate-400">
         左が借方、右が貸方。日付・相手の勘定科目（相手が 2
-        つ以上なら「諸口」）・金額の順に転記しています。
+        つ以上なら「諸口」）・金額の順に転記しています。行を押すと、もとの仕訳を表示します。
       </p>
       <div className="grid gap-3 lg:grid-cols-2">
         {shown.map((l) => (
-          <TAccount key={l.account} l={l} />
+          <TAccount key={l.account} l={l} onEntry={onEntry} />
         ))}
       </div>
     </div>
@@ -175,7 +215,7 @@ export function LedgerView({ ledger }: { ledger: AccountLedger[] }) {
 
 // ---------------- 試算表 ----------------
 
-export function TrialBalanceView({ tb }: { tb: TrialBalance }) {
+export function TrialBalanceView({ tb, onAccount }: { tb: TrialBalance } & DrillHandlers) {
   // スマホでは合計の列を隠して残高試算表にする（押すと合計も表示）
   const [totalsShown, setTotalsShown] = useState(false);
   if (tb.rows.length === 0) return <EmptyHint />;
@@ -212,7 +252,19 @@ export function TrialBalanceView({ tb }: { tb: TrialBalance }) {
               <td className={cn(mono, 'px-2 py-1.5 text-right text-slate-500', totalCol)}>
                 {r.drTotal > 0 && formatAmount(r.drTotal)}
               </td>
-              <td className="px-2 py-1.5 text-center whitespace-nowrap">{r.account}</td>
+              <td className="px-2 py-1.5 text-center whitespace-nowrap">
+                {onAccount ? (
+                  <button
+                    type="button"
+                    onClick={() => onAccount(r.account)}
+                    className={cn('px-1 underline decoration-dotted underline-offset-4', drillable)}
+                  >
+                    {r.account}
+                  </button>
+                ) : (
+                  r.account
+                )}
+              </td>
               <td className={cn(mono, 'px-2 py-1.5 text-right text-slate-500', totalCol)}>
                 {r.crTotal > 0 && formatAmount(r.crTotal)}
               </td>
@@ -250,14 +302,16 @@ export function TrialBalanceView({ tb }: { tb: TrialBalance }) {
 
 // ---------------- 決算書 ----------------
 
-function StatementSide({
+export function StatementSide({
   title,
   sections,
   total,
+  onAccount,
 }: {
   title: string;
-  sections: { label: string; lines: StatementLine[]; extra?: StatementLine }[];
+  sections: { label: string; lines: StatementLine[]; extra?: StatementLine | StatementLine[] }[];
   total: number;
+  onAccount?: (account: string) => void;
 }) {
   return (
     <div className="flex min-w-0 flex-col">
@@ -268,10 +322,42 @@ function StatementSide({
         {sections.map((s) => (
           <div key={s.label} className="mb-2">
             <div className="text-xs font-semibold text-slate-500">{s.label}</div>
-            {[...s.lines, ...(s.extra ? [s.extra] : [])].map((l) => (
+            {s.lines.map((l) =>
+              onAccount ? (
+                <button
+                  key={l.account}
+                  type="button"
+                  onClick={() => onAccount(l.account)}
+                  title="押すと内訳を表示"
+                  className={cn(
+                    'flex w-full gap-2 px-1 py-0.5',
+                    drillable,
+                    l.contra && 'pl-4 text-slate-500',
+                  )}
+                >
+                  <span className="min-w-0 flex-1 truncate underline decoration-slate-300 decoration-dotted underline-offset-4 dark:decoration-slate-600">
+                    {l.account}
+                  </span>
+                  <Yen n={l.amount} />
+                </button>
+              ) : (
+                <div
+                  key={l.account}
+                  className={cn('flex gap-2 py-0.5', l.contra && 'pl-3 text-slate-500')}
+                >
+                  <span className="min-w-0 flex-1 truncate">{l.account}</span>
+                  <Yen n={l.amount} />
+                </div>
+              ),
+            )}
+            {(Array.isArray(s.extra) ? s.extra : s.extra ? [s.extra] : []).map((l) => (
               <div
                 key={l.account}
-                className={cn('flex gap-2 py-0.5', l.contra && 'pl-3 text-slate-500')}
+                className={cn(
+                  'flex gap-2 py-0.5',
+                  onAccount && 'px-1',
+                  l.contra && 'pl-3 text-slate-500',
+                )}
               >
                 <span className="min-w-0 flex-1 truncate">{l.account}</span>
                 <Yen n={l.amount} />
@@ -289,7 +375,7 @@ function StatementSide({
   );
 }
 
-export function StatementsView({ s }: { s: Statements }) {
+export function StatementsView({ s, onAccount }: { s: Statements } & DrillHandlers) {
   if (s.assets.length + s.liabilities.length + s.revenues.length + s.expenses.length === 0)
     return <EmptyHint />;
   const profitLine: StatementLine = {
@@ -314,6 +400,7 @@ export function StatementsView({ s }: { s: Statements }) {
             title="資産の部"
             sections={[{ label: '資産', lines: s.assets }]}
             total={s.totalAssets}
+            onAccount={onAccount}
           />
           <StatementSide
             title="負債・純資産の部"
@@ -330,6 +417,7 @@ export function StatementsView({ s }: { s: Statements }) {
               },
             ]}
             total={bsRight}
+            onAccount={onAccount}
           />
         </div>
       </Card>
@@ -346,6 +434,7 @@ export function StatementsView({ s }: { s: Statements }) {
               },
             ]}
             total={s.totalExpenses + Math.max(0, s.netIncome)}
+            onAccount={onAccount}
           />
           <StatementSide
             title="収益"
@@ -357,11 +446,14 @@ export function StatementsView({ s }: { s: Statements }) {
               },
             ]}
             total={s.totalRevenues + Math.max(0, -s.netIncome)}
+            onAccount={onAccount}
           />
         </div>
       </Card>
       <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-        入力した仕訳の残高から作った、学習用の簡単な決算書です（勘定式）。売れ残った商品の調整（売上原価の計算）や減価償却などの決算整理は、仕訳として入力すると反映されます。
+        入力した仕訳の残高から作った、学習用の簡単な決算書です（勘定式）。科目を押すと、元帳（T
+        字勘定）→
+        もとの仕訳へとたどれます。売れ残った商品の調整（売上原価の計算）や減価償却などの決算整理は、仕訳として入力すると反映されます。
       </p>
     </div>
   );

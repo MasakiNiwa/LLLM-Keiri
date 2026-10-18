@@ -1,0 +1,83 @@
+id: domestic-80
+title: 国内子会社（持分 80%）の連結 1 年目
+summary: P 社が S 社の株式の 80% を取得して 1 年。投資と資本の相殺・のれん・非支配株主・内部取引・債権債務・未実現利益の 6 つの修正で連結します
+level: 4
+unit: 千円
+lessons:
+  - consolidation-overview
+  - consolidation-capital
+  - consolidation-after-acquisition
+  - consolidation-intercompany
+basis:
+  - name: 連結財務諸表に関する会計基準（企業会計基準第 22 号）
+    url: https://www.asb-j.jp/jp/accounting_standards/y2013/2013-0913.html
+  - name: 企業結合に関する会計基準（企業会計基準第 21 号）
+asOf: '2026-10-01'
+updated: '2026-10-18'
+entities:
+  - id: p
+    name: P 社（親会社）
+    role: parent
+    note: 前期末（2025 年 3 月 31 日）に S 社株式の 80% を 1,000 で取得。当期に S 社へ商品を 500 販売した
+    trialBalance: |
+      普通預金 1,500 / 買掛金 700
+      売掛金 900 / 借入金 1,300
+      繰越商品 600 / 資本金 3,000
+      子会社株式 1,000 / 利益剰余金 800
+      建物 2,000 / 売上 5,000
+      売上原価 3,800 /
+      給料 600 /
+      支払家賃 400 /
+  - id: s
+    name: S 社（子会社）
+    role: subsidiary
+    ownership: 80
+    note: 取得日の資本は 資本金 800・利益剰余金 200（時価と帳簿価額は同じ）。P 社からの仕入 500 のうち 50 が期末の在庫に残っている。買掛金のうち 100 は P 社に対するもの
+    trialBalance: |
+      普通預金 400 / 買掛金 500
+      売掛金 500 / 借入金 100
+      繰越商品 300 / 資本金 800
+      備品 500 / 利益剰余金 200
+      売上原価 1,500 / 売上 2,000
+      給料 300 /
+      支払家賃 100 /
+eliminations:
+  - id: capital
+    category: capital
+    title: 投資と資本の相殺消去
+    question: P 社は S 社株式の 80% を 1,000 で取得した。取得日の S 社の資本は、資本金 800・利益剰余金 200 である（時価と帳簿価額は同じ）。投資と資本を相殺消去する。
+    shiwake: |
+      資本金 800 / 子会社株式 1,000
+      利益剰余金 200 / 非支配株主持分 200
+      のれん 200 /
+    explanation: S 社の資本 1,000 のうち 80%（800）が P 社の持分、20%（200）が非支配株主持分です。取得原価 1,000 と P 社の持分 800 の差額 200 がのれんになります。
+  - id: goodwill
+    category: goodwill
+    title: のれんの償却
+    question: 上ののれん 200 を、20 年で定額法により償却する。
+    shiwake: のれん償却 10 / のれん 10
+    explanation: 200 ÷ 20 年 ＝ 10。のれんは 20 年以内のその効果の及ぶ期間にわたって、定額法などで償却します。
+  - id: nci-profit
+    category: nci
+    title: 子会社の当期純利益の非支配株主への配分
+    question: S 社の当期純利益は 100 である。このうち非支配株主の持分（20%）を振り替える。
+    shiwake: 非支配株主に帰属する当期純利益 20 / 非支配株主持分 20
+    explanation: S 社の利益 100 × 20% ＝ 20 は非支配株主のものなので、非支配株主持分を増やし、連結損益計算書で当期純利益から差し引きます。
+  - id: sales
+    category: intercompany
+    title: 内部取引（売上と仕入）の消去
+    question: 当期に P 社は S 社に商品を 500 販売した（S 社は売上原価に含めている）。内部取引を消去する。
+    shiwake: 売上 500 / 売上原価 500
+    explanation: グループの中での売り買いは、グループの外から見れば取引ではないので、P 社の売上と S 社の仕入（売上原価）を両方消します。
+  - id: balances
+    category: balances
+    title: 債権債務の相殺消去
+    question: S 社の買掛金のうち 100 は P 社に対するもの（P 社の売掛金）である。相殺消去する。
+    shiwake: 買掛金 100 / 売掛金 100
+    explanation: グループの中での貸し借りは、グループ全体では債権も債務もないので、相殺します。
+  - id: unrealized
+    category: unrealized
+    title: 期末の在庫に含まれる未実現利益の消去
+    question: S 社の期末の在庫のうち 50 は P 社から仕入れた商品である。P 社の売上総利益率は 20% である（P 社から S 社への販売・ダウンストリーム）。
+    shiwake: 売上原価 10 / 繰越商品 10
+    explanation: 50 × 20% ＝ 10 は、グループの外にまだ売れていない（実現していない）利益です。在庫を 10 減らし、売上原価を増やして利益を減らします。親会社が売り手なので、全額を親会社の負担にします。

@@ -13,16 +13,26 @@ interface JournalTableProps {
   marks?: Record<string, 'ok' | 'ng'>;
   className?: string;
   compact?: boolean;
+  /** 科目名を押したとき（指定すると、説明の代わりにこれを呼ぶ。ドリルダウン用） */
+  onAccountClick?: (name: string) => void;
 }
 
-function AccountName({ name, link }: { name: string; link: boolean }) {
+function AccountName({
+  name,
+  link,
+  onClick,
+}: {
+  name: string;
+  link: boolean;
+  onClick?: (name: string) => void;
+}) {
   const book = useContent((s) => s.book);
-  const known = link && !!book?.find(name);
+  const known = link && (!!onClick || !!book?.find(name));
   if (!known) return <span>{name}</span>;
   return (
     <button
       type="button"
-      onClick={() => useAccountSheet.getState().open(name)}
+      onClick={() => (onClick ? onClick(name) : useAccountSheet.getState().open(name))}
       className="text-left underline decoration-slate-300 decoration-dotted underline-offset-4 hover:text-accent-700 hover:decoration-accent-500 dark:decoration-slate-600 dark:hover:text-accent-300"
     >
       {name}
@@ -30,7 +40,17 @@ function AccountName({ name, link }: { name: string; link: boolean }) {
   );
 }
 
-function Cell({ line, link, mark }: { line?: JournalLine; link: boolean; mark?: 'ok' | 'ng' }) {
+function Cell({
+  line,
+  link,
+  mark,
+  onAccountClick,
+}: {
+  line?: JournalLine;
+  link: boolean;
+  mark?: 'ok' | 'ng';
+  onAccountClick?: (name: string) => void;
+}) {
   const tone =
     mark === 'ng'
       ? 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200'
@@ -40,7 +60,7 @@ function Cell({ line, link, mark }: { line?: JournalLine; link: boolean; mark?: 
   return (
     <>
       <div className={cn('min-w-0 px-2.5 py-1.5 break-words', tone)}>
-        {line && <AccountName name={line.account} link={link} />}
+        {line && <AccountName name={line.account} link={link} onClick={onAccountClick} />}
       </div>
       <div className={cn('px-2.5 py-1.5 text-right font-mono tabular-nums', tone)}>
         {line && formatAmount(line.amount)}
@@ -59,6 +79,7 @@ export function JournalTable({
   marks,
   className,
   compact,
+  onAccountClick,
 }: JournalTableProps) {
   const rows = pairRows(entry.lines);
   const t = totals(entry.lines);
@@ -91,10 +112,20 @@ export function JournalTable({
         {rows.map(([dr, cr], i) => (
           <div key={i} className="contents">
             <div className="col-span-2 grid grid-cols-subgrid border-r border-slate-200 dark:border-slate-700">
-              <Cell line={dr} link={linkAccounts} mark={dr && marks?.[`dr:${dr.account}`]} />
+              <Cell
+                line={dr}
+                link={linkAccounts}
+                mark={dr && marks?.[`dr:${dr.account}`]}
+                onAccountClick={onAccountClick}
+              />
             </div>
             <div className="col-span-2 grid grid-cols-subgrid">
-              <Cell line={cr} link={linkAccounts} mark={cr && marks?.[`cr:${cr.account}`]} />
+              <Cell
+                line={cr}
+                link={linkAccounts}
+                mark={cr && marks?.[`cr:${cr.account}`]}
+                onAccountClick={onAccountClick}
+              />
             </div>
           </div>
         ))}

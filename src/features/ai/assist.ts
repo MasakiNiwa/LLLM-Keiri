@@ -12,6 +12,12 @@ export interface AssistAction {
   instruction: string;
 }
 
+const f = (id: string, label: string, instruction: string): AssistAction => ({
+  id,
+  label,
+  instruction,
+});
+
 /** 見ているものに合わせた頼み方の候補 */
 export function assistActions(focus: AiFocus): AssistAction[] {
   switch (focus.kind) {
@@ -107,6 +113,28 @@ export function assistActions(focus: AiFocus): AssistAction[] {
           instruction:
             'この帳簿で、決算に向けて入れたほうがよい仕訳（決算整理など）があれば、考え方とあわせて提案してください。',
         },
+      ];
+    case 'consolidation':
+      return [
+        f(
+          'explain',
+          'この連結を解説',
+          '連結の事例（viewing）について、連結修正仕訳がそれぞれ何のためにあるか、連結の当期純利益が各社の利益からどう変わったかを、渡した数字だけを使って説明してください。',
+        ),
+        ...(focus.drilldown
+          ? [
+              f(
+                'drill',
+                'この内訳を説明',
+                'ドリルダウンで見ている科目（viewing.drilldown）の内訳を説明してください。各社の金額と修正仕訳の金額が、なぜそうなるのかを渡した数字だけで説明します（借方が正、貸方が負）。',
+              ),
+            ]
+          : []),
+        f(
+          'off',
+          '外した修正の影響',
+          '反映を外している修正仕訳（viewing.eliminationsOff）があれば、外すと連結財務諸表のどこがどう誤るかを説明してください。なければ、修正をひとつ外すと何が起きるかを例にして説明してください。',
+        ),
       ];
     case 'accounts':
       return [

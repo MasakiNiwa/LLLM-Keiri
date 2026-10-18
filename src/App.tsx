@@ -20,6 +20,8 @@ const LedgerPage = lazy(() => import('@/pages/LedgerPage'));
 const ChatPage = lazy(() => import('@/pages/ChatPage'));
 const ModelsPage = lazy(() => import('@/pages/ModelsPage'));
 const StudioPage = lazy(() => import('@/pages/StudioPage'));
+const ConsolidationListPage = lazy(() => import('@/pages/ConsolidationListPage'));
+const ConsolidationPage = lazy(() => import('@/pages/ConsolidationPage'));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
 const HelpPage = lazy(() => import('@/pages/HelpPage'));
 
@@ -41,6 +43,8 @@ export default function App() {
             <Route path="/ledger/:tab?" component={LedgerPage} />
             <Route path="/chat" component={ChatPage} />
             <Route path="/models" component={ModelsPage} />
+            <Route path="/consolidation" component={ConsolidationListPage} />
+            <Route path="/consolidation/:id/:tab?" component={ConsolidationPage} />
             <Route path="/studio/:tab?" component={StudioPage} />
             <Route path="/settings" component={SettingsPage} />
             <Route path="/help" component={HelpPage} />

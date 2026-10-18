@@ -10,6 +10,8 @@ import { Tabs } from '@/components/ui/Tabs';
 import { useFocus } from '@/features/ai/useFocus';
 import { useContent, useContentIndex } from '@/features/content/contentStore';
 import { JournalForm } from '@/features/ledger/JournalForm';
+import { LedgerDrill, type LedgerDrillItem } from '@/features/ledger/LedgerDrill';
+import { useDrillStack } from '@/components/ui/useDrillStack';
 import { clearJournal, loadScenario, useJournal } from '@/features/ledger/journalRepo';
 import { JournalList, LedgerView, StatementsView, TrialBalanceView } from '@/features/ledger/views';
 import { LevelBadge } from '@/features/learn/MetaBadges';
@@ -34,6 +36,8 @@ export default function LedgerPage() {
   const records = useJournal();
   const [confirm, setConfirm] = useState<null | 'clear' | Scenario>(null);
   const [samples, setSamples] = useState(false);
+  const drill = useDrillStack<LedgerDrillItem>();
+  const openAccount = (account: string) => drill.open({ kind: 'account', account });
 
   // 集計はすべてプログラムで行う（転記・試算表・決算書）
   const ledger = useMemo(
@@ -106,11 +110,24 @@ export default function LedgerPage() {
             {records && <JournalList records={records} />}
           </>
         )}
-        {tab === 'ledger' && <LedgerView ledger={ledger} />}
-        {tab === 'trial' && <TrialBalanceView tb={tb} />}
-        {tab === 'statements' && <StatementsView s={statements} />}
+        {tab === 'ledger' && (
+          <LedgerView
+            ledger={ledger}
+            onEntry={(entryId) => drill.open({ kind: 'entry', entryId })}
+          />
+        )}
+        {tab === 'trial' && <TrialBalanceView tb={tb} onAccount={openAccount} />}
+        {tab === 'statements' && <StatementsView s={statements} onAccount={openAccount} />}
       </PageBody>
 
+      <LedgerDrill
+        stack={drill.stack}
+        ledger={ledger}
+        records={records ?? []}
+        onPush={drill.push}
+        onBack={drill.back}
+        onClose={drill.close}
+      />
       <BottomSheet
         open={samples}
         onClose={() => setSamples(false)}

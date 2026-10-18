@@ -194,6 +194,83 @@ export const ScenarioSchema = z.object({
 });
 export type Scenario = z.infer<typeof ScenarioSchema>;
 
+/** 連結の会社の通貨（円以外は在外子会社として、円に換算してから連結する） */
+export const CURRENCIES = ['JPY', 'USD'] as const;
+export type Currency = (typeof CURRENCIES)[number];
+
+/** 換算のレート（1 単位あたりの円）。CR: 決算日、AR: 期中平均、HR: 取得時（資本） */
+export const RatesSchema = z.object({
+  CR: z.number().positive(),
+  AR: z.number().positive(),
+  HR: z.number().positive(),
+});
+export type Rates = z.infer<typeof RatesSchema>;
+
+export const EntitySchema = z.object({
+  id,
+  name: z.string().min(1),
+  role: z.enum(['parent', 'subsidiary']),
+  currency: z.enum(CURRENCIES).default('JPY'),
+  /** 金額の単位の表示（例: 千円、千ドル） */
+  unit: z.string().default('千円'),
+  /** 親会社の持分割合（%）。子会社だけ */
+  ownership: z.number().gt(0).max(100).optional(),
+  /** 在外子会社の換算レート */
+  rates: RatesSchema.optional(),
+  /** 科目ごとに使うレート（資本の科目の発生時のレートなど。無ければ区分で決める） */
+  historical: z.record(z.string(), z.number().positive()).default({}),
+  /** 決算整理後の残高試算表（仕訳の書き方。借方に借方残高、貸方に貸方残高を書く） */
+  trialBalance: z.string().min(1),
+  note: z.string().optional(),
+});
+export type Entity = z.infer<typeof EntitySchema>;
+
+export const ELIMINATION_CATEGORIES = {
+  capital: '投資と資本の相殺消去',
+  goodwill: 'のれんの償却',
+  nci: '非支配株主への配分',
+  intercompany: '内部取引の消去',
+  balances: '債権債務の相殺消去',
+  unrealized: '未実現利益の消去',
+  dividend: '配当金の修正',
+  translation: '換算差額の配分',
+  other: 'そのほか',
+} as const;
+
+export const EliminationSchema = z.object({
+  id,
+  category: z.enum(Object.keys(ELIMINATION_CATEGORIES) as [keyof typeof ELIMINATION_CATEGORIES]),
+  title: z.string().min(1),
+  /** 自分で解くときの問題文（取引の説明と、必要な数字） */
+  question: z.string().min(1),
+  /** 連結修正仕訳（仕訳の書き方。1 つの仕訳） */
+  shiwake: z.string().min(1),
+  explanation: z.string().min(1),
+});
+export type Elimination = z.infer<typeof EliminationSchema>;
+
+/** 連結の事例（親会社と子会社の試算表、連結修正仕訳） */
+export const ConsolidationCaseSchema = z.object({
+  id,
+  title: z.string().min(1),
+  summary: z.string().min(1),
+  level,
+  /** 連結財務諸表の金額の単位 */
+  unit: z.string().default('千円'),
+  /** 関係するレッスンの id */
+  lessons: z.array(z.string()).default([]),
+  basis: z.array(BasisSchema).default([]),
+  asOf: date,
+  updated: date,
+  entities: z.array(EntitySchema).min(2),
+  eliminations: z.array(EliminationSchema).min(1),
+});
+export type ConsolidationCase = z.infer<typeof ConsolidationCaseSchema>;
+export type ConsolidationMeta = Pick<
+  ConsolidationCase,
+  'id' | 'title' | 'summary' | 'level' | 'asOf' | 'lessons'
+> & { entities: { name: string; currency: Currency }[]; eliminationCount: number };
+
 /** content/index.json（一覧に必要なものだけ。本文は別ファイル） */
 export interface ContentIndex {
   version: 1;
@@ -203,6 +280,7 @@ export interface ContentIndex {
   accounts: Account[];
   rules: Rule[];
   scenarios: Scenario[];
+  consolidations: ConsolidationMeta[];
 }
 
 /** 検索の対象（content/search.json） */
