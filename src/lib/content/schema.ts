@@ -375,12 +375,49 @@ export const QuizQuestionSchema = z.object({
 });
 export type QuizQuestion = z.infer<typeof QuizQuestionSchema>;
 
+/** J-SOX のアサーション（RCM の演習で選ぶ） */
+export const RCM_ASSERTIONS = [
+  '実在性',
+  '網羅性',
+  '権利と義務の帰属',
+  '評価の妥当性',
+  '期間配分の適切性',
+  '表示の妥当性',
+] as const;
+export const RCM_TYPES = ['予防', '発見'] as const;
+export const RCM_METHODS = ['手作業', '自動', 'IT 依存の手作業'] as const;
+
+/** RCM の演習: 業務記述書の手順を読み、リスクごとにコントロールと性質を選ぶ */
+export const RcmCaseSchema = z.object({
+  /** 業務プロセスの名前 */
+  process: z.string().min(1),
+  /** 業務記述書（手順ごと） */
+  steps: z.array(z.object({ id: z.string().min(1), text: z.string().min(1) })).min(2),
+  risks: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        risk: z.string().min(1),
+        /** リスクに対応するコントロールがある手順の id */
+        control: z.string().min(1),
+        assertion: z.enum(RCM_ASSERTIONS),
+        type: z.enum(RCM_TYPES),
+        method: z.enum(RCM_METHODS),
+        explanation: z.string().min(1),
+      }),
+    )
+    .min(1),
+});
+export type RcmCase = z.infer<typeof RcmCaseSchema>;
+
 export const QuizSetSchema = z.object({
   ...contentMeta,
+  /** RCM の演習（任意。選択問題の前に表示する） */
+  rcm: RcmCaseSchema.optional(),
   questions: z.array(QuizQuestionSchema).min(1),
 });
 export type QuizSet = z.infer<typeof QuizSetSchema>;
-export type QuizMeta = Omit<QuizSet, 'questions'> & { questionCount: number };
+export type QuizMeta = Omit<QuizSet, 'questions' | 'rcm'> & { questionCount: number };
 
 /** 帳簿のサンプル（一連の取引。帳簿ページで読み込める） */
 export const ScenarioSchema = z.object({

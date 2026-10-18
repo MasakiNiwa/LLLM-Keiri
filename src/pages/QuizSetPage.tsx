@@ -10,6 +10,7 @@ import { useFocus } from '@/features/ai/useFocus';
 import { recordAttempt } from '@/features/drill/records';
 import { BasisInfo } from '@/features/learn/MetaBadges';
 import { ChoiceQuiz } from '@/features/learn/QuizBlock';
+import { RcmExercise } from '@/features/learn/RcmExercise';
 import { fetchQuizSet } from '@/lib/content/load';
 import type { QuizSet } from '@/lib/content/schema';
 import { db } from '@/lib/db/db';
@@ -46,12 +47,13 @@ function QuizSetBody({ id }: { id: string }) {
       m.set(a.questionId, a.correct);
     return m;
   }, [attempts]);
-  const correct = set ? set.questions.filter((q) => last.get(q.id)).length : 0;
+  const ids = set ? [...(set.rcm?.risks ?? []), ...set.questions].map((q) => q.id) : [];
+  const correct = ids.filter((qid) => last.get(qid)).length;
   useFocus(
     set
       ? {
           kind: 'other',
-          page: `選択問題「${set.title}」（正解 ${correct}/${set.questions.length}）`,
+          page: `選択問題「${set.title}」（正解 ${correct}/${ids.length}）`,
         }
       : { kind: 'other', page: '選択問題' },
   );
@@ -69,11 +71,26 @@ function QuizSetBody({ id }: { id: string }) {
           <>
             <p className="text-sm text-slate-600 dark:text-slate-400">{set.summary}</p>
             <div className="flex items-center gap-3 text-sm">
-              <Progress value={correct / set.questions.length} className="h-2 flex-1" />
+              <Progress value={correct / ids.length} className="h-2 flex-1" />
               <span className="tabular-nums">
-                正解 {correct}/{set.questions.length}
+                正解 {correct}/{ids.length}
               </span>
             </div>
+            {set.rcm && (
+              <RcmExercise
+                rcm={set.rcm}
+                onGraded={(riskId, ok) =>
+                  void recordAttempt({
+                    setId,
+                    questionId: riskId,
+                    correct: ok,
+                    revealed: false,
+                    kind: ok ? 'exact' : 'choice',
+                  })
+                }
+              />
+            )}
+            {set.rcm && <h2 className="px-1 pt-2 font-semibold">確認問題</h2>}
             {set.questions.map((q, i) => (
               <Card key={q.id} className="space-y-3 p-4">
                 {q.context && (
