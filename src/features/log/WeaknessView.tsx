@@ -53,6 +53,8 @@ function useSetInfos(): Map<string, SetInfo> | null {
             accounts: new Map(e.adjustments.map((q) => [q.id, accountsOf(q.answer)])),
           });
       for (const q of index.quizzes) m.set(`quiz:${q.id}`, { track: q.track, accounts: new Map() });
+      for (const l of index.lessons)
+        m.set(`lesson:${l.id}`, { track: l.track, accounts: new Map() });
       for (const c of mine)
         if (c.kind === 'drill')
           m.set(c.id, {

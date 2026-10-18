@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   BookCheck,
   BookOpenText,
+  CalendarClock,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
@@ -24,6 +25,8 @@ import { useUserContent } from '@/features/studio/userContentRepo';
 import holidayData from '@/data/holidays.json';
 import { createHolidayLookup, type HolidayData } from '@/lib/calendar/holidays';
 import { db } from '@/lib/db/db';
+import { useReviewRecords } from '@/features/drill/reviewRepo';
+import { dueByDate } from '@/lib/srs/review';
 import { buildDailyLog, dateKey, dayScore, streak, type DayLog } from '@/lib/log/dailyLog';
 import { cn } from '@/lib/utils/cn';
 
@@ -59,7 +62,10 @@ function useTitles() {
   const mine = useUserContent();
   return useMemo(() => {
     const m = new Map<string, { title: string; href: string }>();
-    for (const l of index?.lessons ?? []) m.set(l.id, { title: l.title, href: `/learn/${l.id}` });
+    for (const l of index?.lessons ?? []) {
+      m.set(l.id, { title: l.title, href: `/learn/${l.id}` });
+      m.set(`lesson:${l.id}`, { title: `${l.title}（確認問題）`, href: `/learn/${l.id}` });
+    }
     for (const d of index?.drills ?? []) m.set(d.id, { title: d.title, href: `/drill/${d.id}` });
     for (const q of index?.quizzes ?? [])
       m.set(`quiz:${q.id}`, { title: q.title, href: `/quiz/${q.id}` });
@@ -77,7 +83,17 @@ function useTitles() {
   }, [index, mine]);
 }
 
-function DayDetail({ log, date }: { log?: DayLog; date: string }) {
+function DayDetail({
+  log,
+  date,
+  due,
+  today,
+}: {
+  log?: DayLog;
+  date: string;
+  due: number;
+  today: string;
+}) {
   const titles = useTitles();
   const [y, m, d] = date.split('-').map(Number);
   const heading = `${m} 月 ${d} 日（${WEEK[new Date(y, m - 1, d).getDay()]}）`;
@@ -105,7 +121,21 @@ function DayDetail({ log, date }: { log?: DayLog; date: string }) {
   return (
     <Card className="space-y-3 p-4">
       <h2 className="font-semibold">{heading}</h2>
-      {!log || dayScore(log) === 0 ? (
+      {due > 0 && date >= today && (
+        <p className="flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+          <CalendarClock className="size-4 shrink-0" />
+          {date === today ? (
+            <Link href="/review" className="font-medium hover:underline">
+              今日の復習 {due} 問（FSRS が決めた予定）→
+            </Link>
+          ) : (
+            <span>復習の予定 {due} 問（FSRS が決めた予定。解いた結果で変わります）</span>
+          )}
+        </p>
+      )}
+      {date > today ? (
+        due === 0 && <p className="text-sm text-slate-500">この日の復習の予定はありません。</p>
+      ) : !log || dayScore(log) === 0 ? (
         <p className="text-sm text-slate-500">この日の学習の記録はありません。</p>
       ) : (
         <ul className="space-y-3 text-sm">
@@ -194,6 +224,9 @@ export default function LogPage() {
 function CalendarTab() {
   const days = useDailyLog();
   const [today] = useState(() => dateKey(Date.now()));
+  const reviews = useReviewRecords();
+  const [now] = useState(() => Date.now());
+  const dues = useMemo(() => dueByDate(reviews ?? [], now), [reviews, now]);
   const [month, setMonth] = useState(today.slice(0, 7));
   const [selected, setSelected] = useState(today);
   const [y, m] = month.split('-').map(Number);
@@ -286,10 +319,15 @@ function CalendarTab() {
                   selected === c &&
                     'ring-2 ring-accent-500 ring-offset-1 dark:ring-offset-slate-900',
                   c === today && 'font-bold underline underline-offset-2',
-                  c > today && 'opacity-40',
+                  c > today && !dues.get(c) && 'opacity-40',
                 )}
               >
                 {Number(c.slice(8))}
+                {c >= today && (dues.get(c) ?? 0) > 0 && (
+                  <span className="text-[0.55rem] leading-none font-semibold text-amber-600 dark:text-amber-400">
+                    復{dues.get(c)}
+                  </span>
+                )}
               </button>
             ),
           )}
@@ -305,10 +343,15 @@ function CalendarTab() {
           多い
         </div>
       </Card>
-      <DayDetail log={days?.get(selected)} date={selected} />
+      <DayDetail
+        log={days?.get(selected)}
+        date={selected}
+        due={dues.get(selected) ?? 0}
+        today={today}
+      />
       <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
         レッスンを開いた・読んだ日、問題の答え合わせ、帳簿の仕訳、AI
-        への質問を、日付ごとに表示します（この端末の記録）。日付を押すと、その日に学んだことが出ます。
+        への質問を、日付ごとに表示します（この端末の記録）。日付を押すと、その日に学んだことが出ます。今日から先の日の「復◯」は、記憶のアルゴリズム（FSRS）が決めた復習の予定の数です。
       </p>
     </>
   );

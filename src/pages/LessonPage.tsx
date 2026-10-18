@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useContentIndex } from '@/features/content/contentStore';
 import { LessonMarkdown } from '@/features/learn/LessonMarkdown';
+import { LessonIdContext } from '@/features/learn/lessonContext';
 import { BasisInfo, LevelBadge } from '@/features/learn/MetaBadges';
 import { SpeakToggle } from '@/features/speech/SpeakToggle';
 import { useSpeech } from '@/features/speech/speechStore';
@@ -213,7 +214,9 @@ export default function LessonPage() {
             </header>
             <Toc meta={meta} />
             <article style={{ zoom }}>
-              <LessonMarkdown body={lesson.body} />
+              <LessonIdContext.Provider value={meta.id}>
+                <LessonMarkdown body={lesson.body} />
+              </LessonIdContext.Provider>
             </article>
             {meta.changes.length > 0 && (
               <Card className="p-4 text-sm">

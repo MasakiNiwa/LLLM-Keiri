@@ -12,6 +12,7 @@ import { useAccountSheet } from '@/features/accounts/accountSheetStore';
 import { useFocus } from '@/features/ai/useFocus';
 import { useContent, useContentIndex } from '@/features/content/contentStore';
 import { recordAttempt } from '@/features/drill/records';
+import { useReviewOnce } from '@/features/drill/reviewRepo';
 import { ShiwakeExercise, type ExerciseOutcome } from '@/features/journal/ShiwakeExercise';
 import { BasisInfo } from '@/features/learn/MetaBadges';
 import { StatementsView } from '@/features/ledger/views';
@@ -290,7 +291,9 @@ function ExerciseBody({ id }: { id: string }) {
       : { kind: 'other', page: '決算の総合演習' },
   );
 
-  const onJudged = (qid: string) => (o: ExerciseOutcome) =>
+  const review = useReviewOnce(setId);
+  const onJudged = (qid: string) => (o: ExerciseOutcome) => {
+    review(qid, o.result.correct, o.revealed);
     void recordAttempt({
       setId,
       questionId: qid,
@@ -298,6 +301,7 @@ function ExerciseBody({ id }: { id: string }) {
       revealed: o.revealed,
       kind: o.result.kind,
     });
+  };
 
   return (
     <>

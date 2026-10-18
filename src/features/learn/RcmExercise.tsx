@@ -20,7 +20,7 @@ const stepLabel = (rcm: RcmCase, id: string) => {
   return i < 0 ? id : `手順 ${i + 1}`;
 };
 
-function RiskCard({
+export function RiskCard({
   rcm,
   risk,
   index,
