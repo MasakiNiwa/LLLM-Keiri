@@ -1,9 +1,12 @@
 import { useMemo, useState } from 'react';
-import { Calculator, RotateCcw } from 'lucide-react';
+import { Calculator } from 'lucide-react';
 import { Select } from '@/components/ui/Select';
 import { JournalTable } from '@/features/journal/JournalTable';
 import { WidgetSchema, type Widget } from '@/lib/content/schema';
-import { formatAmount, parseAmount } from '@/lib/journal/amount';
+import { formatAmount } from '@/lib/journal/amount';
+import { amount, useAmounts } from './useAmounts';
+import { AmountField, ResetButton } from './widgetParts';
+import { ImpairmentWidget, LeaseWidget, PointsWidget } from './StandardsWidgets';
 import {
   collectionEntry,
   payrollEntries,
@@ -13,49 +16,6 @@ import {
 import { consumptionTaxSettlement, DEEMED_RATES, type BusinessType } from '@/lib/tax/settlement';
 import { rewardEntries, WITHHOLDING_THRESHOLD } from '@/lib/tax/withholding';
 import { disposalEntry } from '@/lib/assets/disposal';
-
-/** 金額の入力（カンマ・「万」も読める） */
-function AmountField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <label className="block text-sm">
-      <span className="mb-1 block text-xs text-slate-600 dark:text-slate-400">{label}</span>
-      <input
-        type="text"
-        inputMode="numeric"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={() => {
-          const n = parseAmount(value);
-          if (n !== null) onChange(formatAmount(n));
-        }}
-        className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-right font-mono tabular-nums dark:border-slate-700 dark:bg-slate-900"
-      />
-    </label>
-  );
-}
-
-const amount = (s: string) => parseAmount(s) ?? NaN;
-
-function useAmounts<K extends string>(initial: Record<K, number>) {
-  const toText = () =>
-    Object.fromEntries(
-      Object.entries(initial).map(([k, v]) => [k, formatAmount(v as number)]),
-    ) as Record<K, string>;
-  const [values, setValues] = useState(toText);
-  return {
-    values,
-    set: (k: K) => (v: string) => setValues((s) => ({ ...s, [k]: v })),
-    reset: () => setValues(toText()),
-  };
-}
 
 function PayrollWidget({ w }: { w: Extract<Widget, { type: 'payroll' }> }) {
   const { values, set, reset } = useAmounts({
@@ -351,25 +311,15 @@ function DisposalWidget({ w }: { w: Extract<Widget, { type: 'asset-disposal' }> 
   );
 }
 
-function ResetButton({ onClick }: { onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
-    >
-      <RotateCcw className="size-3.5" />
-      最初の数字に戻す
-    </button>
-  );
-}
-
 const TITLES: Record<Widget['type'], string> = {
   payroll: '給料の仕訳を作ってみる',
   collection: '入金消込の仕訳を作ってみる',
   withholding: '報酬の源泉徴収を計算してみる',
   'tax-settlement': '決算の消費税の精算をしてみる',
   'asset-disposal': '固定資産の売却を計算してみる',
+  points: 'ポイントへの配分を計算してみる',
+  impairment: '減損を判定してみる',
+  lease: 'リース負債を計算してみる',
 };
 
 /** レッスンの中の計算の部品（` ```widget `）。仕訳はプログラムが作る */
@@ -397,6 +347,9 @@ export function WidgetBlock({ json }: { json: string }) {
       {w.type === 'withholding' && <WithholdingWidget w={w} />}
       {w.type === 'tax-settlement' && <SettlementWidget w={w} />}
       {w.type === 'asset-disposal' && <DisposalWidget w={w} />}
+      {w.type === 'points' && <PointsWidget w={w} />}
+      {w.type === 'impairment' && <ImpairmentWidget w={w} />}
+      {w.type === 'lease' && <LeaseWidget w={w} />}
     </section>
   );
 }

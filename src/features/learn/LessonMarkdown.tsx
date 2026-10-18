@@ -38,7 +38,13 @@ function textOf(node: HastNode | undefined): string {
 }
 
 const components: Components = {
-  a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
+  // アプリの中へのリンク（#/learn/… など）は同じタブで開き、外部のリンクは新しいタブで開く
+  a: ({ node: _node, ...props }) =>
+    props.href?.startsWith('#/') ? (
+      <a {...props} />
+    ) : (
+      <a {...props} target="_blank" rel="noopener noreferrer" />
+    ),
   // ```shiwake・```quiz・```widget は専用の部品で表示する
   pre: ({ node, children, ...props }) => {
     const code = (node as HastNode | undefined)?.children?.find((c) => c.tagName === 'code');

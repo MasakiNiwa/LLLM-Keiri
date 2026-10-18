@@ -195,6 +195,25 @@ export const WidgetSchema = z.discriminatedUnion('type', [
     price: yenAmount.default(250000),
   }),
   z.object({
+    type: z.literal('points'),
+    price: yenAmount.default(10000),
+    points: yenAmount.default(100),
+    usageRate: z.number().int().min(0).max(100).default(100),
+  }),
+  z.object({
+    type: z.literal('impairment'),
+    bookValue: yenAmount.default(5000000),
+    undiscounted: yenAmount.default(4000000),
+    netSellingPrice: yenAmount.default(2800000),
+    valueInUse: yenAmount.default(3000000),
+  }),
+  z.object({
+    type: z.literal('lease'),
+    payment: yenAmount.default(100000),
+    years: z.number().int().min(1).max(50).default(5),
+    rate: z.number().min(0).max(99).default(3),
+  }),
+  z.object({
     type: z.literal('tax-settlement'),
     received: yenAmount.default(150000),
     paid: yenAmount.default(105000),
