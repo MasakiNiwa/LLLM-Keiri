@@ -164,6 +164,35 @@ export const CONSOLIDATION_FORMAT = `## 連結の事例の形式（JSON）
 - eliminations の shiwake は 1 つの仕訳で、貸借を一致させる。連結の金額は、各社の試算表の合計に修正仕訳を加えてアプリが計算する
 `;
 
+export const EXERCISE_FORMAT = `## 決算の総合演習の形式（YAML。content/exercises/ に置く）
+
+\`\`\`yaml
+id: shop-closing
+title: 商品売買業の決算
+summary: 1〜2 文の説明
+level: 3
+closingDate: '2026-03-31'          # 決算日
+basis:
+  - name: 企業会計原則
+asOf: '2026-10-01'
+updated: '2026-10-01'
+lessons: [closing-overview]        # 関係するレッスンの id（任意）
+note: 会計期間・三分法かどうかなどの前提（任意）
+trialBalance: |                    # 決算整理前残高試算表（借方残高を借方、貸方残高を貸方に。空行は入れない）
+  現金 85,000 / 買掛金 450,000
+  繰越商品 120,000 / 資本金 2,000,000
+adjustments:                       # 決算整理事項（1 問に 1 つの決算整理仕訳）
+  - id: a1
+    question: 期首商品棚卸高 120,000 円を、繰越商品勘定から仕入勘定に振り替える。
+    answer: 仕入 120,000 / 繰越商品 120,000
+    hint: ヒント（任意）
+    explanation: 解説
+\`\`\`
+
+- アプリが、正解した（または答えを見た）決算整理だけを反映して、精算表と財務諸表を作る
+- 試算表は借方と貸方の合計を必ず一致させる
+`;
+
 export const COMMON_RULES = `## 守ること
 
 - 日本の会計基準・税法（基準日の時点）に基づき、正確に書く。不確かなことは書かない
@@ -209,6 +238,7 @@ export function contentFormatDoc(tracks: Track[], accounts: Account[]): string {
     LESSON_FORMAT,
     DRILL_FORMAT,
     CONSOLIDATION_FORMAT,
+    EXERCISE_FORMAT,
     COMMON_RULES,
     '## 分野',
     '',

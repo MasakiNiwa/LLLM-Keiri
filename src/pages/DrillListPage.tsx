@@ -1,4 +1,4 @@
-import { ChevronRight, FolderHeart, PenLine } from 'lucide-react';
+import { ChevronRight, FileSpreadsheet, FolderHeart, PenLine } from 'lucide-react';
 import { useUserContent } from '@/features/studio/userContentRepo';
 import { Link } from 'wouter';
 import { PageBody, PageHeader } from '@/app/PageHeader';
@@ -45,6 +45,44 @@ export default function DrillListPage() {
                         </span>
                       </span>
                       <ChevronRight className="size-5 shrink-0 text-slate-400" />
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
+        {index && index.exercises.length > 0 && (
+          <section className="space-y-2">
+            <h2 className="flex items-center gap-2 px-1 text-sm font-semibold text-slate-500 dark:text-slate-400">
+              <FileSpreadsheet className="size-4" />
+              決算の総合演習
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {index.exercises.map((e) => {
+                const s = stats?.get(`exercise:${e.id}`);
+                return (
+                  <Link key={e.id} href={`/exercise/${e.id}`} className="group">
+                    <Card className="flex h-full flex-col gap-2 p-4 transition-colors group-hover:border-accent-300 dark:group-hover:border-accent-700">
+                      <div className="flex items-start gap-3">
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+                          <FileSpreadsheet className="size-5" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-semibold">{e.title}</h3>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">{e.summary}</p>
+                        </div>
+                        <ChevronRight className="size-5 shrink-0 text-slate-400" />
+                      </div>
+                      <div className="mt-auto flex items-center gap-2 text-xs text-slate-500">
+                        <LevelBadge level={e.level} />
+                        <span>決算整理 {e.adjustmentCount} 問</span>
+                        {s && (
+                          <span className="ml-auto tabular-nums">
+                            正解 {s.correct}/{e.adjustmentCount}
+                          </span>
+                        )}
+                      </div>
                     </Card>
                   </Link>
                 );

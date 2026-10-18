@@ -297,6 +297,30 @@ export const ScenarioSchema = z.object({
 });
 export type Scenario = z.infer<typeof ScenarioSchema>;
 
+/** 決算の総合演習（決算整理前残高試算表と決算整理事項） */
+export const ClosingExerciseSchema = z.object({
+  id,
+  title: z.string().min(1),
+  summary: z.string().min(1),
+  level,
+  /** 決算日（YYYY-MM-DD） */
+  closingDate: date,
+  basis: z.array(BasisSchema).default([]),
+  asOf: date,
+  updated: date,
+  lessons: z.array(z.string()).default([]),
+  /** 前提（会社の説明・決算整理の共通の条件） */
+  note: z.string().optional(),
+  /** 決算整理前残高試算表（仕訳の書き方。借方残高を借方、貸方残高を貸方に。空行は入れない） */
+  trialBalance: z.string().min(1),
+  /** 決算整理事項（1 つの問題に 1 つの決算整理仕訳） */
+  adjustments: z.array(DrillQuestionSchema).min(1),
+});
+export type ClosingExercise = z.infer<typeof ClosingExerciseSchema>;
+export type ClosingExerciseMeta = Pick<ClosingExercise, 'id' | 'title' | 'summary' | 'level'> & {
+  adjustmentCount: number;
+};
+
 /** 連結の会社の通貨（円以外は在外子会社として、円に換算してから連結する） */
 export const CURRENCIES = ['JPY', 'USD'] as const;
 export type Currency = (typeof CURRENCIES)[number];
@@ -406,6 +430,7 @@ export interface ContentIndex {
   rules: Rule[];
   scenarios: Scenario[];
   consolidations: ConsolidationMeta[];
+  exercises: ClosingExerciseMeta[];
 }
 
 /** 検索の対象（content/search.json） */

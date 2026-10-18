@@ -18,6 +18,7 @@ const acc = (name: string, element: 'asset' | 'liability' | 'expense') => ({
 const index: ContentIndex = {
   version: 1,
   glossary: [],
+  exercises: [],
   tracks: [
     { id: 'basics', title: 'きほん', description: 'd' },
     { id: 'tax', title: '税金', description: 'd' },
