@@ -17,6 +17,7 @@ const AccountsPage = lazy(() => import('@/pages/AccountsPage'));
 const DrillListPage = lazy(() => import('@/pages/DrillListPage'));
 const DrillPage = lazy(() => import('@/pages/DrillPage'));
 const ExercisePage = lazy(() => import('@/pages/ExercisePage'));
+const CalendarPage = lazy(() => import('@/pages/CalendarPage'));
 const LedgerPage = lazy(() => import('@/pages/LedgerPage'));
 const ChatPage = lazy(() => import('@/pages/ChatPage'));
 const ModelsPage = lazy(() => import('@/pages/ModelsPage'));
@@ -50,6 +51,7 @@ export default function App() {
             <Route path="/consolidation" component={ConsolidationListPage} />
             <Route path="/consolidation/:id/:tab?" component={ConsolidationPage} />
             <Route path="/studio/:tab?" component={StudioPage} />
+            <Route path="/calendar" component={CalendarPage} />
             <Route path="/settings" component={SettingsPage} />
             <Route path="/help" component={HelpPage} />
             <Route component={HomePage} />

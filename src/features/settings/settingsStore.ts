@@ -63,6 +63,11 @@ export interface Settings extends Omit<ConversationSettings, 'systemPrompt'> {
   fontScale: FontScale;
   enterToSend: boolean;
   showStats: boolean;
+  // ---- 経理カレンダー ----
+  /** 決算月（1〜12） */
+  closingMonth: number;
+  /** 源泉所得税の納期の特例を受けている */
+  specialWithholding: boolean;
   // ---- 読み上げ ----
   /** AI の返事が終わったら自動で読み上げる */
   autoSpeak: boolean;
@@ -103,6 +108,9 @@ export const DEFAULT_SETTINGS: Settings = {
   fontScale: 'md',
   enterToSend: true,
   showStats: true,
+
+  closingMonth: 3,
+  specialWithholding: false,
 
   autoSpeak: false,
   speechRate: 1.1,

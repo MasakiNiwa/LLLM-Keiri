@@ -1,7 +1,13 @@
 import { ChevronRight } from 'lucide-react';
 import { Link } from 'wouter';
 import { PageBody, PageHeader } from '@/app/PageHeader';
-import { ACCOUNTS_ITEM, CONSOLIDATION_ITEM, NAV_ITEMS, STUDIO_ITEM } from '@/app/navItems';
+import {
+  ACCOUNTS_ITEM,
+  CALENDAR_ITEM,
+  CONSOLIDATION_ITEM,
+  NAV_ITEMS,
+  STUDIO_ITEM,
+} from '@/app/navItems';
 import { Card } from '@/components/ui/Card';
 import { ContinueCard } from '@/features/home/ContinueCard';
 import { ReviewBanner } from '@/features/drill/ReviewBanner';
@@ -13,6 +19,7 @@ const MENU = [
   ...NAV_ITEMS.filter((n) => n.to !== '/'),
   CONSOLIDATION_ITEM,
   ACCOUNTS_ITEM,
+  CALENDAR_ITEM,
   STUDIO_ITEM,
 ];
 
