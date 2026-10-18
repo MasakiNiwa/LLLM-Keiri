@@ -314,6 +314,16 @@
     - '使用権資産 1,000,000 / リース負債 1,000,000'
   related: [リース負債, リース資産]
   level: 4
+- name: 機械装置
+  kana: きかいそうち
+  element: asset
+  group: 有形固定資産
+  aliases: [機械]
+  description: 工場の製造用の機械・設備。工場で使う機械の減価償却費は、製造原価（製造間接費）に入れる。
+  examples:
+    - '機械装置 3,000,000 / 未払金 3,000,000'
+  related: [減価償却費, 製造間接費]
+  level: 3
 - name: 車両運搬具
   kana: しゃりょううんぱんぐ
   element: asset

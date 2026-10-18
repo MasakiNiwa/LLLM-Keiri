@@ -10,6 +10,7 @@ import { useContentIndex } from '@/features/content/contentStore';
 import { useDrillStats } from '@/features/drill/records';
 import { LevelBadge } from '@/features/learn/MetaBadges';
 import { TrackIcon } from '@/features/learn/trackIcons';
+import { EXERCISE_LABELS } from '@/lib/content/schema';
 
 export default function DrillListPage() {
   const { index, error } = useContentIndex();
@@ -76,7 +77,9 @@ export default function DrillListPage() {
                       </div>
                       <div className="mt-auto flex items-center gap-2 text-xs text-slate-500">
                         <LevelBadge level={e.level} />
-                        <span>決算整理 {e.adjustmentCount} 問</span>
+                        <span>
+                          {EXERCISE_LABELS[e.kind ?? 'closing'].adjustment} {e.adjustmentCount} 問
+                        </span>
                         {s && (
                           <span className="ml-auto tabular-nums">
                             正解 {s.correct}/{e.adjustmentCount}

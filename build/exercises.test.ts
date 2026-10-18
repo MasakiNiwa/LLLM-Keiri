@@ -64,3 +64,46 @@ describe('簿記 2 級レベルの決算', () => {
     expect(row('減価償却累計額').bsCr).toBe(2820000);
   });
 });
+
+describe('製造業の決算', () => {
+  const ex = JSON.parse(
+    files.get('content/exercises/manufacturing-closing.json')!,
+  ) as ClosingExercise;
+  const ws = buildWorksheet(
+    lines(ex.trialBalance),
+    ex.adjustments.map((a) => lines(a.answer)),
+    book,
+  );
+  const row = (a: string) => ws.rows.find((r) => r.account === a);
+  it('当期純利益と主な残高（原価計算の勘定は残らない）', () => {
+    expect(ws.netIncome).toBe(2328200);
+    expect(row('売上原価')!.plDr).toBe(6850000);
+    expect(row('材料')!.bsDr).toBe(400000);
+    expect(row('仕掛品')!.bsDr).toBe(300000);
+    expect(row('製品')!.bsDr).toBe(450000);
+    for (const a of ['賃金', '製造間接費', '原価差異']) {
+      const r = row(a)!;
+      expect(r.bsDr + r.bsCr + r.plDr + r.plCr).toBe(0);
+    }
+  });
+});
+
+describe('連結精算表', () => {
+  const ex = JSON.parse(
+    files.get('content/exercises/consolidation-worksheet.json')!,
+  ) as ClosingExercise;
+  const ws = buildWorksheet(
+    lines(ex.trialBalance),
+    ex.adjustments.map((a) => lines(a.answer)),
+    book,
+  );
+  const row = (a: string) => ws.rows.find((r) => r.account === a);
+  it('親会社株主に帰属する当期純利益と非支配株主持分', () => {
+    expect(ws.netIncome).toBe(2156000);
+    expect(row('非支配株主持分')!.bsCr).toBe(1060000);
+    expect(row('のれん')!.bsDr).toBe(360000);
+    expect(row('子会社株式')!.bsDr).toBe(0);
+    expect(row('利益剰余金')!.bsCr).toBe(2000000);
+    expect(row('売掛金')!.bsDr).toBe(4200000);
+  });
+});

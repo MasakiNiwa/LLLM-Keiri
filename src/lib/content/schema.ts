@@ -401,9 +401,21 @@ export const ScenarioSchema = z.object({
 });
 export type Scenario = z.infer<typeof ScenarioSchema>;
 
-/** 決算の総合演習（決算整理前残高試算表と決算整理事項） */
+/** 総合演習の種類ごとの呼び方 */
+export const EXERCISE_LABELS = {
+  closing: { adjustment: '決算整理', trialBalance: '決算整理前残高試算表', items: '決算整理事項' },
+  consolidation: {
+    adjustment: '連結修正',
+    trialBalance: '個別財務諸表の合算（単純合算）',
+    items: '連結修正事項',
+  },
+} as const;
+
+/** 決算の総合演習（決算整理前残高試算表と決算整理事項。連結精算表は合算と連結修正事項） */
 export const ClosingExerciseSchema = z.object({
   id,
+  /** closing: 個別の決算、consolidation: 連結精算表 */
+  kind: z.enum(['closing', 'consolidation']).default('closing'),
   title: z.string().min(1),
   summary: z.string().min(1),
   level,
@@ -421,7 +433,10 @@ export const ClosingExerciseSchema = z.object({
   adjustments: z.array(DrillQuestionSchema).min(1),
 });
 export type ClosingExercise = z.infer<typeof ClosingExerciseSchema>;
-export type ClosingExerciseMeta = Pick<ClosingExercise, 'id' | 'title' | 'summary' | 'level'> & {
+export type ClosingExerciseMeta = Pick<
+  ClosingExercise,
+  'id' | 'kind' | 'title' | 'summary' | 'level'
+> & {
   adjustmentCount: number;
 };
 
