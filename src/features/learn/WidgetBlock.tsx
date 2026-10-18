@@ -8,6 +8,7 @@ import { amount, useAmounts } from './useAmounts';
 import { AmountField, ResetButton } from './widgetParts';
 import { ImpairmentWidget, LeaseWidget, PointsWidget } from './StandardsWidgets';
 import { DeficiencyWidget } from './JsoxWidgets';
+import { Beppyo4Widget } from './TaxWidgets';
 import { CvpWidget, OverheadWidget, ProcessCostingWidget, StandardCostWidget } from './CostWidgets';
 import {
   collectionEntry,
@@ -327,6 +328,7 @@ const TITLES: Record<Widget['type'], string> = {
   'standard-cost': '標準原価の差異を分析してみる',
   cvp: '損益分岐点を計算してみる',
   deficiency: '不備の重要性を評価してみる',
+  beppyo4: '別表四で所得を計算してみる',
 };
 
 /** レッスンの中の計算の部品（` ```widget `）。仕訳はプログラムが作る */
@@ -362,6 +364,7 @@ export function WidgetBlock({ json }: { json: string }) {
       {w.type === 'standard-cost' && <StandardCostWidget w={w} />}
       {w.type === 'cvp' && <CvpWidget w={w} />}
       {w.type === 'deficiency' && <DeficiencyWidget w={w} />}
+      {w.type === 'beppyo4' && <Beppyo4Widget w={w} />}
     </section>
   );
 }

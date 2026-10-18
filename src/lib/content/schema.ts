@@ -266,6 +266,17 @@ export const WidgetSchema = z.discriminatedUnion('type', [
     potentialMisstatement: yenAmount.default(120000000),
   }),
   z.object({
+    type: z.literal('beppyo4'),
+    netIncome: z.number().int().default(10000000),
+    dividends: yenAmount.default(2000000),
+    provision: yenAmount.default(4000000),
+    entertainment: yenAmount.default(500000),
+    depreciation: yenAmount.default(300000),
+    enterpriseTax: yenAmount.default(600000),
+    dividendExclusion: yenAmount.default(200000),
+    rate: z.number().min(0).max(100).default(23.2),
+  }),
+  z.object({
     type: z.literal('tax-settlement'),
     received: yenAmount.default(150000),
     paid: yenAmount.default(105000),
