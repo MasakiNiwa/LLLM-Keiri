@@ -187,6 +187,14 @@ export const WidgetSchema = z.discriminatedUnion('type', [
     consumptionTax: yenAmount.default(10000),
   }),
   z.object({
+    type: z.literal('asset-disposal'),
+    cost: yenAmount.default(600000),
+    life: z.number().int().min(1).default(5),
+    yearsUsed: z.number().int().min(0).default(2),
+    months: z.number().int().min(0).max(12).default(6),
+    price: yenAmount.default(250000),
+  }),
+  z.object({
     type: z.literal('tax-settlement'),
     received: yenAmount.default(150000),
     paid: yenAmount.default(105000),

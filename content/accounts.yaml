@@ -69,6 +69,16 @@
     - '電子記録債権 150,000 / 売掛金 150,000'
   related: [受取手形, 売掛金, 電子記録債務]
   level: 2
+- name: 売買目的有価証券
+  kana: ばいばいもくてきゆうかしょうけん
+  element: asset
+  group: 流動資産
+  aliases: [有価証券]
+  description: 時価の変動で利益を得るために持つ株式・債券。取得原価には買入手数料を含める。決算で時価に評価替えし、差額は有価証券評価益・評価損にする。
+  examples:
+    - '売買目的有価証券 505,000 / 普通預金 505,000'
+  related: [有価証券売却益, 有価証券売却損, 有価証券評価益, 有価証券評価損]
+  level: 3
 - name: 売掛金
   kana: うりかけきん
   element: asset
@@ -200,6 +210,21 @@
   description: 関連会社（議決権の 20% 以上を持つなど、重要な影響を与えている会社）の株式。連結では持分法で評価する。
   related: [持分法による投資損益, 子会社株式]
   level: 4
+- name: 満期保有目的債券
+  kana: まんきほゆうもくてきさいけん
+  element: asset
+  group: 投資その他の資産
+  description: 満期まで持つつもりの社債・国債など。時価に評価替えしない。額面と取得価額の差が金利の調整なら、満期までの期間で少しずつ帳簿価額を額面に近づける（償却原価法）。
+  related: [有価証券利息]
+  level: 3
+- name: その他有価証券
+  kana: そのたゆうかしょうけん
+  element: asset
+  group: 投資その他の資産
+  aliases: [投資有価証券]
+  description: 売買目的・満期保有目的・子会社株式・関連会社株式のどれにもあたらない有価証券（持ち合い株式など）。決算で時価に評価替えし、差額は損益にせず、純資産のその他有価証券評価差額金にする（全部純資産直入法）。
+  related: [その他有価証券評価差額金]
+  level: 3
 - name: 差入保証金
   kana: さしいれほしょうきん
   element: asset
@@ -234,6 +259,15 @@
   examples:
     - '備品 300,000 / 未払金 300,000'
   related: [減価償却費, 減価償却累計額, 消耗品費]
+- name: リース資産
+  kana: りーすしさん
+  element: asset
+  group: 有形固定資産
+  description: ファイナンス・リース取引で借りている資産。買ったときと同じように資産に計上し、減価償却する。
+  examples:
+    - 'リース資産 500,000 / リース債務 500,000'
+  related: [リース債務, 減価償却費]
+  level: 3
 - name: 車両運搬具
   kana: しゃりょううんぱんぐ
   element: asset
@@ -477,6 +511,13 @@
   description: 在外子会社の財務諸表を円に換算するとき、資産・負債（決算日レート）と資本（取得時・発生時のレート）・損益（期中平均レート）で使うレートが違うために生じる差額。連結貸借対照表の純資産の部（その他の包括利益累計額）に表示する。
   related: [為替差益, 為替差損]
   level: 5
+- name: その他有価証券評価差額金
+  kana: そのたゆうかしょうけんひょうかさがくきん
+  element: equity
+  group: その他の包括利益累計額
+  description: その他有価証券を時価に評価替えしたときの差額。損益にせず、純資産に直接計上する（個別の貸借対照表では「評価・換算差額等」）。翌期首に元の帳簿価額に戻す（洗替法）。
+  related: [その他有価証券]
+  level: 3
 - name: 利益準備金
   kana: りえきじゅんびきん
   element: equity
@@ -543,6 +584,26 @@
   examples:
     - '普通預金 50,000 / 受取配当金 50,000'
   level: 2
+- name: 有価証券利息
+  kana: ゆうかしょうけんりそく
+  element: revenue
+  group: 営業外収益
+  description: 社債・国債などの債券の利息。満期保有目的債券の償却原価法による増額分もこの科目にする。
+  level: 3
+- name: 有価証券売却益
+  kana: ゆうかしょうけんばいきゃくえき
+  element: revenue
+  group: 営業外収益
+  description: 売買目的有価証券を帳簿価額より高く売ったときの差額。
+  related: [売買目的有価証券, 有価証券売却損]
+  level: 3
+- name: 有価証券評価益
+  kana: ゆうかしょうけんひょうかえき
+  element: revenue
+  group: 営業外収益
+  description: 売買目的有価証券の決算の時価が、帳簿価額より高いときの差額。
+  related: [売買目的有価証券, 有価証券評価損]
+  level: 3
 - name: 為替差益
   kana: かわせさえき
   element: revenue
@@ -698,6 +759,13 @@
   description: 土地を借りて支払う地代。
   related: [受取地代, 支払家賃]
   level: 2
+- name: 支払リース料
+  kana: しはらいりーすりょう
+  element: expense
+  group: 販売費及び一般管理費
+  description: オペレーティング・リース取引（ファイナンス・リース以外のリース）で支払うリース料。賃貸借と同じように、支払ったときに費用にする。
+  related: [リース資産, リース債務]
+  level: 3
 - name: 保険料
   kana: ほけんりょう
   element: expense
@@ -776,6 +844,29 @@
   examples:
     - '支払利息 2,000 / 普通預金 2,000'
   related: [受取利息, 借入金]
+- name: 手形売却損
+  kana: てがたばいきゃくそん
+  element: expense
+  group: 営業外費用
+  description: 受取手形を満期より前に銀行で割り引いたときの割引料（満期までの利息に相当する分）。電子記録債権を割り引いたときは電子記録債権売却損を使うこともある。
+  examples:
+    - "普通預金 196,000 / 受取手形 200,000\n手形売却損 4,000 /"
+  related: [受取手形]
+  level: 3
+- name: 有価証券売却損
+  kana: ゆうかしょうけんばいきゃくそん
+  element: expense
+  group: 営業外費用
+  description: 売買目的有価証券を帳簿価額より安く売ったときの差額。
+  related: [売買目的有価証券, 有価証券売却益]
+  level: 3
+- name: 有価証券評価損
+  kana: ゆうかしょうけんひょうかそん
+  element: expense
+  group: 営業外費用
+  description: 売買目的有価証券の決算の時価が、帳簿価額より低いときの差額。
+  related: [売買目的有価証券, 有価証券評価益]
+  level: 3
 - name: 為替差損
   kana: かわせさそん
   element: expense
@@ -841,6 +932,20 @@
   level: 4
 
 # ---------------- その他 ----------------
+- name: 本店
+  kana: ほんてん
+  element: other
+  group: 本支店の勘定
+  description: 本支店会計で、支店の帳簿に置く本店との貸し借りの勘定。本店の帳簿の「支店」と金額が一致し、本支店を合わせた財務諸表を作るときに相殺して消す。
+  related: [支店]
+  level: 3
+- name: 支店
+  kana: してん
+  element: other
+  group: 本支店の勘定
+  description: 本支店会計で、本店の帳簿に置く支店との貸し借りの勘定。支店の帳簿の「本店」と金額が一致し、合算するときに相殺して消す。
+  related: [本店]
+  level: 3
 - name: 現金過不足
   kana: げんきんかぶそく
   element: other

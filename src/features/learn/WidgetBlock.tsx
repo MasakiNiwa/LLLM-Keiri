@@ -12,6 +12,7 @@ import {
 } from '@/lib/practice/entries';
 import { consumptionTaxSettlement, DEEMED_RATES, type BusinessType } from '@/lib/tax/settlement';
 import { rewardEntries, WITHHOLDING_THRESHOLD } from '@/lib/tax/withholding';
+import { disposalEntry } from '@/lib/assets/disposal';
 
 /** 金額の入力（カンマ・「万」も読める） */
 function AmountField({
@@ -280,6 +281,76 @@ function SettlementWidget({ w }: { w: Extract<Widget, { type: 'tax-settlement' }
   );
 }
 
+function DisposalWidget({ w }: { w: Extract<Widget, { type: 'asset-disposal' }> }) {
+  const { values, set, reset } = useAmounts({
+    cost: w.cost,
+    life: w.life,
+    yearsUsed: w.yearsUsed,
+    months: w.months,
+    price: w.price,
+  });
+  const r = useMemo(
+    () =>
+      disposalEntry({
+        account: '備品',
+        cost: amount(values.cost),
+        life: amount(values.life),
+        yearsUsed: amount(values.yearsUsed),
+        months: amount(values.months),
+        price: amount(values.price),
+      }),
+    [values],
+  );
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <AmountField label="取得原価" value={values.cost} onChange={set('cost')} />
+        <AmountField label="耐用年数（年）" value={values.life} onChange={set('life')} />
+        <AmountField
+          label="期首までの使用年数"
+          value={values.yearsUsed}
+          onChange={set('yearsUsed')}
+        />
+        <AmountField label="当期の使用月数" value={values.months} onChange={set('months')} />
+        <AmountField label="売却額" value={values.price} onChange={set('price')} />
+      </div>
+      {r.error ? (
+        <p className="text-sm text-rose-600 dark:text-rose-400">{r.error}</p>
+      ) : (
+        <div className="space-y-3">
+          <ul className="space-y-1 text-sm leading-relaxed">
+            <li>
+              1 年分の減価償却費: {formatAmount(amount(values.cost))} ÷ {values.life} 年 ＝{' '}
+              <span className="font-mono">{formatAmount(r.annual)}</span>
+            </li>
+            <li>
+              期首の減価償却累計額: {formatAmount(r.annual)} × {values.yearsUsed} 年 ＝{' '}
+              <span className="font-mono">{formatAmount(r.accumulated)}</span>
+            </li>
+            <li>
+              当期の減価償却費（月割り）: {formatAmount(r.annual)} × {values.months} / 12 ＝{' '}
+              <span className="font-mono">{formatAmount(r.current)}</span>
+            </li>
+            <li>
+              売却時の帳簿価額: <span className="font-mono">{formatAmount(r.bookValue)}</span> →{' '}
+              {r.gain === 0
+                ? '売却額と同じ（損益なし）'
+                : r.gain > 0
+                  ? `売却益 ${formatAmount(r.gain)}`
+                  : `売却損 ${formatAmount(-r.gain)}`}
+            </li>
+          </ul>
+          <JournalTable entry={r.entry} />
+          <p className="text-xs leading-relaxed text-slate-500">
+            定額法・残存価額 0・間接法（減価償却累計額）で、1 円未満は切り捨てています。
+          </p>
+        </div>
+      )}
+      <ResetButton onClick={reset} />
+    </>
+  );
+}
+
 function ResetButton({ onClick }: { onClick: () => void }) {
   return (
     <button
@@ -298,6 +369,7 @@ const TITLES: Record<Widget['type'], string> = {
   collection: '入金消込の仕訳を作ってみる',
   withholding: '報酬の源泉徴収を計算してみる',
   'tax-settlement': '決算の消費税の精算をしてみる',
+  'asset-disposal': '固定資産の売却を計算してみる',
 };
 
 /** レッスンの中の計算の部品（` ```widget `）。仕訳はプログラムが作る */
@@ -324,6 +396,7 @@ export function WidgetBlock({ json }: { json: string }) {
       {w.type === 'collection' && <CollectionWidget w={w} />}
       {w.type === 'withholding' && <WithholdingWidget w={w} />}
       {w.type === 'tax-settlement' && <SettlementWidget w={w} />}
+      {w.type === 'asset-disposal' && <DisposalWidget w={w} />}
     </section>
   );
 }

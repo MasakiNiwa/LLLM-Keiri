@@ -19,7 +19,7 @@ export const SECTION_LABELS: Record<CashFlowSection, string> = {
 /** 現金及び現金同等物にする科目 */
 const CASH = new Set(['現金', '小口現金', '当座預金', '普通預金']);
 /** 投資活動にする流動資産 */
-const INVESTING_CURRENT = new Set(['定期預金', '貸付金', '未収入金']);
+const INVESTING_CURRENT = new Set(['定期預金', '貸付金', '未収入金', '売買目的有価証券']);
 /** 財務活動にする負債 */
 const FINANCING_LIABILITIES = new Set(['借入金', 'リース債務']);
 /** 損益（当期純利益）とつながる純資産の科目 */
