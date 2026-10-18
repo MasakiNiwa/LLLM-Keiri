@@ -3,7 +3,8 @@ import { JournalTable } from '@/features/journal/JournalTable';
 import type { Widget } from '@/lib/content/schema';
 import { formatAmount } from '@/lib/journal/amount';
 import { monthlyPay } from '@/lib/payroll/monthly';
-import { TAX_YEARS } from '@/lib/payroll/taxYears';
+import { LATEST_TAX_YEAR, rulesFor, TAX_YEARS } from '@/lib/payroll/taxYears';
+import { monthlyWithholding } from '@/lib/payroll/withholding';
 import { yearEndAdjustment } from '@/lib/payroll/yearEnd';
 import { cn } from '@/lib/utils/cn';
 import { useAmounts } from './useAmounts';
@@ -11,6 +12,69 @@ import { AmountField, ResetButton } from './widgetParts';
 
 /** 小数もそのまま読む（料率・時間） */
 const num = (s: string) => Number(s.normalize('NFKC').replace(/[,%％\s円]/g, ''));
+
+/** 源泉所得税を電算機計算の特例で計算して、入力欄に入れる */
+function WithholdingHelper({ base, onUse }: { base: number; onUse: (tax: number) => void }) {
+  const [year, setYear] = useState(LATEST_TAX_YEAR);
+  const [dependents, setDependents] = useState('0');
+  const n = Math.max(0, Math.floor(num(dependents)) || 0);
+  const w = monthlyWithholding(base, n, year);
+  const note = rulesFor(year).monthly.note;
+  return (
+    <div className="space-y-2 rounded-xl bg-slate-50 p-3 text-xs dark:bg-slate-800/50">
+      <p className="font-semibold text-slate-700 dark:text-slate-200">
+        電算機計算の特例で源泉所得税を計算する（甲欄）
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        {TAX_YEARS.map((t) => (
+          <button
+            key={t.year}
+            type="button"
+            aria-pressed={year === t.year}
+            onClick={() => setYear(t.year)}
+            className={cn(
+              'rounded-full border px-2.5 py-1 font-medium',
+              year === t.year
+                ? 'border-accent-600 bg-accent-600 text-white'
+                : 'border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900',
+            )}
+          >
+            {t.year} 年分
+          </button>
+        ))}
+        <label className="flex items-center gap-1">
+          扶養親族等
+          <input
+            inputMode="numeric"
+            value={dependents}
+            onChange={(e) => setDependents(e.target.value)}
+            className="h-8 w-12 rounded-lg border border-slate-300 bg-white px-2 text-right font-mono dark:border-slate-700 dark:bg-slate-900"
+          />
+          人
+        </label>
+      </div>
+      <p className="leading-relaxed">
+        {formatAmount(base)} − 給与所得控除 {formatAmount(w.employmentDeduction)} − 基礎控除{' '}
+        {formatAmount(w.basicDeduction)}
+        {w.dependentDeduction
+          ? ` − 扶養控除など ${formatAmount(w.dependentDeduction)}`
+          : ''} ＝ {formatAmount(w.taxable)} → 税額{' '}
+        <strong className="font-mono">{formatAmount(w.tax)}</strong> 円
+      </p>
+      <button
+        type="button"
+        onClick={() => onUse(w.tax)}
+        className="rounded-lg border border-accent-300 px-2.5 py-1 font-medium text-accent-800 hover:bg-accent-50 dark:border-accent-700 dark:text-accent-200 dark:hover:bg-accent-900/30"
+      >
+        この額を源泉所得税に入れる
+      </button>
+      <p className="leading-relaxed text-slate-500">
+        税額表を引いた額と数円〜数十円違うことがあります（会社でどちらかに決めて続けます）。
+        {note ? ` ${note}。` : ''}
+      </p>
+    </div>
+  );
+}
 
 /** 1 か月分の給与計算（支給 → 控除 → 差引支給額 → 仕訳） */
 export function MonthlyPayrollWidget({ w }: { w: Extract<Widget, { type: 'payroll-month' }> }) {
@@ -134,6 +198,10 @@ export function MonthlyPayrollWidget({ w }: { w: Extract<Widget, { type: 'payrol
             <strong className="font-mono">{formatAmount(r.taxBase)}</strong>{' '}
             円と、扶養親族等の数で引きます。
           </p>
+          <WithholdingHelper
+            base={r.taxBase}
+            onUse={(tax) => set('incomeTax')(formatAmount(tax))}
+          />
           <JournalTable entry={r.payday} />
           <JournalTable entry={r.accrual} />
           <p className="text-xs leading-relaxed text-slate-500">
