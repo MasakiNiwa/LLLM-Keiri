@@ -271,3 +271,41 @@
   description: 国際会計基準審議会（IASB）が作る国際的な会計基準。日本でも一定の会社が連結財務諸表に任意で適用できる。
   lessons: [standards-ifrs]
   related: [連結財務諸表]
+- term: 原価計算
+  kana: げんかけいさん
+  description: 製品やサービスを作るのにかかった原価を計算すること。売値の決定・原価の管理・財務諸表の作成に使う。
+  lessons: [cost-basics]
+  related: [仕掛品, 製造間接費]
+- term: 予定配賦
+  kana: よていはいふ
+  aliases: [予定配賦率]
+  description: 製造間接費を、年の初めに決めた予定配賦率（予算 ÷ 基準操業度）× 実際操業度で製品に配賦すること。実際発生額との差は配賦差異になる。
+  lessons: [cost-overhead]
+  related: [製造間接費, 原価差異]
+- term: 加工進捗度
+  kana: かこうしんちょくど
+  description: 総合原価計算で、仕掛品の加工がどこまで進んでいるかの割合。仕掛品の数量 × 加工進捗度 ＝ 完成品換算量。
+  lessons: [cost-process]
+  related: [完成品換算量]
+- term: 完成品換算量
+  kana: かんせいひんかんさんりょう
+  description: 仕掛品を、完成品に直すと何個分かで表した量。加工費を完成品と月末仕掛品に分けるときに使う。
+  lessons: [cost-process]
+  related: [加工進捗度]
+- term: 標準原価
+  kana: ひょうじゅんげんか
+  description: 製品 1 個を作るのにかかるはずの原価を、調査にもとづいて決めたもの。実際の原価と比べて、差異の原因を分析する。
+  lessons: [cost-standard]
+  related: [原価差異]
+- term: 限界利益
+  kana: げんかいりえき
+  aliases: [貢献利益]
+  description: 売上高から変動費を引いた利益。固定費をまかない、残りが営業利益になる。
+  lessons: [cost-cvp]
+  related: [損益分岐点]
+- term: 損益分岐点
+  kana: そんえきぶんきてん
+  aliases: [損益分岐点売上高]
+  description: 利益がちょうど 0 になる売上高（や販売数量）。固定費 ÷ 限界利益率で求める。
+  lessons: [cost-cvp]
+  related: [限界利益]

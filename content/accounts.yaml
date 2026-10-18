@@ -124,6 +124,34 @@
   description: 販売するために持っている物品。分記法・売上原価対立法では、仕入れたときに商品勘定（資産）で記録する。
   related: [繰越商品, 仕入, 売上原価]
   level: 3
+- name: 材料
+  kana: ざいりょう
+  element: asset
+  group: 流動資産
+  aliases: [原材料]
+  description: 工業簿記で、製品を作るために買った素材・部品など。消費したら、直接材料費は仕掛品、間接材料費は製造間接費に振り替える。貸借対照表では原材料などとして表示する。
+  examples:
+    - '材料 300,000 / 買掛金 300,000'
+  related: [仕掛品, 製造間接費]
+  level: 3
+- name: 仕掛品
+  kana: しかかりひん
+  element: asset
+  group: 流動資産
+  description: 工業簿記で、製造の途中の製品。直接材料費・直接労務費・製造間接費を集め、完成したら製品に振り替える。
+  examples:
+    - '製品 800,000 / 仕掛品 800,000'
+  related: [材料, 製品, 製造間接費]
+  level: 3
+- name: 製品
+  kana: せいひん
+  element: asset
+  group: 流動資産
+  description: 工業簿記で、完成した製品の在庫。売れたら売上原価に振り替える。
+  examples:
+    - '売上原価 600,000 / 製品 600,000'
+  related: [仕掛品, 売上原価]
+  level: 3
 - name: 前払金
   kana: まえばらいきん
   element: asset
@@ -1042,6 +1070,35 @@
   level: 4
 
 # ---------------- その他 ----------------
+- name: 賃金
+  kana: ちんぎん
+  element: other
+  group: 原価計算の勘定
+  aliases: [賃金・給料, 賃金給料]
+  description: 工業簿記で、工場で働く人への賃金・給料（労務費）。消費したら、直接労務費は仕掛品、間接労務費は製造間接費に振り替える。
+  examples:
+    - "仕掛品 400,000 / 賃金 500,000\n製造間接費 100,000 /"
+  related: [仕掛品, 製造間接費]
+  level: 3
+- name: 製造間接費
+  kana: せいぞうかんせつひ
+  element: other
+  group: 原価計算の勘定
+  description: 工業簿記で、どの製品にかかったか直接わからない原価（間接材料費・間接労務費・間接経費）を集める勘定。基準（直接作業時間など）で仕掛品に配賦する。
+  examples:
+    - '仕掛品 475,000 / 製造間接費 475,000'
+  related: [仕掛品, 原価差異]
+  level: 3
+- name: 原価差異
+  kana: げんかさい
+  element: other
+  group: 原価計算の勘定
+  aliases: [製造間接費配賦差異]
+  description: 工業簿記で、予定（標準）の原価と実際の原価の差。借方残高は不利差異、貸方残高は有利差異。会計年度末に、原則として売上原価に振り替える。
+  examples:
+    - '原価差異 17,000 / 製造間接費 17,000'
+  related: [製造間接費, 売上原価]
+  level: 3
 - name: 本店
   kana: ほんてん
   element: other
