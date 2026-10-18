@@ -1,6 +1,7 @@
 import {
   BookOpenText,
   Boxes,
+  Network,
   CircleHelp,
   House,
   NotebookPen,
@@ -58,6 +59,12 @@ export const ACCOUNTS_ITEM: NavItem = {
   icon: Tags,
   description: '勘定科目の意味・分類・使い方を調べる',
 };
+export const CONSOLIDATION_ITEM: NavItem = {
+  to: '/consolidation',
+  label: '連結',
+  icon: Network,
+  description: '親会社・子会社（海外も）の試算表から連結財務諸表を作り、内訳をたどる',
+};
 export const STUDIO_ITEM: NavItem = {
   to: '/studio',
   label: '外部 AI と連携',
@@ -70,6 +77,7 @@ export const HELP_ITEM: NavItem = { to: '/help', label: 'ヘルプ', icon: Circl
 
 /** PC のサイドバー下部 */
 export const SUB_NAV_ITEMS: NavItem[] = [
+  CONSOLIDATION_ITEM,
   ACCOUNTS_ITEM,
   STUDIO_ITEM,
   MODELS_ITEM,

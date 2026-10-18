@@ -48,6 +48,30 @@ export type AiFocus =
       netIncome: number;
       unsettled: string[];
     }
+  | {
+      kind: 'consolidation';
+      caseTitle: string;
+      tab: string;
+      unit: string;
+      entities: string[];
+      eliminationsApplied: string[];
+      eliminationsOff: string[];
+      /** プログラムが計算した連結の主な数字 */
+      figures: {
+        totalAssets: number;
+        netIncome: number;
+        nciProfit: number;
+        parentNetIncome: number;
+      };
+      /** ドリルダウンで見ている科目の内訳（借方が正） */
+      drilldown?: {
+        account: string;
+        byEntity: Record<string, number>;
+        byElimination: Record<string, number>;
+        consolidated: number;
+        sign: string;
+      };
+    }
   | { kind: 'accounts'; account?: string }
   | { kind: 'other'; page: string };
 
@@ -56,6 +80,7 @@ export const FOCUS_LABELS: Record<AiFocus['kind'], string> = {
   lesson: 'レッスン',
   drill: '仕訳問題',
   ledger: '帳簿',
+  consolidation: '連結',
   accounts: '勘定科目',
   other: 'ページ',
 };
@@ -69,6 +94,8 @@ export function focusTitle(f: AiFocus): string {
       return `問題「${f.setTitle}」${f.position}`;
     case 'ledger':
       return `帳簿（${f.entryCount} 件の仕訳）`;
+    case 'consolidation':
+      return `連結「${f.caseTitle}」${f.drilldown ? `の「${f.drilldown.account}」` : ''}`;
     case 'accounts':
       return f.account ? `勘定科目「${f.account}」` : '勘定科目の辞典';
     case 'home':

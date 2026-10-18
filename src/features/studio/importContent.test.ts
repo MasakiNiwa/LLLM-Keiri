@@ -26,6 +26,7 @@ const index: ContentIndex = {
   accounts: [acc('仕入', 'expense'), acc('買掛金', 'liability'), acc('現金', 'asset')],
   rules: [],
   scenarios: [],
+  consolidations: [],
 };
 
 const lesson = `---

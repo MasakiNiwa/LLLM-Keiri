@@ -11,6 +11,10 @@
   title: 決算
   description: 決算整理（売上原価・減価償却・貸倒引当金・経過勘定）から決算書まで
   icon: calendar-check
+- id: consolidation
+  title: 連結決算・海外子会社
+  description: グループ全体の決算。投資と資本の相殺・のれん・非支配株主・内部取引、米国子会社などの外貨換算
+  icon: network
 - id: tax
   title: 税金
   description: 消費税（税抜経理・インボイス）、源泉所得税、法人税などの基本

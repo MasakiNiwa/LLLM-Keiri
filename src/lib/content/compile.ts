@@ -14,10 +14,12 @@ import { parseShiwake } from '../journal/parse.ts';
 import type { JournalEntry } from '../journal/types.ts';
 import type { AccountBook } from './accounts.ts';
 import {
+  ConsolidationCaseSchema,
   DrillSetSchema,
   LessonFrontmatterSchema,
   QuizSchema,
   ScenarioSchema,
+  type ConsolidationCase,
   type DrillSet,
   type Heading,
   type Lesson,
@@ -203,4 +205,48 @@ export function compileScenario(
     if (entries.length > 1) checker.errors.push(`${where}（${i + 1} 件目）: 仕訳は 1 つにします`);
   });
   return r.data;
+}
+
+/** 連結の事例を検証する（各社の試算表と連結修正仕訳の貸借・科目、親会社は 1 社、在外子会社のレート） */
+export function compileConsolidation(
+  data: unknown,
+  where: string,
+  checker: ContentChecker,
+): ConsolidationCase | null {
+  const r = ConsolidationCaseSchema.safeParse(data);
+  if (!r.success) {
+    checker.errors.push(`${where}: ${formatZod(r.error)}`);
+    return null;
+  }
+  const c = r.data;
+  const parents = c.entities.filter((e) => e.role === 'parent');
+  if (parents.length !== 1) checker.errors.push(`${where}: 親会社（role: parent）は 1 社にします`);
+  if (parents[0] && parents[0].currency !== 'JPY')
+    checker.errors.push(`${where}: 親会社の通貨は JPY にします`);
+  const ids = new Set<string>();
+  for (const e of c.entities) {
+    const w = `${where}（${e.name}）`;
+    if (ids.has(e.id)) checker.errors.push(`${w}: id「${e.id}」が重複しています`);
+    ids.add(e.id);
+    if (e.role === 'subsidiary' && e.ownership === undefined)
+      checker.errors.push(`${w}: 子会社には ownership（持分割合 %）を書きます`);
+    if (e.currency !== 'JPY' && !e.rates)
+      checker.errors.push(`${w}: 円以外の通貨の会社には rates（CR・AR・HR）を書きます`);
+    const entries = checker.checkShiwake(e.trialBalance, `${w} の試算表`);
+    if (entries.length > 1)
+      checker.errors.push(`${w}: 試算表は 1 つのまとまりで書きます（空行を入れない）`);
+    for (const name of Object.keys(e.historical)) {
+      if (!checker.book.find(name))
+        checker.errors.push(`${w}: historical の科目「${name}」がありません`);
+    }
+  }
+  const elimIds = new Set<string>();
+  for (const el of c.eliminations) {
+    const w = `${where}（修正仕訳 ${el.id}）`;
+    if (elimIds.has(el.id)) checker.errors.push(`${w}: id が重複しています`);
+    elimIds.add(el.id);
+    const entries = checker.checkShiwake(el.shiwake, w);
+    if (entries.length > 1) checker.errors.push(`${w}: 修正仕訳は 1 つにします`);
+  }
+  return c;
 }

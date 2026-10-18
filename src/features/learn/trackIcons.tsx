@@ -3,6 +3,7 @@ import {
   Briefcase,
   CalendarCheck,
   Landmark,
+  Network,
   Scale,
   ShoppingCart,
   Sprout,
@@ -15,6 +16,7 @@ const ICONS: Record<string, LucideIcon> = {
   'shopping-cart': ShoppingCart,
   'calendar-check': CalendarCheck,
   landmark: Landmark,
+  network: Network,
   briefcase: Briefcase,
   scale: Scale,
 };

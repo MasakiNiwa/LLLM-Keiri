@@ -1,14 +1,19 @@
 import { ChevronRight } from 'lucide-react';
 import { Link } from 'wouter';
 import { PageBody, PageHeader } from '@/app/PageHeader';
-import { ACCOUNTS_ITEM, NAV_ITEMS, STUDIO_ITEM } from '@/app/navItems';
+import { ACCOUNTS_ITEM, CONSOLIDATION_ITEM, NAV_ITEMS, STUDIO_ITEM } from '@/app/navItems';
 import { Card } from '@/components/ui/Card';
 import { ContinueCard } from '@/features/home/ContinueCard';
 import { Greeting } from '@/features/home/Greeting';
 import { useFocus } from '@/features/ai/useFocus';
 import { APP_TAGLINE, APP_TITLE } from '@/lib/constants';
 
-const MENU = [...NAV_ITEMS.filter((n) => n.to !== '/'), ACCOUNTS_ITEM, STUDIO_ITEM];
+const MENU = [
+  ...NAV_ITEMS.filter((n) => n.to !== '/'),
+  CONSOLIDATION_ITEM,
+  ACCOUNTS_ITEM,
+  STUDIO_ITEM,
+];
 
 export default function HomePage() {
   useFocus({ kind: 'home' });

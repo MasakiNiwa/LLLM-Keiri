@@ -1,4 +1,4 @@
-import type { ContentIndex, DrillSet, Lesson, SearchDoc } from './schema';
+import type { ConsolidationCase, ContentIndex, DrillSet, Lesson, SearchDoc } from './schema';
 
 /**
  * 学習データ（ビルド時に content/ から作った JSON）を読み込む。
@@ -40,4 +40,8 @@ export function fetchDrill(id: string): Promise<DrillSet> {
 
 export function fetchSearchDocs(): Promise<SearchDoc[]> {
   return fetchJson<SearchDoc[]>('search.json');
+}
+
+export function fetchConsolidation(id: string): Promise<ConsolidationCase> {
+  return fetchJson<ConsolidationCase>(`consolidation/${encodeURIComponent(id)}.json`);
 }

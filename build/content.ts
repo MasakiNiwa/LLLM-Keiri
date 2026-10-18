@@ -13,6 +13,7 @@ import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { AccountBook } from '../src/lib/content/accounts.ts';
 import {
+  compileConsolidation,
   compileDrill,
   compileLesson,
   compileScenario,
@@ -24,6 +25,7 @@ import {
   AccountSchema,
   RuleSchema,
   TrackSchema,
+  type ConsolidationCase,
   type ContentIndex,
   type DrillSet,
   type Lesson,
@@ -161,6 +163,17 @@ export function buildContent(root: string): BuildResult {
     scenarios.push(scenario);
   }
 
+  // ---- 連結の事例 ----
+  const consolidations: ConsolidationCase[] = [];
+  for (const p of listFiles(path.join(contentDir, 'consolidation'), '.yaml')) {
+    const where = rel(p);
+    const c = compileConsolidation(readYaml(p), where, checker);
+    if (!c) continue;
+    checkId(c.id, where);
+    consolidations.push(c);
+  }
+  consolidations.sort((a, b) => a.level - b.level || a.id.localeCompare(b.id));
+
   const byOrder = <T extends { track: string; order: number }>(a: T, b: T) => {
     const ta = tracks.findIndex((t) => t.id === a.track);
     const tb = tracks.findIndex((t) => t.id === b.track);
@@ -177,10 +190,22 @@ export function buildContent(root: string): BuildResult {
     accounts,
     rules,
     scenarios,
+    consolidations: consolidations.map((c) => ({
+      id: c.id,
+      title: c.title,
+      summary: c.summary,
+      level: c.level,
+      asOf: c.asOf,
+      lessons: c.lessons,
+      entities: c.entities.map((e) => ({ name: e.name, currency: e.currency })),
+      eliminationCount: c.eliminations.length,
+    })),
   };
   files.set('content/index.json', JSON.stringify(index));
   for (const l of lessons) files.set(`content/lessons/${l.meta.id}.json`, JSON.stringify(l));
   for (const d of drills) files.set(`content/drills/${d.id}.json`, JSON.stringify(d));
+  for (const c of consolidations)
+    files.set(`content/consolidation/${c.id}.json`, JSON.stringify(c));
 
   const search: SearchDoc[] = [
     ...lessons.map((l) => ({
