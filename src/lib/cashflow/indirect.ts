@@ -36,8 +36,9 @@ export function sectionFor(a: Pick<Account, 'name' | 'element' | 'group'>): Cash
   if (a.name === TRANSLATION) return 'translation';
   if (a.element === 'asset') {
     if (a.group === '流動資産') return INVESTING_CURRENT.has(a.name) ? 'investing' : 'operating';
-    // 減価償却累計額・のれんの減少は、お金の出ない費用の足し戻し（営業）
-    if (a.name === '減価償却累計額' || a.name === 'のれん') return 'operating';
+    // 減価償却累計額・のれんの減少は、お金の出ない費用の足し戻し（営業）。繰延税金資産もお金は動かない
+    if (a.name === '減価償却累計額' || a.name === 'のれん' || a.name === '繰延税金資産')
+      return 'operating';
     return 'investing';
   }
   if (a.element === 'liability')
