@@ -1,6 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie';
 import { STORAGE_PREFIX } from '@/lib/constants';
-import type { DrillSet, Lesson } from '@/lib/content/schema';
+import type { ConsolidationCase, DrillSet, Lesson } from '@/lib/content/schema';
 import type { JournalLine } from '@/lib/journal/types';
 
 /** レッスンの進み具合 */
@@ -52,7 +52,14 @@ export interface ChatRecord {
 /** 外部 AI などで作って取り込んだ教材（マイ教材） */
 export type UserContent =
   | { id: string; kind: 'lesson'; title: string; data: Lesson; createdAt: number }
-  | { id: string; kind: 'drill'; title: string; data: DrillSet; createdAt: number };
+  | { id: string; kind: 'drill'; title: string; data: DrillSet; createdAt: number }
+  | {
+      id: string;
+      kind: 'consolidation';
+      title: string;
+      data: ConsolidationCase;
+      createdAt: number;
+    };
 
 /**
  * このアプリのデータベース（IndexedDB）。

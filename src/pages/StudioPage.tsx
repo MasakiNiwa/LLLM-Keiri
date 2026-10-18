@@ -8,6 +8,7 @@ import {
   FolderHeart,
   Import,
   MessageCircleQuestion,
+  Network,
   PenLine,
   Trash2,
   Wand2,
@@ -31,6 +32,7 @@ import {
   deleteUserContent,
   exportUserContent,
   saveUserContent,
+  userContentHref,
   useUserContent,
 } from '@/features/studio/userContentRepo';
 import type { ContentIndex } from '@/lib/content/schema';
@@ -125,6 +127,13 @@ function MakeTab({ index, onNext }: { index: ContentIndex; onNext: () => void })
           <Chip active={o.kind === 'lesson'} onClick={() => set({ kind: 'lesson' })}>
             <BookOpenText className="mr-1 inline size-4" />
             レッスン
+          </Chip>
+          <Chip
+            active={o.kind === 'consolidation'}
+            onClick={() => set({ kind: 'consolidation', track: 'consolidation', level: 4 })}
+          >
+            <Network className="mr-1 inline size-4" />
+            連結の事例
           </Chip>
         </div>
         <label className="block space-y-1 text-sm">
@@ -321,7 +330,9 @@ function ImportTab({ index, onDone }: { index: ContentIndex; onDone: () => void 
             ✓ 取り込めます:{' '}
             {c.kind === 'lesson'
               ? `レッスン「${c.lesson.meta.title}」`
-              : `問題セット「${c.drill.title}」（${c.drill.questions.length} 問）`}
+              : c.kind === 'drill'
+                ? `問題セット「${c.drill.title}」（${c.drill.questions.length} 問）`
+                : `連結の事例「${c.consolidation.title}」（${c.consolidation.entities.length} 社・修正仕訳 ${c.consolidation.eliminations.length}）`}
           </p>
           {result?.notes.map((n) => (
             <p key={n} className="mt-1 text-xs text-slate-500">
@@ -358,17 +369,20 @@ function MineTab() {
           <div key={c.id} className="flex items-center gap-3 px-4 py-3">
             {c.kind === 'lesson' ? (
               <BookOpenText className="size-5 shrink-0 text-accent-600" />
-            ) : (
+            ) : c.kind === 'drill' ? (
               <PenLine className="size-5 shrink-0 text-accent-600" />
+            ) : (
+              <Network className="size-5 shrink-0 text-accent-600" />
             )}
-            <Link
-              href={c.kind === 'lesson' ? `/learn/${c.id}` : `/drill/${c.id}`}
-              className="min-w-0 flex-1 hover:underline"
-            >
+            <Link href={userContentHref(c)} className="min-w-0 flex-1 hover:underline">
               <span className="block truncate font-medium">{c.title}</span>
               <span className="block text-xs text-slate-500">
-                {c.kind === 'lesson' ? 'レッスン' : `問題セット・${c.data.questions.length} 問`} ・{' '}
-                {new Date(c.createdAt).toLocaleDateString('ja-JP')}
+                {c.kind === 'lesson'
+                  ? 'レッスン'
+                  : c.kind === 'drill'
+                    ? `問題セット・${c.data.questions.length} 問`
+                    : `連結の事例・${c.data.entities.length} 社`}{' '}
+                ・ {new Date(c.createdAt).toLocaleDateString('ja-JP')}
               </span>
             </Link>
             <button

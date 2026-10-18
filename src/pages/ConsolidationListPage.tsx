@@ -5,11 +5,13 @@ import { Card } from '@/components/ui/Card';
 import { useFocus } from '@/features/ai/useFocus';
 import { useContentIndex } from '@/features/content/contentStore';
 import { LevelBadge } from '@/features/learn/MetaBadges';
+import { useUserContent } from '@/features/studio/userContentRepo';
 
 export default function ConsolidationListPage() {
   const { index, error } = useContentIndex();
   useFocus({ kind: 'other', page: '連結の事例の一覧' });
   const lessons = index?.lessons.filter((l) => l.track === 'consolidation') ?? [];
+  const mine = useUserContent()?.filter((c) => c.kind === 'consolidation') ?? [];
   return (
     <>
       <PageHeader title="連結" />
@@ -51,6 +53,29 @@ export default function ConsolidationListPage() {
             );
           })}
         </div>
+        {mine.length > 0 && (
+          <Card className="p-4 text-sm">
+            <h2 className="mb-2 font-semibold">マイ教材（外部 AI で作った事例）</h2>
+            <ul className="space-y-1">
+              {mine.map((c) => (
+                <li key={c.id}>
+                  <Link
+                    href={`/consolidation/${c.id}`}
+                    className="text-accent-700 hover:underline dark:text-accent-300"
+                  >
+                    {c.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        )}
+        <p className="text-sm">
+          <Link href="/studio" className="text-accent-700 hover:underline dark:text-accent-300">
+            外部 AI で連結の事例を作る
+          </Link>
+          （「外部 AI と連携」で「連結の事例」を選んでプロンプトをコピー）
+        </p>
         {lessons.length > 0 && (
           <Card className="p-4 text-sm">
             <h2 className="mb-2 font-semibold">先にレッスンで考え方を学ぶ</h2>

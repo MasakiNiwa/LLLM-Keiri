@@ -101,6 +101,55 @@ export const DRILL_FORMAT = `## 問題セットの形式（JSON）
 - accounts（任意）: 選べる勘定科目の配列。省略するとアプリが正解の科目に間違えやすい科目を混ぜて作る
 `;
 
+export const CONSOLIDATION_FORMAT = `## 連結の事例の形式（JSON）
+
+\`\`\`json
+{
+  "id": "my-domestic-60",
+  "title": "国内子会社（持分 60%）の連結",
+  "summary": "1〜2 文の説明",
+  "level": 4,
+  "unit": "千円",
+  "basis": [{ "name": "連結財務諸表に関する会計基準（企業会計基準第 22 号）" }],
+  "asOf": "2026-10-01",
+  "updated": "2026-10-01",
+  "entities": [
+    {
+      "id": "p",
+      "name": "P 社（親会社）",
+      "role": "parent",
+      "note": "前提の説明（取得の時期・取得原価・グループ内の取引など）",
+      "trialBalance": "普通預金 1,000 / 買掛金 500\\n子会社株式 700 / 資本金 1,000\\n売上原価 600 / 利益剰余金 200\\n/ 売上 600"
+    },
+    {
+      "id": "s",
+      "name": "S 社（子会社）",
+      "role": "subsidiary",
+      "ownership": 60,
+      "currency": "JPY",
+      "trialBalance": "…"
+    }
+  ],
+  "eliminations": [
+    {
+      "id": "capital",
+      "category": "capital",
+      "title": "投資と資本の相殺消去",
+      "question": "自分で解くときの問題文（必要な数字をすべて書く）",
+      "shiwake": "資本金 500 / 子会社株式 700\\n利益剰余金 500 / 非支配株主持分 400\\nのれん 100 /",
+      "explanation": "なぜその仕訳になるか"
+    }
+  ]
+}
+\`\`\`
+
+- trialBalance は決算整理後の残高試算表を仕訳の書き方で書く（借方残高を借方、貸方残高を貸方。1 行に「借方科目 金額 / 貸方科目 金額」、行は \\n で区切る。空行は入れない）。借方の合計と貸方の合計を必ず一致させる
+- 親会社（role: parent）は 1 社で、通貨は JPY。子会社には ownership（持分 %）を書く
+- 海外の子会社は currency: "USD"、unit: "千ドル"、rates: { "CR": 決算日レート, "AR": 期中平均レート, "HR": 取得時レート } を書き、試算表はドルで書く（アプリが円に換算し、差額を為替換算調整勘定にする）
+- category は capital（投資と資本の相殺消去）・goodwill（のれんの償却）・nci（非支配株主への配分）・intercompany（内部取引）・balances（債権債務）・unrealized（未実現利益）・dividend（配当金）・translation（換算差額の配分）・other のどれか
+- eliminations の shiwake は 1 つの仕訳で、貸借を一致させる。連結の金額は、各社の試算表の合計に修正仕訳を加えてアプリが計算する
+`;
+
 export const COMMON_RULES = `## 守ること
 
 - 日本の会計基準・税法（基準日の時点）に基づき、正確に書く。不確かなことは書かない
@@ -145,6 +194,7 @@ export function contentFormatDoc(tracks: Track[], accounts: Account[]): string {
     '',
     LESSON_FORMAT,
     DRILL_FORMAT,
+    CONSOLIDATION_FORMAT,
     COMMON_RULES,
     '## 分野',
     '',

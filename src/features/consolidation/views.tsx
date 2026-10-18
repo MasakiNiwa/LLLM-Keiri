@@ -438,7 +438,9 @@ export function ConsolidatedStatementsView({
                 <span className="min-w-0 flex-1">{label}</span>
               )}
               <span className={mono}>
-                {i === 1 ? `△${formatAmount(v as number)}` : formatAmount(v as number)}
+                {i === 1 && (v as number) !== 0
+                  ? `△${formatAmount(v as number)}`
+                  : formatAmount(v as number)}
               </span>
             </div>
           ))}

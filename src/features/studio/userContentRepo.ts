@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { fetchDrill, fetchLesson } from '@/lib/content/load';
-import type { DrillSet, Lesson } from '@/lib/content/schema';
+import { fetchConsolidation, fetchDrill, fetchLesson } from '@/lib/content/load';
+import type { ConsolidationCase, DrillSet, Lesson } from '@/lib/content/schema';
 import { db, type UserContent } from '@/lib/db/db';
 import { USER_ID_PREFIX, type ParsedContent } from './importContent';
 
@@ -11,6 +11,7 @@ export function useUserContent(): UserContent[] | undefined {
 
 /** 取り込んだ教材を保存する（同じ id があれば置き換える）。置き換えたら true */
 export async function saveUserContent(c: ParsedContent): Promise<boolean> {
+  const createdAt = Date.now();
   const record: UserContent =
     c.kind === 'lesson'
       ? {
@@ -18,15 +19,17 @@ export async function saveUserContent(c: ParsedContent): Promise<boolean> {
           kind: 'lesson',
           title: c.lesson.meta.title,
           data: c.lesson,
-          createdAt: Date.now(),
+          createdAt,
         }
-      : {
-          id: c.drill.id,
-          kind: 'drill',
-          title: c.drill.title,
-          data: c.drill,
-          createdAt: Date.now(),
-        };
+      : c.kind === 'drill'
+        ? { id: c.drill.id, kind: 'drill', title: c.drill.title, data: c.drill, createdAt }
+        : {
+            id: c.consolidation.id,
+            kind: 'consolidation',
+            title: c.consolidation.title,
+            data: c.consolidation,
+            createdAt,
+          };
   const existed = !!(await db.userContent.get(record.id));
   await db.userContent.put(record);
   return existed;
@@ -60,9 +63,28 @@ export async function loadDrill(id: string): Promise<DrillSet> {
   return fetchDrill(id);
 }
 
+/** 連結の事例を読む（マイ教材ならこの端末から） */
+export async function loadConsolidation(id: string): Promise<ConsolidationCase> {
+  if (isUserContentId(id)) {
+    const c = await db.userContent.get(id);
+    if (c?.kind === 'consolidation') return c.data;
+    throw new Error('マイ教材にこの連結の事例がありません');
+  }
+  return fetchConsolidation(id);
+}
+
+/** マイ教材を開くページ */
+export function userContentHref(c: UserContent): string {
+  return c.kind === 'lesson'
+    ? `/learn/${c.id}`
+    : c.kind === 'drill'
+      ? `/drill/${c.id}`
+      : `/consolidation/${c.id}`;
+}
+
 /** 取り込める形のファイルにする（書き出し・ほかの端末への移動用） */
 export function exportUserContent(c: UserContent): { name: string; text: string; type: string } {
-  if (c.kind === 'drill') {
+  if (c.kind === 'drill' || c.kind === 'consolidation') {
     return {
       name: `${c.id}.json`,
       text: JSON.stringify(c.data, null, 2),

@@ -89,6 +89,52 @@ describe('parseImport', () => {
     expect(bad.errors.some((e) => e.includes('「売掛金」'))).toBe(true);
   });
 
+  it('連結の事例を読み、試算表の貸借を確かめる', () => {
+    const c = {
+      id: 'cons',
+      title: 'C',
+      summary: 'S',
+      level: 4,
+      asOf: '2026-10-01',
+      updated: '2026-10-01',
+      entities: [
+        { id: 'p', name: 'P', role: 'parent', trialBalance: '現金 100 / 買掛金 100' },
+        {
+          id: 's',
+          name: 'S',
+          role: 'subsidiary',
+          ownership: 100,
+          trialBalance: '現金 50 / 買掛金 50',
+        },
+      ],
+      eliminations: [
+        {
+          id: 'e1',
+          category: 'balances',
+          title: 'T',
+          question: 'Q',
+          shiwake: '買掛金 10 / 現金 10',
+          explanation: 'E',
+        },
+      ],
+    };
+    const ok = parseImport(JSON.stringify(c), index);
+    expect(ok.errors).toEqual([]);
+    expect(ok.content?.kind).toBe('consolidation');
+    const bad = parseImport(
+      JSON.stringify({
+        ...c,
+        entities: [
+          c.entities[0],
+          { ...c.entities[1], ownership: undefined, trialBalance: '現金 50 / 買掛金 40' },
+        ],
+      }),
+      index,
+    );
+    expect(bad.errors.some((e) => e.includes('ownership'))).toBe(true);
+    expect(bad.errors.some((e) => e.includes('貸借が一致していません'))).toBe(true);
+  });
+
   it('読めないものはエラー', () => {
     expect(parseImport('こんにちは', index).errors).toHaveLength(1);
   });
