@@ -1,5 +1,6 @@
 import {
   BookOpenText,
+  CalendarDays,
   Boxes,
   Network,
   CircleHelp,
@@ -65,6 +66,12 @@ export const CONSOLIDATION_ITEM: NavItem = {
   icon: Network,
   description: '親会社・子会社（海外も）の試算表から連結財務諸表を作り、内訳をたどる',
 };
+export const CALENDAR_ITEM: NavItem = {
+  to: '/calendar',
+  label: '経理カレンダー',
+  icon: CalendarDays,
+  description: '決算月から、申告・納付・給与・社会保険の主な期限を計算する',
+};
 export const STUDIO_ITEM: NavItem = {
   to: '/studio',
   label: '外部 AI と連携',
@@ -79,6 +86,7 @@ export const HELP_ITEM: NavItem = { to: '/help', label: 'ヘルプ', icon: Circl
 export const SUB_NAV_ITEMS: NavItem[] = [
   CONSOLIDATION_ITEM,
   ACCOUNTS_ITEM,
+  CALENDAR_ITEM,
   STUDIO_ITEM,
   MODELS_ITEM,
   SETTINGS_ITEM,
