@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { JournalTable } from '@/features/journal/JournalTable';
 import type { Widget } from '@/lib/content/schema';
 import { formatAmount } from '@/lib/journal/amount';
 import { monthlyPay } from '@/lib/payroll/monthly';
-import { RULE_YEAR, yearEndAdjustment } from '@/lib/payroll/yearEnd';
+import { TAX_YEARS } from '@/lib/payroll/taxYears';
+import { yearEndAdjustment } from '@/lib/payroll/yearEnd';
 import { cn } from '@/lib/utils/cn';
 import { useAmounts } from './useAmounts';
 import { AmountField, ResetButton } from './widgetParts';
@@ -145,10 +146,11 @@ export function MonthlyPayrollWidget({ w }: { w: Extract<Widget, { type: 'payrol
   );
 }
 
-/** 年末調整（2025 年分のルール） */
+/** 年末調整（年分を切り替えられる） */
 export function YearEndWidget({ w }: { w: Extract<Widget, { type: 'year-end' }> }) {
-  const { type: _t, ...init } = w;
+  const { type: _t, year: initialYear, ...init } = w;
   const { values, set, reset } = useAmounts(init);
+  const [year, setYear] = useState(initialYear);
   const r = useMemo(
     () =>
       yearEndAdjustment({
@@ -161,8 +163,9 @@ export function YearEndWidget({ w }: { w: Extract<Widget, { type: 'year-end' }> 
         specificDependents: num(values.specificDependents),
         elderlyDependents: num(values.elderlyDependents),
         housingLoan: num(values.housingLoan),
+        year,
       }),
-    [values],
+    [values, year],
   );
   const valid = Object.values(values).every(
     (v) => Number.isFinite(num(v as string)) && num(v as string) >= 0,
@@ -170,10 +173,34 @@ export function YearEndWidget({ w }: { w: Extract<Widget, { type: 'year-end' }> 
   const refund = r.difference > 0;
   return (
     <>
-      <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-        {RULE_YEAR} 年分（令和 7
-        年分）のルールで計算します。ほかの年分は、控除額などが違うことがあります。
-      </p>
+      <div className="space-y-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="年分">
+          {TAX_YEARS.map((t) => (
+            <button
+              key={t.year}
+              type="button"
+              aria-pressed={year === t.year}
+              onClick={() => setYear(t.year)}
+              className={cn(
+                'rounded-full border px-2.5 py-1 font-medium',
+                year === t.year
+                  ? 'border-amber-600 bg-amber-600 text-white dark:border-amber-500 dark:bg-amber-600'
+                  : 'border-amber-300 bg-white text-amber-900 dark:border-amber-800 dark:bg-transparent dark:text-amber-200',
+              )}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <p>
+          {r.rules.label} のルールで計算します（{r.rules.basis}）。主な変更点:
+        </p>
+        <ul className="list-disc space-y-0.5 pl-4">
+          {r.rules.changes.map((c) => (
+            <li key={c}>{c}</li>
+          ))}
+        </ul>
+      </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <AmountField label="給与・賞与の総額" value={values.salary} onChange={set('salary')} />
         <AmountField

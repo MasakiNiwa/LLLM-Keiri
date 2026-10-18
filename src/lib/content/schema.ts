@@ -294,6 +294,8 @@ export const WidgetSchema = z.discriminatedUnion('type', [
   }),
   z.object({
     type: z.literal('year-end'),
+    /** 年分（src/lib/payroll/taxYears.ts にある年分） */
+    year: z.number().int().default(2025),
     salary: yenAmount.default(5000000),
     withheld: yenAmount.default(120000),
     socialInsurance: yenAmount.default(720000),
