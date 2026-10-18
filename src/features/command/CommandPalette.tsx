@@ -4,6 +4,7 @@ import {
   BookOpenText,
   CornerDownLeft,
   FileSpreadsheet,
+  ListChecks,
   Network,
   PenLine,
   Search,
@@ -119,12 +120,20 @@ function PaletteBody({ close }: { close: () => void }) {
       return {
         key: h.id,
         label: h.title,
-        sub: { lesson: 'レッスン', drill: '練習問題', account: '勘定科目', term: '用語' }[h.kind],
+        sub: {
+          lesson: 'レッスン',
+          drill: '練習問題',
+          quiz: '選択問題',
+          account: '勘定科目',
+          term: '用語',
+        }[h.kind],
         icon:
           h.kind === 'lesson' ? (
             <BookOpenText />
           ) : h.kind === 'drill' ? (
             <PenLine />
+          ) : h.kind === 'quiz' ? (
+            <ListChecks />
           ) : h.kind === 'term' ? (
             <BookA />
           ) : (

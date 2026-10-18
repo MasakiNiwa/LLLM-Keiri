@@ -309,3 +309,57 @@
   description: 利益がちょうど 0 になる売上高（や販売数量）。固定費 ÷ 限界利益率で求める。
   lessons: [cost-cvp]
   related: [限界利益]
+- term: 内部統制
+  kana: ないぶとうせい
+  description: 業務の有効性及び効率性・報告の信頼性・法令等の遵守・資産の保全の 4 つの目的を達成するために、社内に組み込まれ、組織のすべての人が行うしくみ（6 つの基本的要素からなる）。
+  lessons: [jsox-framework]
+  related: [統制環境, 内部統制報告制度]
+- term: 内部統制報告制度
+  kana: ないぶとうせいほうこくせいど
+  aliases: [J-SOX]
+  description: 上場会社の経営者が、財務報告に係る内部統制の有効性を評価して内部統制報告書を出し、監査人の監査を受ける制度（金融商品取引法）。
+  lessons: [jsox-overview]
+  related: [内部統制, 開示すべき重要な不備]
+- term: 統制環境
+  kana: とうせいかんきょう
+  description: 内部統制の 6 つの基本的要素の 1 つ。経営者の誠実性・倫理観、取締役会や監査役の監視、組織構造など、組織の気風。ほかの要素の土台になる。
+  lessons: [jsox-framework]
+  related: [内部統制]
+- term: RCM
+  kana: あーるしーえむ
+  aliases: [リスク・コントロール・マトリクス]
+  description: 業務プロセスのリスクと、それに対応するコントロール（統制）、守る要件（アサーション）、統制の種類を一覧にした表。業務記述書・フローチャートとあわせて「3 点セット」と呼ばれる。
+  lessons: [jsox-rcm, jsox-scope-process]
+  related: [アサーション, キーコントロール]
+- term: アサーション
+  kana: あさーしょん
+  aliases: [適正な財務報告を確保するための要件]
+  description: 財務報告が正しいための要件。実在性・網羅性・権利と義務の帰属・評価の妥当性・期間配分の適切性・表示の妥当性。
+  lessons: [jsox-rcm]
+  related: [RCM]
+- term: キーコントロール
+  kana: きーこんとろーる
+  description: リスクを十分に下げる中心のコントロール。内部統制の評価で重点的に確かめる。
+  lessons: [jsox-rcm]
+  related: [RCM]
+- term: 職務の分離
+  kana: しょくむのぶんり
+  aliases: [職務分掌]
+  description: 取引の承認・記録・資産の管理などを別々の人が行うこと。1 人で完結できないようにして、誤りや不正を防ぐ。
+  lessons: [jsox-accounting-role]
+  related: [内部統制]
+- term: IT 全般統制
+  kana: あいてぃーぜんぱんとうせい
+  description: システムが正しく動き続けるための管理（開発・変更管理、運用、アクセス管理、外部委託先の管理）。自動化された統制が有効であるための前提。
+  lessons: [jsox-it]
+  related: [IT 業務処理統制]
+- term: IT 業務処理統制
+  kana: あいてぃーぎょうむしょりとうせい
+  description: 業務の処理の中に組み込まれた統制（入力チェック、自動計算、マスタとの照合など）。
+  lessons: [jsox-it]
+  related: [IT 全般統制]
+- term: 開示すべき重要な不備
+  kana: かいじすべきじゅうようなふび
+  description: 内部統制の不備のうち、財務報告に重要な影響を及ぼす可能性が高いもの。期末日にあると、内部統制は有効でないと報告する。金額的重要性の目安の例は、連結税引前利益の概ね 5% 程度。
+  lessons: [jsox-deficiency]
+  related: [内部統制報告制度]

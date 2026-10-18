@@ -18,6 +18,7 @@ const AccountsPage = lazy(() => import('@/pages/AccountsPage'));
 const DrillListPage = lazy(() => import('@/pages/DrillListPage'));
 const DrillPage = lazy(() => import('@/pages/DrillPage'));
 const ExercisePage = lazy(() => import('@/pages/ExercisePage'));
+const QuizSetPage = lazy(() => import('@/pages/QuizSetPage'));
 const CalendarPage = lazy(() => import('@/pages/CalendarPage'));
 const LogPage = lazy(() => import('@/pages/LogPage'));
 const MenuPage = lazy(() => import('@/pages/MenuPage'));
@@ -47,6 +48,7 @@ export default function App() {
             <Route path="/drill" component={DrillListPage} />
             <Route path="/drill/:id" component={DrillPage} />
             <Route path="/exercise/:id/:tab?" component={ExercisePage} />
+            <Route path="/quiz/:id" component={QuizSetPage} />
             <Route path="/review" component={ReviewPage} />
             <Route path="/ledger/:tab?" component={LedgerPage} />
             <Route path="/chat" component={ChatPage} />

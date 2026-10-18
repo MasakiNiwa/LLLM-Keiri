@@ -261,6 +261,11 @@ export const WidgetSchema = z.discriminatedUnion('type', [
     targetProfit: yenAmount.default(200000),
   }),
   z.object({
+    type: z.literal('deficiency'),
+    pretaxIncome: yenAmount.default(2000000000),
+    potentialMisstatement: yenAmount.default(120000000),
+  }),
+  z.object({
     type: z.literal('tax-settlement'),
     received: yenAmount.default(150000),
     paid: yenAmount.default(105000),
@@ -277,6 +282,26 @@ export const DrillSetSchema = z.object({
 });
 export type DrillSet = z.infer<typeof DrillSetSchema>;
 export type DrillMeta = Omit<DrillSet, 'questions'> & { questionCount: number };
+
+/** 選択問題のセット（内部統制など、仕訳ではない問題の練習） */
+export const QuizQuestionSchema = z.object({
+  id: z.string().min(1),
+  /** 問題の前提（事例の説明など。任意） */
+  context: z.string().optional(),
+  question: z.string().min(1),
+  choices: z.array(z.string().min(1)).min(2),
+  /** 正解の選択肢の番号（0 から） */
+  answer: z.number().int().min(0),
+  explanation: z.string().min(1),
+});
+export type QuizQuestion = z.infer<typeof QuizQuestionSchema>;
+
+export const QuizSetSchema = z.object({
+  ...contentMeta,
+  questions: z.array(QuizQuestionSchema).min(1),
+});
+export type QuizSet = z.infer<typeof QuizSetSchema>;
+export type QuizMeta = Omit<QuizSet, 'questions'> & { questionCount: number };
 
 /** 帳簿のサンプル（一連の取引。帳簿ページで読み込める） */
 export const ScenarioSchema = z.object({
@@ -431,13 +456,14 @@ export interface ContentIndex {
   scenarios: Scenario[];
   consolidations: ConsolidationMeta[];
   exercises: ClosingExerciseMeta[];
+  quizzes: QuizMeta[];
 }
 
 /** 検索の対象（content/search.json） */
 export interface SearchDoc {
-  /** lesson:<id> / drill:<id> / account:<科目名> / term:<用語> */
+  /** lesson:<id> / drill:<id> / quiz:<id> / account:<科目名> / term:<用語> */
   id: string;
-  kind: 'lesson' | 'drill' | 'account' | 'term';
+  kind: 'lesson' | 'drill' | 'account' | 'term' | 'quiz';
   title: string;
   track?: string;
   text: string;

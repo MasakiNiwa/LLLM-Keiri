@@ -57,6 +57,8 @@ function useTitles() {
     const m = new Map<string, { title: string; href: string }>();
     for (const l of index?.lessons ?? []) m.set(l.id, { title: l.title, href: `/learn/${l.id}` });
     for (const d of index?.drills ?? []) m.set(d.id, { title: d.title, href: `/drill/${d.id}` });
+    for (const q of index?.quizzes ?? [])
+      m.set(`quiz:${q.id}`, { title: q.title, href: `/quiz/${q.id}` });
     for (const e of index?.exercises ?? [])
       m.set(`exercise:${e.id}`, {
         title: `決算の総合演習「${e.title}」`,

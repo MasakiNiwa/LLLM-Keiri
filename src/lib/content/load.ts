@@ -4,6 +4,7 @@ import type {
   ContentIndex,
   DrillSet,
   Lesson,
+  QuizSet,
   SearchDoc,
 } from './schema';
 
@@ -55,4 +56,8 @@ export function fetchConsolidation(id: string): Promise<ConsolidationCase> {
 
 export function fetchExercise(id: string): Promise<ClosingExercise> {
   return fetchJson<ClosingExercise>(`exercises/${encodeURIComponent(id)}.json`);
+}
+
+export function fetchQuizSet(id: string): Promise<QuizSet> {
+  return fetchJson<QuizSet>(`quizzes/${encodeURIComponent(id)}.json`);
 }

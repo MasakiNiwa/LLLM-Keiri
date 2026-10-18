@@ -7,6 +7,7 @@ import { formatAmount } from '@/lib/journal/amount';
 import { amount, useAmounts } from './useAmounts';
 import { AmountField, ResetButton } from './widgetParts';
 import { ImpairmentWidget, LeaseWidget, PointsWidget } from './StandardsWidgets';
+import { DeficiencyWidget } from './JsoxWidgets';
 import { CvpWidget, OverheadWidget, ProcessCostingWidget, StandardCostWidget } from './CostWidgets';
 import {
   collectionEntry,
@@ -325,6 +326,7 @@ const TITLES: Record<Widget['type'], string> = {
   overhead: '製造間接費の差異を分析してみる',
   'standard-cost': '標準原価の差異を分析してみる',
   cvp: '損益分岐点を計算してみる',
+  deficiency: '不備の重要性を評価してみる',
 };
 
 /** レッスンの中の計算の部品（` ```widget `）。仕訳はプログラムが作る */
@@ -359,6 +361,7 @@ export function WidgetBlock({ json }: { json: string }) {
       {w.type === 'overhead' && <OverheadWidget w={w} />}
       {w.type === 'standard-cost' && <StandardCostWidget w={w} />}
       {w.type === 'cvp' && <CvpWidget w={w} />}
+      {w.type === 'deficiency' && <DeficiencyWidget w={w} />}
     </section>
   );
 }

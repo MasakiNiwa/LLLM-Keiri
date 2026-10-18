@@ -19,6 +19,7 @@ const index: ContentIndex = {
   version: 1,
   glossary: [],
   exercises: [],
+  quizzes: [],
   tracks: [
     { id: 'basics', title: 'きほん', description: 'd' },
     { id: 'tax', title: '税金', description: 'd' },
