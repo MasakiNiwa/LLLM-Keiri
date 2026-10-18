@@ -65,7 +65,7 @@ explanation: 解説
 ````
 
 - 計算の部品: コードブロックの言語を widget にして YAML で書く。数字を変えるとアプリが仕訳を作り直す。
-  type: payroll（給料の仕訳。gross・incomeTax・residentTax・socialInsurance）、type: collection（入金消込。billed・received）、type: withholding（報酬の源泉徴収。fee・consumptionTax）、type: tax-settlement（決算の消費税の精算。received・paid）、type: asset-disposal（固定資産の期中の売却。cost・life・yearsUsed・months・price）、type: points（ポイントへの配分。price・points・usageRate）、type: impairment（減損。bookValue・undiscounted・netSellingPrice・valueInUse）、type: lease（新しいリース会計基準。payment・years・rate）、type: process-costing（総合原価計算）、type: overhead（製造間接費の差異）、type: standard-cost（直接材料費の差異）、type: cvp（損益分岐点。sales・variableCosts・fixedCosts・targetProfit）、type: deficiency（内部統制の不備の評価。pretaxIncome・potentialMisstatement）、type: beppyo4（法人税の所得の計算）、type: payroll-month（1 か月分の給与計算）、type: year-end（年末調整。2025 年分のルール）。金額は省略できる
+  type: payroll（給料の仕訳。gross・incomeTax・residentTax・socialInsurance）、type: collection（入金消込。billed・received）、type: withholding（報酬の源泉徴収。fee・consumptionTax）、type: tax-settlement（決算の消費税の精算。received・paid）、type: asset-disposal（固定資産の期中の売却。cost・life・yearsUsed・months・price）、type: points（ポイントへの配分。price・points・usageRate）、type: impairment（減損。bookValue・undiscounted・netSellingPrice・valueInUse）、type: lease（新しいリース会計基準。payment・years・rate）、type: process-costing（総合原価計算）、type: overhead（製造間接費の差異）、type: standard-cost（直接材料費の差異）、type: cvp（損益分岐点。sales・variableCosts・fixedCosts・targetProfit）、type: deficiency（内部統制の不備の評価。pretaxIncome・potentialMisstatement）、type: beppyo4（法人税の所得の計算）、type: payroll-month（1 か月分の給与計算）、type: year-end（年末調整。2025 年分のルール）、type: working-capital（運転資金と CCC）、type: cash-plan（資金繰り表）。金額は省略できる
 
 ````
 ```widget
@@ -231,6 +231,7 @@ questions:
 - practice: 経理の実務（経費精算・請求と入金消込・給与・月次決算など、会社の経理の仕事）
 - cost: 工業簿記・原価計算（製品の原価の計算。費目別・製造間接費の配賦・個別原価計算・総合原価計算・標準原価計算・CVP 分析）
 - internal-control: 内部統制（J-SOX）（財務報告に係る内部統制の評価。4 つの目的と 6 つの基本的要素、RCM、整備・運用状況の評価、IT 統制、不備の評価と経理部門の役割）
+- finance: 資金繰り・経営への報告（利益とお金の違い、資金繰り表、運転資金と CCC、資金調達、予実分析と経営陣への報告）
 - analysis: 財務諸表の読み方（収益性・安全性・効率性の比率、連結財務諸表とセグメント情報の読み方。比率の計算はアプリ、読み方の説明は AI）
 - standards: 会計基準（収益認識・リース・減損・税効果など、会計基準の考え方）
 

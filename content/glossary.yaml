@@ -448,3 +448,25 @@
   description: 固定資産税の対象になる、事業に使う備品・機械・構築物などの資産。1 月 1 日に持っているものを 1 月 31 日までに市区町村に申告する。
   lessons: [practice-depreciable-assets-return]
   related: [租税公課]
+- term: 資金繰り表
+  kana: しきんぐりひょう
+  description: 月ごと（または週ごと）のお金の出入りを、経常収支・経常外収支・財務収支に分けて、予定と実績で管理する表。残高が不足する時期を早めに見つける。
+  lessons: [finance-cash-plan]
+  related: [黒字倒産, 運転資金]
+- term: 黒字倒産
+  kana: くろじとうさん
+  description: 損益は黒字なのに、支払いのお金が足りなくなって倒産すること。売掛金・在庫の増加や回収の遅れなどで起きる。
+  lessons: [finance-cash-vs-profit]
+  related: [資金繰り表, 運転資金]
+- term: 運転資金
+  kana: うんてんしきん
+  aliases: [必要運転資金]
+  description: 事業を回すために立て替えておく必要があるお金。売上債権 ＋ 棚卸資産 − 仕入債務。売上が伸びると増える。
+  lessons: [finance-working-capital]
+  related: [CCC, 黒字倒産]
+- term: CCC
+  kana: しーしーしー
+  aliases: [キャッシュ・コンバージョン・サイクル]
+  description: 仕入れの支払いから売上の回収まで、お金が寝ている日数。売上債権回転日数 ＋ 棚卸資産回転日数 − 仕入債務回転日数。
+  lessons: [finance-working-capital]
+  related: [運転資金]

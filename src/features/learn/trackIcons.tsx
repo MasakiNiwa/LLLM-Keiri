@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   ShoppingCart,
   Sprout,
+  Wallet,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -25,6 +26,7 @@ const ICONS: Record<string, LucideIcon> = {
   gauge: Gauge,
   factory: Factory,
   'shield-check': ShieldCheck,
+  wallet: Wallet,
 };
 
 export function TrackIcon({ name, className }: { name?: string; className?: string }) {
