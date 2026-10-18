@@ -85,3 +85,27 @@ describe('帳簿のサンプル「小さな会社の 1 か月」', () => {
     expect(buildStatements(ledger).netIncome).toBe(327140);
   });
 });
+
+describe('帳簿のサンプル「小さな会社の 1 年」', () => {
+  const s = index.scenarios.find((x) => x.id === 'company-first-year')!;
+  const ledger = buildLedger(
+    s.entries.map((e, i) => ({
+      id: String(i),
+      date: e.date,
+      memo: e.memo,
+      lines: parseShiwake(e.shiwake).entries[0].lines,
+    })),
+    book,
+  );
+  const bal = (a: string) => ledger.find((l) => l.account === a)?.balance ?? 0;
+  it('当期純利益と期末の残高', () => {
+    // 売上 16,000,000 − 売上原価 9,400,000 − 家賃 1,200,000 − 給料 3,600,000 − 法定福利費 480,000
+    // − 減価償却 200,000 − 貸倒引当金繰入 11,000 − 支払利息 40,000 − 法人税等 320,000
+    expect(buildStatements(ledger).netIncome).toBe(749000);
+    expect(bal('売掛金')).toBe(1100000);
+    expect(bal('仮払消費税等')).toBe(0);
+    expect(bal('仮受消費税等')).toBe(0);
+    expect(bal('未払消費税等')).toBe(-380000);
+    expect(bal('所得税預り金')).toBe(0);
+  });
+});
