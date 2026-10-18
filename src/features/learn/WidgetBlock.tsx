@@ -10,6 +10,8 @@ import {
   SHORTFALL_REASONS,
   type ShortfallReason,
 } from '@/lib/practice/entries';
+import { consumptionTaxSettlement, DEEMED_RATES, type BusinessType } from '@/lib/tax/settlement';
+import { rewardEntries, WITHHOLDING_THRESHOLD } from '@/lib/tax/withholding';
 
 /** 金額の入力（カンマ・「万」も読める） */
 function AmountField({
@@ -149,6 +151,135 @@ function CollectionWidget({ w }: { w: Extract<Widget, { type: 'collection' }> })
   );
 }
 
+function WithholdingWidget({ w }: { w: Extract<Widget, { type: 'withholding' }> }) {
+  const { values, set, reset } = useAmounts({ fee: w.fee, consumptionTax: w.consumptionTax });
+  const fee = amount(values.fee);
+  const tax = amount(values.consumptionTax);
+  const valid = Number.isInteger(fee) && fee > 0 && Number.isInteger(tax) && tax >= 0;
+  const r = useMemo(
+    () => (valid ? rewardEntries({ fee, consumptionTax: tax, account: '支払手数料' }) : null),
+    [valid, fee, tax],
+  );
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-3">
+        <AmountField label="報酬（税抜）" value={values.fee} onChange={set('fee')} />
+        <AmountField
+          label="消費税（請求書に区分）"
+          value={values.consumptionTax}
+          onChange={set('consumptionTax')}
+        />
+      </div>
+      {r ? (
+        <div className="space-y-3">
+          <p className="text-sm leading-relaxed">
+            源泉所得税: <strong className="font-mono">{formatAmount(r.tax)}</strong> 円（
+            {fee <= WITHHOLDING_THRESHOLD
+              ? `${formatAmount(fee)} × 10.21%`
+              : `${formatAmount(WITHHOLDING_THRESHOLD)} × 10.21% ＋ ${formatAmount(fee - WITHHOLDING_THRESHOLD)} × 20.42%`}
+            、1 円未満切り捨て）／ 振り込む額:{' '}
+            <strong className="font-mono">{formatAmount(r.payment)}</strong> 円
+          </p>
+          <JournalTable entry={r.entry} />
+          <JournalTable entry={r.paymentEntry} />
+          <p className="text-xs leading-relaxed text-slate-500">
+            税理士などへの報酬を想定し、費用の科目は支払手数料としています。原稿料なら支払手数料や雑費など、内容に合わせて選びます。
+          </p>
+        </div>
+      ) : (
+        <p className="text-sm text-rose-600 dark:text-rose-400">
+          報酬の額を、円の整数で入れてください
+        </p>
+      )}
+      <ResetButton onClick={reset} />
+    </>
+  );
+}
+
+function SettlementWidget({ w }: { w: Extract<Widget, { type: 'tax-settlement' }> }) {
+  const { values, set, reset } = useAmounts({ received: w.received, paid: w.paid });
+  const [method, setMethod] = useState<'general' | 'simplified'>('general');
+  const [businessType, setBusinessType] = useState<BusinessType>(5);
+  const received = amount(values.received);
+  const paid = amount(values.paid);
+  const valid = [received, paid].every((n) => Number.isInteger(n) && n >= 0);
+  const r = useMemo(
+    () => (valid ? consumptionTaxSettlement({ received, paid, method, businessType }) : null),
+    [valid, received, paid, method, businessType],
+  );
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-3">
+        <AmountField label="仮受消費税等" value={values.received} onChange={set('received')} />
+        <AmountField label="仮払消費税等" value={values.paid} onChange={set('paid')} />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="block text-sm">
+          <span className="mb-1 block text-xs text-slate-600 dark:text-slate-400">計算の方法</span>
+          <Select
+            value={method}
+            onChange={(v) => setMethod(v as 'general' | 'simplified')}
+            options={[
+              { value: 'general', label: '一般課税（原則）' },
+              { value: 'simplified', label: '簡易課税' },
+            ]}
+            className="w-full"
+          />
+        </label>
+        {method === 'simplified' && (
+          <label className="block text-sm">
+            <span className="mb-1 block text-xs text-slate-600 dark:text-slate-400">
+              事業の区分
+            </span>
+            <Select
+              value={String(businessType)}
+              onChange={(v) => setBusinessType(Number(v) as BusinessType)}
+              options={Object.entries(DEEMED_RATES).map(([k, d]) => ({
+                value: k,
+                label: `${d.label} ${d.rate}%`,
+              }))}
+              className="w-full"
+            />
+          </label>
+        )}
+      </div>
+      {r ? (
+        <div className="space-y-3">
+          <p className="text-sm leading-relaxed">
+            {method === 'general'
+              ? `納付額 ＝ 仮受 ${formatAmount(received)} − 仮払 ${formatAmount(paid)}`
+              : `控除額 ＝ 仮受 ${formatAmount(received)} × みなし仕入率 ${DEEMED_RATES[businessType].rate}% ＝ ${formatAmount(r.deductible)}。納付額 ＝ ${formatAmount(received)} − ${formatAmount(r.deductible)}`}
+            {' ＝ '}
+            <strong className="font-mono">{formatAmount(r.payable)}</strong> 円
+            {r.payable < 0 && '（還付）'}
+          </p>
+          <JournalTable entry={r.entry} />
+          {r.difference !== 0 && (
+            <p className="text-sm leading-relaxed">
+              簡易課税では、実際に払った消費税（仮払）ではなく、みなし仕入率で控除額を決めます。仮受と仮払の差（
+              {formatAmount(received - paid)}）と納付額の差 {formatAmount(Math.abs(r.difference))}{' '}
+              円は、
+              {r.difference > 0 ? '雑益' : '雑損'}にします。
+            </p>
+          )}
+          <p className="text-xs leading-relaxed text-slate-500">
+            学習用の簡単な計算です。実際の申告では、課税標準額から国税と地方消費税を順に計算するので、端数で少しずれることがあります。
+          </p>
+        </div>
+      ) : (
+        <p className="text-sm text-rose-600 dark:text-rose-400">金額を、円の整数で入れてください</p>
+      )}
+      <ResetButton
+        onClick={() => {
+          reset();
+          setMethod('general');
+          setBusinessType(5);
+        }}
+      />
+    </>
+  );
+}
+
 function ResetButton({ onClick }: { onClick: () => void }) {
   return (
     <button
@@ -165,6 +296,8 @@ function ResetButton({ onClick }: { onClick: () => void }) {
 const TITLES: Record<Widget['type'], string> = {
   payroll: '給料の仕訳を作ってみる',
   collection: '入金消込の仕訳を作ってみる',
+  withholding: '報酬の源泉徴収を計算してみる',
+  'tax-settlement': '決算の消費税の精算をしてみる',
 };
 
 /** レッスンの中の計算の部品（` ```widget `）。仕訳はプログラムが作る */
@@ -187,7 +320,10 @@ export function WidgetBlock({ json }: { json: string }) {
       <p className="text-xs text-slate-600 dark:text-slate-400">
         数字を変えると、仕訳が作り直されます。
       </p>
-      {w.type === 'payroll' ? <PayrollWidget w={w} /> : <CollectionWidget w={w} />}
+      {w.type === 'payroll' && <PayrollWidget w={w} />}
+      {w.type === 'collection' && <CollectionWidget w={w} />}
+      {w.type === 'withholding' && <WithholdingWidget w={w} />}
+      {w.type === 'tax-settlement' && <SettlementWidget w={w} />}
     </section>
   );
 }

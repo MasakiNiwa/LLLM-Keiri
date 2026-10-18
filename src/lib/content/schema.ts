@@ -181,6 +181,16 @@ export const WidgetSchema = z.discriminatedUnion('type', [
     billed: yenAmount.default(110000),
     received: yenAmount.default(109560),
   }),
+  z.object({
+    type: z.literal('withholding'),
+    fee: yenAmount.default(100000),
+    consumptionTax: yenAmount.default(10000),
+  }),
+  z.object({
+    type: z.literal('tax-settlement'),
+    received: yenAmount.default(150000),
+    paid: yenAmount.default(105000),
+  }),
 ]);
 export type Widget = z.infer<typeof WidgetSchema>;
 

@@ -82,6 +82,15 @@ describe('tools', () => {
     ).toMatchObject({ rate_percent: 10, tax: 100, net: 1000 });
   });
 
+  it('calc_withholding: 10.21% と仕訳', async () => {
+    expect(
+      await executeTool({
+        name: 'calc_withholding',
+        arguments: { fee: 100000, consumption_tax: 10000 },
+      }),
+    ).toMatchObject({ withholding_tax: 10210, payment: 99790 });
+  });
+
   it('lookup_account: 別名でも引ける', async () => {
     expect(
       await executeTool({ name: 'lookup_account', arguments: { name: '買掛' } }),

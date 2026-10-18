@@ -12,12 +12,13 @@ import { ruleValueAt, today } from '@/lib/content/rules';
 import { ELEMENT_LABELS, increaseSide } from '@/lib/content/schema';
 import { db } from '@/lib/db/db';
 import { totals } from '@/lib/journal/balance';
-import { parseShiwake } from '@/lib/journal/parse';
+import { formatShiwake, parseShiwake } from '@/lib/journal/parse';
 import { SIDE_LABELS } from '@/lib/journal/types';
 import { buildLedger, buildStatements, trialBalance } from '@/lib/ledger/ledger';
 import type { JsonValue, ToolCallInfo, ToolDeclaration } from '@/lib/llm/types';
 import { searchContent } from '@/lib/search/client';
 import { calcConsumptionTax, ROUNDING_LABELS, type Rounding } from '@/lib/tax/consumptionTax';
+import { rewardEntries } from '@/lib/tax/withholding';
 import { summarize } from '@/features/drill/records';
 import { searchHelp } from '@/features/help/helpTopics';
 
@@ -97,6 +98,22 @@ export const TOOL_DECLARATIONS: ToolDeclaration[] = [
         date: { type: 'string', description: '取引の日付 YYYY-MM-DD（任意。無ければ今日）' },
       },
       required: ['amount', 'mode'],
+    },
+  },
+  {
+    name: 'calc_withholding',
+    description:
+      '個人への報酬（原稿料・講演料・税理士などの報酬）から源泉徴収する所得税（復興特別所得税を含む）と、支払時の仕訳を計算する',
+    parameters: {
+      type: 'object',
+      properties: {
+        fee: { type: 'integer', description: '報酬の額（円。消費税が区分されていれば税抜）' },
+        consumption_tax: {
+          type: 'integer',
+          description: '請求書で区分された消費税の額（円。任意）',
+        },
+      },
+      required: ['fee'],
     },
   },
   {
@@ -205,6 +222,20 @@ async function consumptionTax(args: Record<string, JsonValue>): Promise<JsonValu
     gross: r.gross,
     rounding: ROUNDING_LABELS[rounding],
     note: '1 円未満は切り捨てで計算（端数処理は事業者が選べます）',
+  };
+}
+
+function withholding(args: Record<string, JsonValue>): JsonValue {
+  const fee = Math.round(Number(args.fee));
+  const ct = Math.round(Number(args.consumption_tax ?? 0));
+  if (!Number.isFinite(fee) || fee <= 0 || !Number.isFinite(ct) || ct < 0)
+    return { error: 'fee は 1 以上、consumption_tax は 0 以上の整数で指定してください' };
+  const r = rewardEntries({ fee, consumptionTax: ct, account: '支払手数料' });
+  return {
+    withholding_tax: r.tax,
+    payment: r.payment,
+    rule: '100 万円以下の部分は 10.21%、超える部分は 20.42%（1 円未満切り捨て）。司法書士など計算方法が違う報酬は対象外',
+    entry: formatShiwake(r.entry),
   };
 }
 
@@ -329,6 +360,8 @@ export async function executeTool(call: ToolCallInfo): Promise<JsonValue> {
       return checkJournal(str(args.entry));
     case 'calc_consumption_tax':
       return consumptionTax(args);
+    case 'calc_withholding':
+      return withholding(args);
     case 'get_progress':
       return getProgress();
     case 'get_ledger':
@@ -345,6 +378,7 @@ export const TOOL_LABELS: Record<string, string> = {
   lookup_account: '勘定科目を確認',
   check_journal: '仕訳を検証',
   calc_consumption_tax: '消費税を計算',
+  calc_withholding: '源泉徴収を計算',
   get_progress: '学習記録を確認',
   get_ledger: '帳簿を集計',
 };

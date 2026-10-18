@@ -64,7 +64,7 @@ explanation: 解説
 \`\`\`\`
 
 - 計算の部品: コードブロックの言語を widget にして YAML で書く。数字を変えるとアプリが仕訳を作り直す。
-  type: payroll（給料の仕訳。gross・incomeTax・residentTax・socialInsurance）、type: collection（入金消込。billed・received）。金額は省略できる
+  type: payroll（給料の仕訳。gross・incomeTax・residentTax・socialInsurance）、type: collection（入金消込。billed・received）、type: withholding（報酬の源泉徴収。fee・consumptionTax）、type: tax-settlement（決算の消費税の精算。received・paid）。金額は省略できる
 
 \`\`\`\`
 \`\`\`widget
