@@ -64,7 +64,7 @@ explanation: 解説
 \`\`\`\`
 
 - 計算の部品: コードブロックの言語を widget にして YAML で書く。数字を変えるとアプリが仕訳を作り直す。
-  type: payroll（給料の仕訳。gross・incomeTax・residentTax・socialInsurance）、type: collection（入金消込。billed・received）、type: withholding（報酬の源泉徴収。fee・consumptionTax）、type: tax-settlement（決算の消費税の精算。received・paid）、type: asset-disposal（固定資産の期中の売却。cost・life・yearsUsed・months・price）、type: points（ポイントへの配分。price・points・usageRate）、type: impairment（減損。bookValue・undiscounted・netSellingPrice・valueInUse）、type: lease（新しいリース会計基準。payment・years・rate）、type: process-costing（総合原価計算）、type: overhead（製造間接費の差異）、type: standard-cost（直接材料費の差異）、type: cvp（損益分岐点。sales・variableCosts・fixedCosts・targetProfit）、type: deficiency（内部統制の不備の評価。pretaxIncome・potentialMisstatement）、type: beppyo4（法人税の所得の計算）。金額は省略できる
+  type: payroll（給料の仕訳。gross・incomeTax・residentTax・socialInsurance）、type: collection（入金消込。billed・received）、type: withholding（報酬の源泉徴収。fee・consumptionTax）、type: tax-settlement（決算の消費税の精算。received・paid）、type: asset-disposal（固定資産の期中の売却。cost・life・yearsUsed・months・price）、type: points（ポイントへの配分。price・points・usageRate）、type: impairment（減損。bookValue・undiscounted・netSellingPrice・valueInUse）、type: lease（新しいリース会計基準。payment・years・rate）、type: process-costing（総合原価計算）、type: overhead（製造間接費の差異）、type: standard-cost（直接材料費の差異）、type: cvp（損益分岐点。sales・variableCosts・fixedCosts・targetProfit）、type: deficiency（内部統制の不備の評価。pretaxIncome・potentialMisstatement）、type: beppyo4（法人税の所得の計算）、type: payroll-month（1 か月分の給与計算）。金額は省略できる
 
 \`\`\`\`
 \`\`\`widget
