@@ -90,6 +90,15 @@
     - '売掛金 50,000 / 売上 50,000'
     - '普通預金 50,000 / 売掛金 50,000'
   related: [買掛金, 売上, クレジット売掛金, 貸倒引当金]
+- name: 契約資産
+  kana: けいやくしさん
+  element: asset
+  group: 流動資産
+  description: 収益認識基準で、商品やサービスを渡したのに、代金を請求する権利がまだ無条件ではない（ほかの義務を果たすまで請求できない）分。無条件になったら売掛金などの顧客との契約から生じた債権に振り替える。
+  examples:
+    - '契約資産 300,000 / 売上 300,000'
+  related: [契約負債, 売掛金]
+  level: 4
 - name: クレジット売掛金
   kana: くれじっとうりかけきん
   element: asset
@@ -268,6 +277,15 @@
     - 'リース資産 500,000 / リース債務 500,000'
   related: [リース債務, 減価償却費]
   level: 3
+- name: 使用権資産
+  kana: しようけんしさん
+  element: asset
+  group: 有形固定資産
+  description: 新しいリース会計基準（企業会計基準第 34 号）で、借り手がリースした資産を使う権利。リース負債と一緒に計上し、減価償却する。
+  examples:
+    - '使用権資産 1,000,000 / リース負債 1,000,000'
+  related: [リース負債, リース資産]
+  level: 4
 - name: 車両運搬具
   kana: しゃりょううんぱんぐ
   element: asset
@@ -368,6 +386,33 @@
   examples:
     - '現金 30,000 / 前受金 30,000'
   related: [前払金, 売上]
+- name: 契約負債
+  kana: けいやくふさい
+  element: liability
+  group: 流動負債
+  description: 収益認識基準で、商品やサービスを渡す前に代金を受け取った（または受け取る権利がある）分。ポイントを付与したときに、ポイント分の対価を配分する科目としても使う。
+  examples:
+    - "現金 10,000 / 売上 9,901\n/ 契約負債 99"
+  related: [契約資産, 前受金]
+  level: 4
+- name: 返金負債
+  kana: へんきんふさい
+  element: liability
+  group: 流動負債
+  description: 収益認識基準で、受け取った対価のうち、返品やリベートなどで顧客に返すと見込む分。その分は売上にしない。
+  examples:
+    - "売掛金 100,000 / 売上 95,000\n/ 返金負債 5,000"
+  related: [契約負債]
+  level: 4
+- name: 賞与引当金
+  kana: しょうよひきあてきん
+  element: liability
+  group: 流動負債
+  description: 次の期に支払う賞与のうち、当期に働いた分の見積額。決算で賞与引当金繰入とともに計上する。
+  examples:
+    - '賞与引当金繰入 400,000 / 賞与引当金 400,000'
+  related: [賞与引当金繰入]
+  level: 3
 - name: 未払金
   kana: みばらいきん
   element: liability
@@ -469,6 +514,22 @@
   element: liability
   group: 流動負債
   description: リース取引で、リース料を支払う義務。ファイナンス・リースなどで、借りた資産（使用権資産・リース資産）と一緒に計上する。
+  level: 4
+- name: リース負債
+  kana: りーすふさい
+  element: liability
+  group: 固定負債
+  description: 新しいリース会計基準（企業会計基準第 34 号）で、リース料を支払う義務（支払うリース料の現在価値）。1 年以内に支払う分は流動負債に表示する。
+  related: [使用権資産, リース債務]
+  level: 4
+- name: 退職給付引当金
+  kana: たいしょくきゅうふひきあてきん
+  element: liability
+  group: 固定負債
+  description: 従業員の退職金などのうち、当期末までに働いた分として見積もった額。中小企業では、期末に全員が自己都合で退職したときの要支給額による簡便法も使われる。
+  examples:
+    - '退職給付費用 300,000 / 退職給付引当金 300,000'
+  related: [退職給付費用]
   level: 4
 - name: 繰延税金負債
   kana: くりのべぜいきんふさい
@@ -671,6 +732,24 @@
   examples:
     - '仕入 80,000 / 買掛金 80,000'
   related: [売上, 買掛金, 繰越商品, 売上原価]
+- name: 棚卸減耗損
+  kana: たなおろしげんもうそん
+  element: expense
+  group: 売上原価
+  description: 帳簿の数量より、実際に数えた在庫の数量が少ないときの差（なくなった・こわれた分）の原価。原価性があれば売上原価、なければ営業外費用・特別損失にする。
+  examples:
+    - '棚卸減耗損 6,000 / 繰越商品 6,000'
+  related: [商品評価損, 繰越商品]
+  level: 3
+- name: 商品評価損
+  kana: しょうひんひょうかそん
+  element: expense
+  group: 売上原価
+  description: 在庫の正味売却価額（売れる見込みの額から売るための費用を引いた額）が取得原価より下がったときの差。収益性の低下として帳簿価額を切り下げる。
+  examples:
+    - '商品評価損 10,000 / 繰越商品 10,000'
+  related: [棚卸減耗損, 繰越商品]
+  level: 3
 - name: 売上原価
   kana: うりあげげんか
   element: expense
@@ -687,6 +766,14 @@
   examples:
     - "給料 300,000 / 所得税預り金 8,000\n/ 社会保険料預り金 40,000\n/ 普通預金 252,000"
   related: [預り金, 法定福利費]
+- name: 賞与
+  kana: しょうよ
+  element: expense
+  group: 販売費及び一般管理費
+  aliases: [賞与手当, ボーナス]
+  description: 従業員に支給する賞与（ボーナス）。賞与引当金を計上していた分は、支給時に引当金を取り崩す。
+  related: [給料, 賞与引当金]
+  level: 2
 - name: 法定福利費
   kana: ほうていふくりひ
   element: expense
@@ -818,6 +905,20 @@
     - '減価償却費 60,000 / 減価償却累計額 60,000'
   related: [減価償却累計額, 備品, 建物]
   level: 2
+- name: 賞与引当金繰入
+  kana: しょうよひきあてきんくりいれ
+  element: expense
+  group: 販売費及び一般管理費
+  description: 決算で賞与引当金を計上するときの費用。
+  related: [賞与引当金]
+  level: 3
+- name: 退職給付費用
+  kana: たいしょくきゅうふひよう
+  element: expense
+  group: 販売費及び一般管理費
+  description: 当期に従業員が働いたことで増えた退職給付の費用。退職給付引当金とともに計上する。
+  related: [退職給付引当金]
+  level: 4
 - name: 貸倒引当金繰入
   kana: かしだおれひきあてきんくりいれ
   element: expense
@@ -892,6 +993,15 @@
   description: 固定資産を帳簿価額より安く売ったときの差額。
   related: [固定資産売却益]
   level: 2
+- name: 減損損失
+  kana: げんそんそんしつ
+  element: expense
+  group: 特別損失
+  description: 固定資産の収益性が下がり、投資した額を回収できる見込みがなくなったとき、帳簿価額を回収可能価額まで減らした額。
+  examples:
+    - '減損損失 2,000,000 / 建物 2,000,000'
+  related: [減価償却費]
+  level: 4
 - name: のれん償却
   kana: のれんしょうきゃく
   element: expense
