@@ -110,3 +110,44 @@ export function exportUserContent(c: UserContent): { name: string; text: string;
     .join('\n');
   return { name: `${c.id}.md`, text: `---\n${yamlFront}\n---\n${body}`, type: 'text/markdown' };
 }
+
+/** 検索用の本文（タイトル・要約・本文・問題文・解説） */
+export function userContentText(c: UserContent): string {
+  if (c.kind === 'lesson')
+    return [c.title, c.data.meta.summary, c.data.meta.tags.join(' '), c.data.body].join('\n');
+  if (c.kind === 'drill')
+    return [
+      c.title,
+      c.data.summary,
+      c.data.tags.join(' '),
+      ...c.data.questions.flatMap((q) => [q.question, q.answer, q.explanation ?? '']),
+    ].join('\n');
+  return [
+    c.title,
+    c.data.summary,
+    ...c.data.entities.map((e) => `${e.name} ${e.note ?? ''}`),
+    ...c.data.eliminations.flatMap((e) => [e.title, e.question, e.explanation]),
+  ].join('\n');
+}
+
+const norm = (s: string) => s.normalize('NFKC').toLowerCase();
+
+/** マイ教材を絞り込む（空白で区切った語をすべて含むもの） */
+export function filterUserContent(items: UserContent[], query: string): UserContent[] {
+  const words = norm(query).split(/\s+/).filter(Boolean);
+  if (!words.length) return items;
+  return items.filter((c) => {
+    const text = norm(userContentText(c));
+    return words.every((w) => text.includes(w));
+  });
+}
+
+/** 検索語のまわりの本文（検索結果の表示用） */
+export function userContentSnippet(c: UserContent, query: string, width = 40): string {
+  const text = userContentText(c).replace(/\s+/g, ' ');
+  const word = norm(query).split(/\s+/).find(Boolean) ?? '';
+  const i = norm(text).indexOf(word);
+  if (i < 0) return text.slice(0, width * 2);
+  const start = Math.max(0, i - width);
+  return `${start > 0 ? '…' : ''}${text.slice(start, i + word.length + width)}…`;
+}

@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { PageBody, PageHeader } from '@/app/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Section } from '@/components/ui/Card';
+import { BackupControls } from '@/features/settings/BackupControls';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Field } from '@/components/ui/Field';
 import { Select } from '@/components/ui/Select';
@@ -437,6 +438,7 @@ export default function SettingsPage() {
           >
             <StorageUsage />
           </Field>
+          <BackupControls />
           <Field label="設定を初期値に戻す" hint="学習記録やデータは消えません">
             <Button size="sm" onClick={() => setConfirm('reset')}>
               <RotateCcw />

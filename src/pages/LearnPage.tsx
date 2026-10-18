@@ -14,7 +14,12 @@ import { Card } from '@/components/ui/Card';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { useAccountSheet } from '@/features/accounts/accountSheetStore';
 import { useFocus } from '@/features/ai/useFocus';
-import { useUserContent } from '@/features/studio/userContentRepo';
+import {
+  filterUserContent,
+  useUserContent,
+  userContentHref,
+  userContentSnippet,
+} from '@/features/studio/userContentRepo';
 import { useContentIndex } from '@/features/content/contentStore';
 import { LevelBadge } from '@/features/learn/MetaBadges';
 import { useLessonProgress } from '@/features/learn/progress';
@@ -35,7 +40,41 @@ function HitIcon({ kind }: { kind: SearchHit['kind'] }) {
   return <Icon className="mt-0.5 size-4 shrink-0 text-accent-600 dark:text-accent-400" />;
 }
 
+function MineResults({ query }: { query: string }) {
+  const mine = filterUserContent(useUserContent() ?? [], query);
+  if (mine.length === 0) return null;
+  return (
+    <Card className="divide-y divide-slate-100 overflow-hidden dark:divide-slate-800">
+      {mine.map((c) => (
+        <Link
+          key={c.id}
+          href={userContentHref(c)}
+          className="flex w-full gap-3 px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50"
+        >
+          <FolderHeart className="mt-0.5 size-4 shrink-0 text-violet-600 dark:text-violet-400" />
+          <span className="min-w-0 flex-1">
+            <span className="block font-medium">{c.title}</span>
+            <span className="block text-xs text-slate-500 dark:text-slate-400">マイ教材</span>
+            <span className="mt-1 line-clamp-2 block text-sm text-slate-600 dark:text-slate-400">
+              {userContentSnippet(c, query)}
+            </span>
+          </span>
+        </Link>
+      ))}
+    </Card>
+  );
+}
+
 function SearchResults({ query, index }: { query: string; index: ContentIndex }) {
+  return (
+    <div className="space-y-3">
+      <MineResults query={query} />
+      <SiteResults query={query} index={index} />
+    </div>
+  );
+}
+
+function SiteResults({ query, index }: { query: string; index: ContentIndex }) {
   const { hits, error } = useSearch(query);
   const openAccount = useAccountSheet((s) => s.open);
   if (error) return <p className="text-sm text-rose-600">検索できませんでした: {error}</p>;
