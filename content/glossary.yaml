@@ -375,12 +375,12 @@
 - term: 申告調整
   kana: しんこくちょうせい
   description: 会計の当期利益から、税法の所得を出すための加算・減算。別表四で行う。
-  lessons: [tax-corporate-income, tax-beppyo4-5]
+  lessons: [tax-corporate-income, tax-beppyo4-5, tax-advisor-terms]
   related: [別表四]
 - term: 損金経理
   kana: そんきんけいり
   description: 決算で費用・損失として計上すること。減価償却費や引当金の繰入などは、損金経理をしていないと損金にできない（確定決算主義）。
-  lessons: [tax-corporate-income]
+  lessons: [tax-corporate-income, tax-advisor-terms]
   related: [損金]
 - term: 別表四
   kana: べっぴょうよん
@@ -581,3 +581,41 @@
   description: 経営者による内部統制の無効化のリスクに対応して、監査人が期末の仕訳など通常と違う仕訳を抽出して確かめる手続。
   lessons: [audit-what-checked, ai-anomaly]
   related: [アサーション]
+- term: 定期同額給与
+  kana: ていきどうがくきゅうよ
+  description: 毎月同じ額を支給する役員給与。損金にできる役員給与の一つで、改定は原則として期首から 3 か月以内に行う。
+  lessons: [tax-corporate-issues]
+  related: [事前確定届出給与]
+- term: 事前確定届出給与
+  kana: じぜんかくていとどけできゅうよ
+  description: 決まった時期に決まった額を支給する役員給与（役員賞与など）。期限までに税務署へ届け出て、届け出たとおりに支給すると損金にできる。
+  lessons: [tax-corporate-issues]
+  related: [定期同額給与]
+- term: 課税売上割合
+  kana: かぜいうりあげわりあい
+  description: 売上全体（課税・免税・非課税）のうち、課税売上（免税を含む）の割合。95% 未満などのときは、仕入の消費税の一部しか控除できない。
+  lessons: [tax-advisor-terms, tax-consumption-issues]
+  related: [個別対応方式]
+- term: 個別対応方式
+  kana: こべつたいおうほうしき
+  aliases: [一括比例配分方式]
+  description: 仕入を、課税売上用・非課税売上用・共通用に分け、共通用だけ課税売上割合を掛けて仕入税額控除を計算する方法。もう一つの方法が一括比例配分方式。
+  lessons: [tax-consumption-issues]
+  related: [課税売上割合]
+- term: 修正申告
+  kana: しゅうせいしんこく
+  aliases: [更正の請求]
+  description: 申告した税額が少なかったときに、正しい額に直す申告。多すぎたときは、税務署に減額を求める更正の請求をする（原則 5 年以内）。
+  lessons: [tax-advisor-terms, tax-working-with-advisor]
+  related: [加算税]
+- term: 加算税
+  kana: かさんぜい
+  aliases: [過少申告加算税, 無申告加算税, 重加算税, 延滞税]
+  description: 申告が少なかった・遅れた・事実を隠したときにかかる罰則的な税。納付が遅れた日数に応じては延滞税がかかる。いずれも法人税の計算上は損金にならない。
+  lessons: [tax-working-with-advisor]
+  related: [修正申告]
+- term: 期ズレ
+  kana: きずれ
+  description: 収益・費用の計上時期が、正しい期とずれていること。税務調査や監査でよく確かめられる。
+  lessons: [tax-advisor-terms, audit-what-checked]
+  related: [修正申告]

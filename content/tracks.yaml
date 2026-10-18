@@ -17,7 +17,7 @@
   icon: network
 - id: tax
   title: 税金
-  description: 消費税（税抜経理・インボイス）、源泉所得税、法人税などの基本
+  description: 消費税（税抜経理・インボイス）、源泉所得税、法人税と申告書（別表）、税理士と話すための論点（役員給与・交際費・課税区分・仕入税額控除・税務調査）
   icon: landmark
 - id: practice
   title: 経理の実務
