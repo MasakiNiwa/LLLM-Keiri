@@ -503,3 +503,36 @@
   description: 限界利益から、その部門・製品だけにかかる固定費を引いた利益。部門をやめるかどうかの判断や、部門長の評価に使う。
   lessons: [finance-segment-pl]
   related: [限界利益]
+- term: ハルシネーション
+  kana: はるしねーしょん
+  description: 生成 AI が、もっともらしいが事実と違う内容（存在しない条文・誤った数字など）を出力すること。根拠を一次情報で確かめて防ぐ。
+  lessons: [ai-generative, ai-risk-control]
+  related: [生成 AI]
+- term: 生成 AI
+  kana: せいせいえーあい
+  aliases: [LLM, 大規模言語モデル]
+  description: 文章などを作り出す AI。経理では下書き・要約・論点の整理・表計算の式づくりに向く。計算や最新の制度の判断はプログラムと一次情報で確かめる。
+  lessons: [ai-generative, ai-local-llm]
+  related: [ハルシネーション, RAG]
+- term: RAG
+  kana: らぐ
+  aliases: [検索拡張生成]
+  description: 社内規程などの資料を検索し、その内容をもとに生成 AI が答える仕組み。資料の更新と、答えに出典を付けることが大切。
+  lessons: [ai-generative]
+  related: [生成 AI]
+- term: AI-OCR
+  kana: えーあいおーしーあーる
+  description: 紙や PDF の請求書・領収書から、日付・金額・登録番号などを AI で読み取る技術。読み取りの誤りがあるので、検算と元の証憑の保存が必要。
+  lessons: [ai-ocr-journal]
+  related: [デジタルインボイス]
+- term: AI エージェント
+  kana: えーあいえーじぇんと
+  description: 目標を受けて手順を考え、システムの操作や検索などの道具を使って仕事を進める AI。経理では権限の最小化・人の承認・記録を設計して使う。
+  lessons: [ai-agents]
+  related: [生成 AI]
+- term: デジタルインボイス
+  kana: でじたるいんぼいす
+  aliases: [Peppol, JP PINT, 電子インボイス]
+  description: 請求書を、システムが読める決まった形のデータでやり取りする仕組み。日本ではデジタル庁が Peppol に基づく標準の仕様（JP PINT）を管理している。
+  lessons: [ai-digital-invoice]
+  related: [AI-OCR]

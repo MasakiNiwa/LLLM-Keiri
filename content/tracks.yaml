@@ -43,3 +43,7 @@
   title: 会計基準
   description: 収益認識・リース・減損・税効果など、会計基準の考え方
   icon: scale
+- id: ai
+  title: 経理 × AI（コラム）
+  description: AI-OCR・仕訳の自動提案・異常検知・生成 AI の使い方・AI エージェント・リスクと内部統制・デジタルインボイスなど、経理の AI 活用の最前線
+  icon: sparkles
