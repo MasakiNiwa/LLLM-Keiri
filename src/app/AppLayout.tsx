@@ -83,8 +83,8 @@ function BottomNav() {
       aria-label="メイン"
       className="pb-safe shrink-0 border-t border-slate-200 bg-white/90 backdrop-blur-md md:hidden dark:border-slate-800 dark:bg-slate-900/90"
     >
-      <div className="grid grid-cols-5">
-        {BOTTOM_NAV_ITEMS.map(({ to, label, icon: Icon }) => {
+      <div className="grid grid-cols-7">
+        {BOTTOM_NAV_ITEMS.map(({ to, label, shortLabel, icon: Icon }) => {
           const active = activeBottomItem(location) === to;
           return (
             <Link
@@ -100,13 +100,13 @@ function BottomNav() {
             >
               <span
                 className={cn(
-                  'flex h-7 w-11 items-center justify-center rounded-full transition-colors [&_svg]:size-5',
+                  'flex h-7 w-10 items-center justify-center rounded-full transition-colors [&_svg]:size-5',
                   active && 'bg-accent-100 dark:bg-accent-900/40',
                 )}
               >
                 <Icon />
               </span>
-              {label}
+              {shortLabel ?? label}
             </Link>
           );
         })}

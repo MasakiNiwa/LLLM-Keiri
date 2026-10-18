@@ -13,6 +13,7 @@ import { useSettings } from '@/features/settings/settingsStore';
 
 // ホーム以外のページは必要になってから読み込む
 const LearnPage = lazy(() => import('@/pages/LearnPage'));
+const AiPage = lazy(() => import('@/pages/AiPage'));
 const LessonPage = lazy(() => import('@/pages/LessonPage'));
 const AccountsPage = lazy(() => import('@/pages/AccountsPage'));
 const DrillListPage = lazy(() => import('@/pages/DrillListPage'));
@@ -51,6 +52,7 @@ export default function App() {
             <Route path="/quiz/:id" component={QuizSetPage} />
             <Route path="/review" component={ReviewPage} />
             <Route path="/ledger/:tab?" component={LedgerPage} />
+            <Route path="/ai" component={AiPage} />
             <Route path="/chat" component={ChatPage} />
             <Route path="/models" component={ModelsPage} />
             <Route path="/consolidation" component={ConsolidationListPage} />

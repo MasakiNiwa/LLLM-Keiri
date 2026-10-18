@@ -1,5 +1,6 @@
 import {
   BookOpenText,
+  Bot,
   Boxes,
   CalendarCheck,
   CalendarDays,
@@ -25,6 +26,8 @@ export interface NavItem {
   description?: string;
   /** 検索で引っかける言葉（メニューの検索・コマンドパレット） */
   keywords?: string;
+  /** 下部ナビでの短い名前 */
+  shortLabel?: string;
 }
 
 export interface NavGroup {
@@ -90,6 +93,14 @@ export const CALENDAR_ITEM: NavItem = {
   description: '決算月から、申告・納付・給与・社会保険の主な期限を計算する（祝日対応）',
   keywords: '期限 スケジュール 申告 納付 年末調整',
 };
+export const AI_ITEM: NavItem = {
+  to: '/ai',
+  label: 'AI 練習',
+  shortLabel: 'AI',
+  icon: Bot,
+  description: 'AI に質問・AI が監査人や税理士の役になって相手をする練習',
+  keywords: 'AI 練習 ロールプレイ 監査人 税理士 社長 報告 説明 クイズ',
+};
 export const CHAT_ITEM: NavItem = {
   to: '/chat',
   label: 'AI に質問',
@@ -140,14 +151,22 @@ export const NAV_GROUPS: NavGroup[] = [
   { id: 'learn', label: '学ぶ', items: [LEARN_ITEM, ACCOUNTS_ITEM] },
   { id: 'practice', label: '練習・記録', items: [DRILL_ITEM, REVIEW_ITEM, LOG_ITEM] },
   { id: 'tools', label: '実務ツール', items: [LEDGER_ITEM, CONSOLIDATION_ITEM, CALENDAR_ITEM] },
-  { id: 'ai', label: 'AI', items: [CHAT_ITEM, STUDIO_ITEM, MODELS_ITEM] },
+  { id: 'ai', label: 'AI', items: [AI_ITEM, CHAT_ITEM, STUDIO_ITEM, MODELS_ITEM] },
   { id: 'app', label: 'アプリ', items: [SETTINGS_ITEM, HELP_ITEM] },
 ];
 
 export const ALL_FEATURES: NavItem[] = NAV_GROUPS.flatMap((g) => g.items);
 
-/** スマホの下部ナビ（5 つまで。ほかの機能は「メニュー」から） */
-export const BOTTOM_NAV_ITEMS: NavItem[] = [HOME_ITEM, LEARN_ITEM, DRILL_ITEM, LOG_ITEM, MENU_ITEM];
+/** スマホの下部ナビ（7 つまで。ほかの機能は「メニュー」から） */
+export const BOTTOM_NAV_ITEMS: NavItem[] = [
+  HOME_ITEM,
+  LEARN_ITEM,
+  DRILL_ITEM,
+  AI_ITEM,
+  LOG_ITEM,
+  SETTINGS_ITEM,
+  MENU_ITEM,
+];
 
 export function isActivePath(location: string, to: string): boolean {
   return to === '/' ? location === '/' : location === to || location.startsWith(`${to}/`);
@@ -159,5 +178,8 @@ export function activeBottomItem(location: string): string {
   if (direct) return direct.to;
   // 演習・選択問題は「練習」の一部
   if (location.startsWith('/exercise/') || location.startsWith('/quiz/')) return DRILL_ITEM.to;
+  // AI に質問・外部 AI・モデルは「AI」の一部
+  if ([CHAT_ITEM, STUDIO_ITEM, MODELS_ITEM].some((i) => isActivePath(location, i.to)))
+    return AI_ITEM.to;
   return MENU_ITEM.to;
 }
