@@ -14,7 +14,14 @@ function parseQuiz(json: string): Quiz | null {
   }
 }
 
-function ChoiceQuiz({ quiz }: { quiz: Extract<Quiz, { type: 'choice' }> }) {
+/** 選択問題（採点はプログラム）。答えるたびに onAnswer を呼ぶ */
+export function ChoiceQuiz({
+  quiz,
+  onAnswer,
+}: {
+  quiz: Pick<Extract<Quiz, { type: 'choice' }>, 'choices' | 'answer' | 'explanation'>;
+  onAnswer?: (correct: boolean) => void;
+}) {
   const [picked, setPicked] = useState<number | null>(null);
   const answered = picked !== null;
   const correct = picked === quiz.answer;
@@ -29,7 +36,10 @@ function ChoiceQuiz({ quiz }: { quiz: Extract<Quiz, { type: 'choice' }> }) {
               key={i}
               type="button"
               disabled={answered}
-              onClick={() => setPicked(i)}
+              onClick={() => {
+                setPicked(i);
+                onAnswer?.(i === quiz.answer);
+              }}
               className={cn(
                 'flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left transition-colors disabled:cursor-default',
                 !answered &&

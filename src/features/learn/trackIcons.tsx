@@ -7,6 +7,7 @@ import {
   Landmark,
   Network,
   Scale,
+  ShieldCheck,
   ShoppingCart,
   Sprout,
   type LucideIcon,
@@ -23,6 +24,7 @@ const ICONS: Record<string, LucideIcon> = {
   scale: Scale,
   gauge: Gauge,
   factory: Factory,
+  'shield-check': ShieldCheck,
 };
 
 export function TrackIcon({ name, className }: { name?: string; className?: string }) {

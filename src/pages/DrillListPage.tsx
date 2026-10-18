@@ -1,4 +1,4 @@
-import { ChevronRight, FileSpreadsheet, FolderHeart, PenLine } from 'lucide-react';
+import { ChevronRight, FileSpreadsheet, FolderHeart, ListChecks, PenLine } from 'lucide-react';
 import { useUserContent } from '@/features/studio/userContentRepo';
 import { Link } from 'wouter';
 import { PageBody, PageHeader } from '@/app/PageHeader';
@@ -92,7 +92,8 @@ export default function DrillListPage() {
         )}
         {index?.tracks.map((track) => {
           const sets = index.drills.filter((d) => d.track === track.id);
-          if (sets.length === 0) return null;
+          const quizzes = index.quizzes.filter((q) => q.track === track.id);
+          if (sets.length === 0 && quizzes.length === 0) return null;
           return (
             <section key={track.id} className="space-y-2">
               <h2 className="flex items-center gap-2 px-1 text-sm font-semibold text-slate-500 dark:text-slate-400">
@@ -127,6 +128,37 @@ export default function DrillListPage() {
                           )}
                         </div>
                         {s && <Progress value={s.correct / d.questionCount} className="h-1.5" />}
+                      </Card>
+                    </Link>
+                  );
+                })}
+                {quizzes.map((q) => {
+                  const s = stats?.get(`quiz:${q.id}`);
+                  return (
+                    <Link key={q.id} href={`/quiz/${q.id}`} className="group">
+                      <Card className="flex h-full flex-col gap-2 p-4 transition-colors group-hover:border-accent-300 dark:group-hover:border-accent-700">
+                        <div className="flex items-start gap-3">
+                          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+                            <ListChecks className="size-5" />
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-semibold">{q.title}</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                              {q.summary}
+                            </p>
+                          </div>
+                          <ChevronRight className="size-5 shrink-0 text-slate-400" />
+                        </div>
+                        <div className="mt-auto flex items-center gap-2 text-xs text-slate-500">
+                          <LevelBadge level={q.level} />
+                          <span>選択問題 {q.questionCount} 問</span>
+                          {s && (
+                            <span className="ml-auto tabular-nums">
+                              正解 {s.correct}/{q.questionCount}
+                            </span>
+                          )}
+                        </div>
+                        {s && <Progress value={s.correct / q.questionCount} className="h-1.5" />}
                       </Card>
                     </Link>
                   );

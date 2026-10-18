@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   BookA,
   BookOpenText,
+  ListChecks,
   CheckCircle2,
   ChevronRight,
   Circle,
@@ -33,13 +34,22 @@ import { warmupSearch } from '@/lib/search/client';
 const KIND_LABELS: Record<SearchHit['kind'], string> = {
   lesson: 'レッスン',
   drill: '練習問題',
+  quiz: '選択問題',
   account: '勘定科目',
   term: '用語',
 };
 
 function HitIcon({ kind }: { kind: SearchHit['kind'] }) {
   const Icon =
-    kind === 'lesson' ? BookOpenText : kind === 'drill' ? PenLine : kind === 'term' ? BookA : Tags;
+    kind === 'lesson'
+      ? BookOpenText
+      : kind === 'drill'
+        ? PenLine
+        : kind === 'quiz'
+          ? ListChecks
+          : kind === 'term'
+            ? BookA
+            : Tags;
   return <Icon className="mt-0.5 size-4 shrink-0 text-accent-600 dark:text-accent-400" />;
 }
 
@@ -119,7 +129,9 @@ function SiteResults({ query, index }: { query: string; index: ContentIndex }) {
         return (
           <Link
             key={h.id}
-            href={kind === 'lesson' ? `/learn/${id}` : `/drill/${id}`}
+            href={
+              kind === 'lesson' ? `/learn/${id}` : kind === 'quiz' ? `/quiz/${id}` : `/drill/${id}`
+            }
             className={className}
           >
             {body}

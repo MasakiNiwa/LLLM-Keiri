@@ -16,6 +16,7 @@ import {
   compileConsolidation,
   compileDrill,
   compileExercise,
+  compileQuizSet,
   compileLesson,
   compileScenario,
   ContentChecker,
@@ -28,6 +29,7 @@ import {
   RuleSchema,
   TrackSchema,
   type ClosingExercise,
+  type QuizSet,
   type ConsolidationCase,
   type ContentIndex,
   type DrillSet,
@@ -175,6 +177,17 @@ export function buildContent(root: string): BuildResult {
     drills.push(drill);
   }
 
+  // ---- 選択問題のセット ----
+  const quizzes: QuizSet[] = [];
+  for (const p of listFiles(path.join(contentDir, 'quizzes'), '.yaml')) {
+    const where = rel(p);
+    const q = compileQuizSet(readYaml(p), where, checker);
+    if (!q) continue;
+    checkId(q.id, where);
+    checkTrack(q.track, where);
+    quizzes.push(q);
+  }
+
   // ---- 帳簿のサンプル ----
   const scenarios: Scenario[] = [];
   for (const p of listFiles(path.join(contentDir, 'scenarios'), '.yaml')) {
@@ -230,6 +243,7 @@ export function buildContent(root: string): BuildResult {
   };
   lessons.sort((a, b) => byOrder(a.meta, b.meta));
   drills.sort(byOrder);
+  quizzes.sort(byOrder);
 
   const index: ContentIndex = {
     version: 1,
@@ -250,6 +264,10 @@ export function buildContent(root: string): BuildResult {
       entities: c.entities.map((e) => ({ name: e.name, currency: e.currency })),
       eliminationCount: c.eliminations.length,
     })),
+    quizzes: quizzes.map(({ questions, ...meta }) => ({
+      ...meta,
+      questionCount: questions.length,
+    })),
     exercises: exercises.map((e) => ({
       id: e.id,
       title: e.title,
@@ -264,6 +282,7 @@ export function buildContent(root: string): BuildResult {
   for (const c of consolidations)
     files.set(`content/consolidation/${c.id}.json`, JSON.stringify(c));
   for (const e of exercises) files.set(`content/exercises/${e.id}.json`, JSON.stringify(e));
+  for (const q of quizzes) files.set(`content/quizzes/${q.id}.json`, JSON.stringify(q));
 
   const search: SearchDoc[] = [
     ...lessons.map((l) => ({
@@ -279,6 +298,13 @@ export function buildContent(root: string): BuildResult {
       title: d.title,
       track: d.track,
       text: `${d.summary} ${d.tags.join(' ')} ${d.questions.map((q) => q.question).join(' ')}`,
+    })),
+    ...quizzes.map((q) => ({
+      id: `quiz:${q.id}`,
+      kind: 'quiz' as const,
+      title: q.title,
+      track: q.track,
+      text: `${q.summary} ${q.tags.join(' ')} ${q.questions.map((x) => `${x.context ?? ''} ${x.question}`).join(' ')}`,
     })),
     ...accounts.map((a) => ({
       id: `account:${a.name}`,

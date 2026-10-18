@@ -65,7 +65,7 @@ explanation: 解説
 ````
 
 - 計算の部品: コードブロックの言語を widget にして YAML で書く。数字を変えるとアプリが仕訳を作り直す。
-  type: payroll（給料の仕訳。gross・incomeTax・residentTax・socialInsurance）、type: collection（入金消込。billed・received）、type: withholding（報酬の源泉徴収。fee・consumptionTax）、type: tax-settlement（決算の消費税の精算。received・paid）、type: asset-disposal（固定資産の期中の売却。cost・life・yearsUsed・months・price）、type: points（ポイントへの配分。price・points・usageRate）、type: impairment（減損。bookValue・undiscounted・netSellingPrice・valueInUse）、type: lease（新しいリース会計基準。payment・years・rate）、type: process-costing（総合原価計算）、type: overhead（製造間接費の差異）、type: standard-cost（直接材料費の差異）、type: cvp（損益分岐点。sales・variableCosts・fixedCosts・targetProfit）。金額は省略できる
+  type: payroll（給料の仕訳。gross・incomeTax・residentTax・socialInsurance）、type: collection（入金消込。billed・received）、type: withholding（報酬の源泉徴収。fee・consumptionTax）、type: tax-settlement（決算の消費税の精算。received・paid）、type: asset-disposal（固定資産の期中の売却。cost・life・yearsUsed・months・price）、type: points（ポイントへの配分。price・points・usageRate）、type: impairment（減損。bookValue・undiscounted・netSellingPrice・valueInUse）、type: lease（新しいリース会計基準。payment・years・rate）、type: process-costing（総合原価計算）、type: overhead（製造間接費の差異）、type: standard-cost（直接材料費の差異）、type: cvp（損益分岐点。sales・variableCosts・fixedCosts・targetProfit）、type: deficiency（内部統制の不備の評価。pretaxIncome・potentialMisstatement）。金額は省略できる
 
 ````
 ```widget
@@ -190,6 +190,29 @@ adjustments:                       # 決算整理事項（1 問に 1 つの決�
 - アプリが、正解した（または答えを見た）決算整理だけを反映して、精算表と財務諸表を作る
 - 試算表は借方と貸方の合計を必ず一致させる
 
+## 選択問題のセットの形式（YAML。content/quizzes/ に置く）
+
+```yaml
+id: jsox-basics
+title: 内部統制のきほん
+track: internal-control        # 分野の id
+order: 1
+level: 3
+summary: 1 文の説明
+tags: [J-SOX]
+basis:
+  - name: 根拠の基準・法令
+asOf: '2026-10-01'
+updated: '2026-10-01'
+questions:
+  - id: q1
+    context: 事例の説明（任意）
+    question: 問題文
+    choices: [選択肢A, 選択肢B, 選択肢C]
+    answer: 1                  # 正解の番号（0 から）
+    explanation: 解説
+```
+
 ## 守ること
 
 - 日本の会計基準・税法（基準日の時点）に基づき、正確に書く。不確かなことは書かない
@@ -207,6 +230,7 @@ adjustments:                       # 決算整理事項（1 問に 1 つの決�
 - tax: 税金（消費税（税抜経理・インボイス）、源泉所得税、法人税などの基本）
 - practice: 経理の実務（経費精算・請求と入金消込・給与・月次決算など、会社の経理の仕事）
 - cost: 工業簿記・原価計算（製品の原価の計算。費目別・製造間接費の配賦・個別原価計算・総合原価計算・標準原価計算・CVP 分析）
+- internal-control: 内部統制（J-SOX）（財務報告に係る内部統制の評価。4 つの目的と 6 つの基本的要素、RCM、整備・運用状況の評価、IT 統制、不備の評価と経理部門の役割）
 - analysis: 財務諸表の読み方（収益性・安全性・効率性の比率、連結財務諸表とセグメント情報の読み方。比率の計算はアプリ、読み方の説明は AI）
 - standards: 会計基準（収益認識・リース・減損・税効果など、会計基準の考え方）
 

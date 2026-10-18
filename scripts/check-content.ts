@@ -15,5 +15,5 @@ if (errors.length > 0) {
 }
 const index = JSON.parse(files.get('content/index.json')!);
 console.log(
-  `学習データ OK: 分野 ${index.tracks.length}・レッスン ${index.lessons.length}・問題セット ${index.drills.length}・勘定科目 ${index.accounts.length}・用語 ${index.glossary.length}・ルール ${index.rules.length}`,
+  `学習データ OK: 分野 ${index.tracks.length}・レッスン ${index.lessons.length}・問題セット ${index.drills.length}・選択問題 ${index.quizzes.length}・勘定科目 ${index.accounts.length}・用語 ${index.glossary.length}・ルール ${index.rules.length}`,
 );

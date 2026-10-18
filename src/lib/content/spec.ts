@@ -64,7 +64,7 @@ explanation: 解説
 \`\`\`\`
 
 - 計算の部品: コードブロックの言語を widget にして YAML で書く。数字を変えるとアプリが仕訳を作り直す。
-  type: payroll（給料の仕訳。gross・incomeTax・residentTax・socialInsurance）、type: collection（入金消込。billed・received）、type: withholding（報酬の源泉徴収。fee・consumptionTax）、type: tax-settlement（決算の消費税の精算。received・paid）、type: asset-disposal（固定資産の期中の売却。cost・life・yearsUsed・months・price）、type: points（ポイントへの配分。price・points・usageRate）、type: impairment（減損。bookValue・undiscounted・netSellingPrice・valueInUse）、type: lease（新しいリース会計基準。payment・years・rate）、type: process-costing（総合原価計算）、type: overhead（製造間接費の差異）、type: standard-cost（直接材料費の差異）、type: cvp（損益分岐点。sales・variableCosts・fixedCosts・targetProfit）。金額は省略できる
+  type: payroll（給料の仕訳。gross・incomeTax・residentTax・socialInsurance）、type: collection（入金消込。billed・received）、type: withholding（報酬の源泉徴収。fee・consumptionTax）、type: tax-settlement（決算の消費税の精算。received・paid）、type: asset-disposal（固定資産の期中の売却。cost・life・yearsUsed・months・price）、type: points（ポイントへの配分。price・points・usageRate）、type: impairment（減損。bookValue・undiscounted・netSellingPrice・valueInUse）、type: lease（新しいリース会計基準。payment・years・rate）、type: process-costing（総合原価計算）、type: overhead（製造間接費の差異）、type: standard-cost（直接材料費の差異）、type: cvp（損益分岐点。sales・variableCosts・fixedCosts・targetProfit）、type: deficiency（内部統制の不備の評価。pretaxIncome・potentialMisstatement）。金額は省略できる
 
 \`\`\`\`
 \`\`\`widget
@@ -193,6 +193,30 @@ adjustments:                       # 決算整理事項（1 問に 1 つの決�
 - 試算表は借方と貸方の合計を必ず一致させる
 `;
 
+export const QUIZSET_FORMAT = `## 選択問題のセットの形式（YAML。content/quizzes/ に置く）
+
+\`\`\`yaml
+id: jsox-basics
+title: 内部統制のきほん
+track: internal-control        # 分野の id
+order: 1
+level: 3
+summary: 1 文の説明
+tags: [J-SOX]
+basis:
+  - name: 根拠の基準・法令
+asOf: '2026-10-01'
+updated: '2026-10-01'
+questions:
+  - id: q1
+    context: 事例の説明（任意）
+    question: 問題文
+    choices: [選択肢A, 選択肢B, 選択肢C]
+    answer: 1                  # 正解の番号（0 から）
+    explanation: 解説
+\`\`\`
+`;
+
 export const COMMON_RULES = `## 守ること
 
 - 日本の会計基準・税法（基準日の時点）に基づき、正確に書く。不確かなことは書かない
@@ -239,6 +263,7 @@ export function contentFormatDoc(tracks: Track[], accounts: Account[]): string {
     DRILL_FORMAT,
     CONSOLIDATION_FORMAT,
     EXERCISE_FORMAT,
+    QUIZSET_FORMAT,
     COMMON_RULES,
     '## 分野',
     '',

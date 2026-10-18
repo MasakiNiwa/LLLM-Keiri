@@ -15,6 +15,7 @@ import type { JournalEntry } from '../journal/types.ts';
 import type { AccountBook } from './accounts.ts';
 import {
   ClosingExerciseSchema,
+  QuizSetSchema,
   ConsolidationCaseSchema,
   DrillSetSchema,
   LessonFrontmatterSchema,
@@ -22,6 +23,7 @@ import {
   WidgetSchema,
   ScenarioSchema,
   type ClosingExercise,
+  type QuizSet,
   type ConsolidationCase,
   type DrillSet,
   type Heading,
@@ -222,6 +224,27 @@ export function compileScenario(
     const entries = checker.checkShiwake(e.shiwake, `${where}（${i + 1} 件目 ${e.date}）`);
     if (entries.length > 1) checker.errors.push(`${where}（${i + 1} 件目）: 仕訳は 1 つにします`);
   });
+  return r.data;
+}
+
+/** 選択問題のセットを検証する（正解の番号、id の重複） */
+export function compileQuizSet(
+  data: unknown,
+  where: string,
+  checker: ContentChecker,
+): QuizSet | null {
+  const r = QuizSetSchema.safeParse(data);
+  if (!r.success) {
+    checker.errors.push(`${where}: ${formatZod(r.error)}`);
+    return null;
+  }
+  const ids = new Set<string>();
+  for (const q of r.data.questions) {
+    if (ids.has(q.id)) checker.errors.push(`${where}: 問題の id「${q.id}」が重複しています`);
+    ids.add(q.id);
+    if (q.answer >= q.choices.length)
+      checker.errors.push(`${where}（問題 ${q.id}）: answer が選択肢の数を超えています`);
+  }
   return r.data;
 }
 

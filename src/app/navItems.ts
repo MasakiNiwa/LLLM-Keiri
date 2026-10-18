@@ -157,7 +157,7 @@ export function isActivePath(location: string, to: string): boolean {
 export function activeBottomItem(location: string): string {
   const direct = BOTTOM_NAV_ITEMS.find((i) => i !== MENU_ITEM && isActivePath(location, i.to));
   if (direct) return direct.to;
-  // 演習は「練習」の一部
-  if (location.startsWith('/exercise/')) return DRILL_ITEM.to;
+  // 演習・選択問題は「練習」の一部
+  if (location.startsWith('/exercise/') || location.startsWith('/quiz/')) return DRILL_ITEM.to;
   return MENU_ITEM.to;
 }
