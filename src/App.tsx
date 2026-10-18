@@ -57,7 +57,7 @@ export default function App() {
             <Route path="/consolidation/:id/:tab?" component={ConsolidationPage} />
             <Route path="/studio/:tab?" component={StudioPage} />
             <Route path="/calendar" component={CalendarPage} />
-            <Route path="/log" component={LogPage} />
+            <Route path="/log/:tab?" component={LogPage} />
             <Route path="/menu" component={MenuPage} />
             <Route path="/settings" component={SettingsPage} />
             <Route path="/help" component={HelpPage} />
