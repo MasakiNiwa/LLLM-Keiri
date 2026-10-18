@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
+import { Search } from 'lucide-react';
+import { useCommand } from '@/features/command/commandStore';
 import { cn } from '@/lib/utils/cn';
 import { HELP_ITEM } from './navItems';
 import { ThemeToggle } from './ThemeToggle';
@@ -36,8 +38,23 @@ function HelpButton() {
   );
 }
 
+/** ヘッダーの検索（コマンドパレットを開く。⌘K / Ctrl+K でも開く） */
+function SearchButton() {
+  return (
+    <button
+      type="button"
+      onClick={() => useCommand.getState().setOpen(true)}
+      aria-label="機能と学習データを探す（⌘K / Ctrl+K）"
+      title="探す（⌘K / Ctrl+K）"
+      className={iconButton}
+    >
+      <Search className="size-5" />
+    </button>
+  );
+}
+
 /**
- * アプリのヘッダー。どのページでも右端にダークモードの切り替えとヘルプを置く。
+ * アプリのヘッダー。どのページでも右端に検索・ダークモードの切り替え・ヘルプを置く。
  * （GitHub へのリンクはヘッダーに置かない方針。リポジトリへのリンクはヘルプページのみ）
  */
 export function PageHeader({ title, meta, actions, back, hideTitleOnMobile }: PageHeaderProps) {
@@ -56,6 +73,7 @@ export function PageHeader({ title, meta, actions, back, hideTitleOnMobile }: Pa
         {meta && <div className="min-w-0">{meta}</div>}
         <div className="ml-auto flex shrink-0 items-center gap-0.5">
           {actions}
+          <SearchButton />
           <ThemeToggle />
           <HelpButton />
         </div>
