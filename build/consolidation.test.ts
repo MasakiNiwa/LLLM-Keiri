@@ -81,3 +81,29 @@ describe('consolidate（米国子会社 80%）', () => {
     expect(st.totalAssets).toBe(st.totalLiabilities + st.totalEquity + st.netIncome);
   });
 });
+
+describe('consolidate（国内子会社 2 年目）', () => {
+  const r = consolidate(load('domestic-80-year2'), book);
+  const row = (a: string) => r.rows.find((x) => x.account === a);
+
+  it('連結の当期純利益と配分', () => {
+    // 290 + 150 − 受取配当金 40 − のれん 10 ＋ 前期の未実現利益の実現 10 − アップストリーム 15 ＝ 385
+    expect(r.netIncome).toBe(385);
+    // 30 − 3 ＝ 27
+    expect(r.nciProfit).toBe(27);
+    expect(r.parentNetIncome).toBe(358);
+  });
+
+  it('非支配株主持分は、S 社の資本（未実現利益を除く）の 20%', () => {
+    // (資本金 800 ＋ 利益剰余金 250 ＋ 当期純利益 150 − 未実現利益 15) × 20% ＝ 237
+    expect(row('非支配株主持分')?.consolidated).toBe(-237);
+    expect(row('のれん')?.consolidated).toBe(180);
+    expect(row('受取配当金')?.consolidated).toBe(0);
+    expect(row('利益剰余金')?.consolidated).toBe(-1070);
+  });
+
+  it('貸借が一致する', () => {
+    const st = r.statements;
+    expect(st.totalAssets).toBe(st.totalLiabilities + st.totalEquity + st.netIncome);
+  });
+});

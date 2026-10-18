@@ -19,7 +19,7 @@ import {
 import { useContent } from '@/features/content/contentStore';
 import { BasisInfo } from '@/features/learn/MetaBadges';
 import { consolidate } from '@/lib/consolidation/consolidate';
-import { fetchConsolidation } from '@/lib/content/load';
+import { loadConsolidation } from '@/features/studio/userContentRepo';
 import type { ConsolidationCase } from '@/lib/content/schema';
 import { errorMessage } from '@/lib/utils/format';
 
@@ -45,7 +45,7 @@ export default function ConsolidationPage() {
   useEffect(() => {
     let stale = false;
     if (!book) void useContent.getState().load();
-    fetchConsolidation(id).then(
+    loadConsolidation(id).then(
       (c) => !stale && setLoaded({ id, c }),
       (e) => !stale && setLoaded({ id, error: errorMessage(e) }),
     );

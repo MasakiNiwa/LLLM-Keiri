@@ -4,10 +4,18 @@
  */
 import { parse as parseYaml } from 'yaml';
 import { AccountBook } from '@/lib/content/accounts';
-import { compileDrill, compileLesson, ContentChecker } from '@/lib/content/compile';
-import type { ContentIndex, DrillSet, Lesson } from '@/lib/content/schema';
+import {
+  compileConsolidation,
+  compileDrill,
+  compileLesson,
+  ContentChecker,
+} from '@/lib/content/compile';
+import type { ConsolidationCase, ContentIndex, DrillSet, Lesson } from '@/lib/content/schema';
 
-export type ParsedContent = { kind: 'lesson'; lesson: Lesson } | { kind: 'drill'; drill: DrillSet };
+export type ParsedContent =
+  | { kind: 'lesson'; lesson: Lesson }
+  | { kind: 'drill'; drill: DrillSet }
+  | { kind: 'consolidation'; consolidation: ConsolidationCase };
 
 export interface ImportResult {
   content?: ParsedContent;
@@ -75,6 +83,13 @@ export function parseImport(text: string, index: ContentIndex): ImportResult {
       notes,
     };
   }
+  if (data && typeof data === 'object' && 'entities' in data) {
+    const c = compileConsolidation(data, '連結の事例', checker);
+    if (!c || checker.errors.length) return { errors: checker.errors, notes };
+    const id = userId(c.id);
+    if (id !== c.id) notes.push(`id を「${id}」にしました`);
+    return { content: { kind: 'consolidation', consolidation: { ...c, id } }, errors: [], notes };
+  }
   if (data && typeof data === 'object' && 'questions' in data) {
     const drill = compileDrill(data, '問題セット', checker);
     if (!drill || checker.errors.length) return { errors: checker.errors, notes };
@@ -88,7 +103,7 @@ export function parseImport(text: string, index: ContentIndex): ImportResult {
   }
   return {
     errors: [
-      'レッスン（--- で始まる Markdown）か、問題セット（questions を含む JSON）として読めません',
+      'レッスン（--- で始まる Markdown）・問題セット（questions を含む JSON）・連結の事例（entities を含む JSON）として読めません',
     ],
     notes,
   };
