@@ -239,7 +239,19 @@ export function compileConsolidation(
       if (!checker.book.find(name))
         checker.errors.push(`${w}: historical の科目「${name}」がありません`);
     }
+    if (e.opening?.balanceSheet.trim()) {
+      checker.checkShiwake(e.opening.balanceSheet, `${w} の期首の貸借対照表`);
+      if (e.currency !== 'JPY' && !e.opening.rate)
+        checker.errors.push(`${w}: 期首の貸借対照表には rate（前期末のレート）を書きます`);
+    }
+    if (c.opening && e.currency !== 'JPY' && !e.opening)
+      checker.errors.push(
+        `${w}: 期首の連結貸借対照表がある事例では、在外子会社に opening（期首の貸借対照表）を書きます`,
+      );
   }
+  const segmented = c.entities.filter((e) => e.segment).length;
+  if (segmented > 0 && segmented < c.entities.length)
+    checker.errors.push(`${where}: segment はすべての会社に書きます`);
   if (c.opening) {
     const w = `${where}（期首の連結貸借対照表）`;
     const entries = checker.checkShiwake(c.opening.balanceSheet, w);
@@ -256,6 +268,9 @@ export function compileConsolidation(
     elimIds.add(el.id);
     const entries = checker.checkShiwake(el.shiwake, w);
     if (entries.length > 1) checker.errors.push(`${w}: 修正仕訳は 1 つにします`);
+    for (const id of el.between ?? []) {
+      if (!ids.has(id)) checker.errors.push(`${w}: between の会社「${id}」がありません`);
+    }
   }
   return c;
 }

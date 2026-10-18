@@ -79,9 +79,16 @@ export function buildIndirectCashFlow(input: {
   netIncome: number;
   nciProfit?: number;
   book: AccountBook;
+  /**
+   * 在外子会社の換算の影響（あれば）。effects は科目ごとの「レートが変わったことによる残高の増減」（円・借方が正）、
+   * nciShare は非支配株主持分の増減のうち換算差額の配分による分（借方が正）。
+   * 各科目の増減から換算の影響を除き、まとめて「現金及び現金同等物に係る換算差額」にする。
+   */
+  translation?: { effects: Map<string, number>; nciShare: number };
 }): CashFlowStatement {
-  const { opening, closing, netIncome, book } = input;
+  const { opening, closing, netIncome, book, translation } = input;
   const nciProfit = input.nciProfit ?? 0;
+  const effects = translation?.effects ?? new Map<string, number>();
   const lines: CashFlowLine[] = [
     {
       section: 'operating',
@@ -105,13 +112,17 @@ export function buildIndirectCashFlow(input: {
       closingCash += c;
       continue;
     }
+    // 換算差額は、ほかの科目の換算の影響とあわせて最後にまとめる
+    if (translation && name === TRANSLATION) continue;
+    // 換算の影響（レートの変化だけで動いた分）は除く
+    const effect = name === NCI ? (translation?.nciShare ?? 0) : (effects.get(name) ?? 0);
+    const delta = c - o - effect;
     // 借方残高（資産）の増加はお金の減少、貸方残高（負債・純資産）の増加はお金の増加
-    let amount = -(c - o);
+    let amount = -delta;
     if (amount === 0 && !RETAINED.has(name) && name !== NCI) continue;
     const section = sectionFor(acc);
     let label: string;
     let explanation: string;
-    const delta = c - o;
     if (RETAINED.has(name)) {
       // 利益剰余金の増減のうち、利益で増えた分は上の当期純利益で数えたので除く（残りは配当など）
       amount = -delta - (netIncome - nciProfit);
@@ -153,7 +164,23 @@ export function buildIndirectCashFlow(input: {
           : `${name}の${inc ? '増加（借入れ）' : '減少（返済）'}`;
       explanation = `${name}が ${yen(Math.abs(delta))} ${inc ? '増えた' : '減った'}`;
     }
+    if (effect !== 0) explanation += `（換算による増減 ${yen(-effect)} は除き、換算差額に含めた）`;
     lines.push({ section, label, amount, account: name, opening: o, closing: c, explanation });
+  }
+  if (translation) {
+    const deltaF = (closing.get(TRANSLATION) ?? 0) - (opening.get(TRANSLATION) ?? 0);
+    const removed = [...effects.values()].reduce((s, v) => s + v, 0) + translation.nciShare;
+    const amount = -deltaF - removed;
+    if (amount !== 0)
+      lines.push({
+        section: 'translation',
+        label: '現金及び現金同等物に係る換算差額',
+        amount,
+        account: TRANSLATION,
+        opening: opening.get(TRANSLATION) ?? 0,
+        closing: closing.get(TRANSLATION) ?? 0,
+        explanation: `在外子会社のキャッシュ・フローは期中平均レート（資本の払込みなどは取引時のレート）で、期末の現金は決算日レートで換算する。その差が換算差額。為替換算調整勘定の増減（${yen(-deltaF)}）と非支配株主への配分（${yen(-translation.nciShare)}）から、現金以外の資産・負債の換算による増減（${yen(-[...effects.values()].reduce((s, v) => s + v, 0))}）を除いた分`,
+      });
   }
   const totals = { operating: 0, investing: 0, financing: 0, translation: 0 } as Record<
     CashFlowSection,

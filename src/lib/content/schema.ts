@@ -222,6 +222,17 @@ export const EntitySchema = z.object({
   /** 決算整理後の残高試算表（仕訳の書き方。借方に借方残高、貸方に貸方残高を書く） */
   trialBalance: z.string().min(1),
   note: z.string().optional(),
+  /** セグメント（事業・地域の区分）の名前。書くときはすべての会社に書く */
+  segment: z.string().min(1).optional(),
+  /** 期首（前期末）の貸借対照表（現地通貨）と前期末のレート。在外子会社のキャッシュ・フロー計算書に使う */
+  opening: z
+    .object({
+      /** 仕訳の書き方。期中に設立・取得した会社は空にする */
+      balanceSheet: z.string().default(''),
+      /** 前期末の決算日レート */
+      rate: z.number().positive().optional(),
+    })
+    .optional(),
 });
 export type Entity = z.infer<typeof EntitySchema>;
 
@@ -246,6 +257,8 @@ export const EliminationSchema = z.object({
   /** 連結修正仕訳（仕訳の書き方。1 つの仕訳） */
   shiwake: z.string().min(1),
   explanation: z.string().min(1),
+  /** グループ内の取引の［売り手, 買い手］の会社の id（セグメント間の売上高を出すのに使う） */
+  between: z.tuple([z.string(), z.string()]).optional(),
 });
 export type Elimination = z.infer<typeof EliminationSchema>;
 
