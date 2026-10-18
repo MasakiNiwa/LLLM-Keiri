@@ -15,6 +15,8 @@ export interface DayLog {
   date: string;
   lessonsOpened: string[];
   lessonsRead: string[];
+  /** 復習した（読み直して自己評価した）レッスン */
+  lessonsReviewed: string[];
   /** 問題セット（setId）ごとの答え合わせ */
   drills: { setId: string; tried: number; correct: number }[];
   attempts: number;
@@ -44,6 +46,7 @@ export function buildDailyLog(input: {
         date: k,
         lessonsOpened: [],
         lessonsRead: [],
+        lessonsReviewed: [],
         drills: [],
         attempts: 0,
         correct: 0,
@@ -59,7 +62,14 @@ export function buildDailyLog(input: {
   };
   for (const a of input.activity) {
     const d = day(a.at);
-    addUnique(a.kind === 'lesson-read' ? d.lessonsRead : d.lessonsOpened, a.refId);
+    addUnique(
+      a.kind === 'lesson-read'
+        ? d.lessonsRead
+        : a.kind === 'lesson-review'
+          ? d.lessonsReviewed
+          : d.lessonsOpened,
+      a.refId,
+    );
   }
   // 記録を始める前に読んだレッスンは、読んだ印の日時から
   for (const p of input.lessonProgress)
@@ -77,14 +87,22 @@ export function buildDailyLog(input: {
   for (const c of input.chat) if (c.role === 'user') day(c.createdAt).questions++;
   // 読んだレッスンは「開いた」にも重ねて出さない
   for (const d of days.values())
-    d.lessonsOpened = d.lessonsOpened.filter((x) => !d.lessonsRead.includes(x));
+    d.lessonsOpened = d.lessonsOpened.filter(
+      (x) => !d.lessonsRead.includes(x) && !d.lessonsReviewed.includes(x),
+    );
   return days;
 }
 
 /** その日の学習の量（カレンダーの色の濃さに使う） */
 export function dayScore(d: DayLog | undefined): number {
   if (!d) return 0;
-  return d.lessonsOpened.length + d.lessonsRead.length * 2 + d.attempts + d.journal + d.questions;
+  return (
+    d.lessonsOpened.length +
+    (d.lessonsRead.length + d.lessonsReviewed.length) * 2 +
+    d.attempts +
+    d.journal +
+    d.questions
+  );
 }
 
 /** 今日（または昨日）までの連続学習日数 */

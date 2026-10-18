@@ -178,6 +178,8 @@ export function activeBottomItem(location: string): string {
   if (direct) return direct.to;
   // 演習・選択問題は「練習」の一部
   if (location.startsWith('/exercise/') || location.startsWith('/quiz/')) return DRILL_ITEM.to;
+  // 学習対象ごとの履歴は「記録」の一部
+  if (location.startsWith('/history/')) return LOG_ITEM.to;
   // AI に質問・外部 AI・モデルは「AI」の一部
   if ([CHAT_ITEM, STUDIO_ITEM, MODELS_ITEM].some((i) => isActivePath(location, i.to)))
     return AI_ITEM.to;

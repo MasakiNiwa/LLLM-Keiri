@@ -14,6 +14,7 @@ import { useSettings } from '@/features/settings/settingsStore';
 // ホーム以外のページは必要になってから読み込む
 const LearnPage = lazy(() => import('@/pages/LearnPage'));
 const AiPage = lazy(() => import('@/pages/AiPage'));
+const HistoryPage = lazy(() => import('@/pages/HistoryPage'));
 const LessonPage = lazy(() => import('@/pages/LessonPage'));
 const AccountsPage = lazy(() => import('@/pages/AccountsPage'));
 const DrillListPage = lazy(() => import('@/pages/DrillListPage'));
@@ -60,6 +61,7 @@ export default function App() {
             <Route path="/studio/:tab?" component={StudioPage} />
             <Route path="/calendar" component={CalendarPage} />
             <Route path="/log/:tab?" component={LogPage} />
+            <Route path="/history/:id" component={HistoryPage} />
             <Route path="/menu" component={MenuPage} />
             <Route path="/settings" component={SettingsPage} />
             <Route path="/help" component={HelpPage} />

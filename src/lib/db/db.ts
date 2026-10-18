@@ -64,7 +64,7 @@ export type UserContent =
       createdAt: number;
     };
 
-/** 仕訳問題の復習の予定（FSRS） */
+/** 復習の予定（FSRS）。問題は setId・questionId、レッスンは setId が 'read'、questionId がレッスンの id */
 export interface ReviewRecord extends ReviewFields {
   /** setId と questionId をつないだもの */
   key: string;
@@ -77,9 +77,11 @@ export interface ReviewRecord extends ReviewFields {
 export interface ActivityRecord {
   id?: number;
   at: number;
-  kind: 'lesson-open' | 'lesson-read';
+  kind: 'lesson-open' | 'lesson-read' | 'lesson-review';
   /** レッスンの id など */
   refId: string;
+  /** レッスンの復習のときの自己評価（FSRS の Rating。1 忘れていた〜4 かんたん） */
+  grade?: number;
 }
 
 /**

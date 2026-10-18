@@ -47,7 +47,7 @@ export function ReviewOverview({ records }: { records: ReviewRecord[] }) {
     <Card className="space-y-4 p-4">
       <div className="grid grid-cols-3 gap-2 text-center">
         {[
-          { label: '今日の復習', value: `${stats.due} 問` },
+          { label: '今日の復習', value: `${stats.due} 件` },
           {
             label: '記憶の定着度',
             value: stats.average === null ? '—' : `${stats.average}%`,
