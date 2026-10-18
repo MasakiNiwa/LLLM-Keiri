@@ -10,6 +10,7 @@ import { AI_PRACTICES, type AiPractice } from '@/features/ai/practices';
 import { useFocus } from '@/features/ai/useFocus';
 import { useChat } from '@/features/chat/chatStore';
 import { useEngine } from '@/features/engine/engineStore';
+import { cn } from '@/lib/utils/cn';
 
 function LinkCard({ item }: { item: NavItem }) {
   const Icon = item.icon;
@@ -54,20 +55,36 @@ function PracticeCard({
           </span>
         </span>
       </div>
-      <label className="block text-xs text-slate-600 dark:text-slate-400">
-        テーマ（選ぶか、書きかえる）
+      <div className="space-y-1.5">
+        <span className="block text-xs text-slate-600 dark:text-slate-400">
+          テーマ（押して選ぶか、下の欄に書く）
+        </span>
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="テーマの候補">
+          {p.themes.map((t) => (
+            <button
+              key={t}
+              type="button"
+              aria-pressed={theme === t}
+              onClick={() => setTheme(t)}
+              className={cn(
+                'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+                theme === t
+                  ? 'border-accent-600 bg-accent-600 text-white'
+                  : 'border-slate-300 bg-white text-slate-700 hover:border-accent-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200',
+              )}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
         <input
-          list={`themes-${p.id}`}
           value={theme}
           onChange={(e) => setTheme(e.target.value)}
-          className="mt-1 h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+          aria-label={`${p.title}のテーマ`}
+          placeholder="自由にテーマを書く"
+          className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
         />
-        <datalist id={`themes-${p.id}`}>
-          {p.themes.map((t) => (
-            <option key={t} value={t} />
-          ))}
-        </datalist>
-      </label>
+      </div>
       <Button
         variant="primary"
         size="sm"
