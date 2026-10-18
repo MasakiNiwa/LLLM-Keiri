@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { llm } from '@/lib/llm/client';
 import { subscribeSharedModels } from '@/lib/llm/modelStorage';
 import { useChat } from '@/features/chat/chatStore';
+import { useContent } from '@/features/content/contentStore';
 import { useEngine } from '@/features/engine/engineStore';
 import { useSettings } from '@/features/settings/settingsStore';
 
@@ -20,6 +21,8 @@ const idle: (cb: () => void) => void =
 export function useStartup() {
   useEffect(() => {
     let cancelled = false;
+    // 学習データの一覧（勘定科目など）は、どのページを直接開いても使うので最初に読む
+    void useContent.getState().load();
     void useChat.getState().init();
     void useEngine.getState().detectWebGpu();
     (async () => {

@@ -5,6 +5,7 @@ import { PageBody, PageHeader } from '@/app/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { Progress } from '@/components/ui/Progress';
 import { useFocus } from '@/features/ai/useFocus';
+import { ReviewBanner } from '@/features/drill/ReviewBanner';
 import { useContentIndex } from '@/features/content/contentStore';
 import { useDrillStats } from '@/features/drill/records';
 import { LevelBadge } from '@/features/learn/MetaBadges';
@@ -22,6 +23,7 @@ export default function DrillListPage() {
         <p className="text-sm text-slate-600 dark:text-slate-400">
           仕訳の問題を解きます。勘定科目を選んで金額を入れると、プログラムがその場で採点し、どこが違うかを教えます。
         </p>
+        <ReviewBanner />
         {error && <p className="text-sm text-rose-600">読み込めませんでした: {error}</p>}
         {mine && mine.length > 0 && (
           <section className="space-y-2">

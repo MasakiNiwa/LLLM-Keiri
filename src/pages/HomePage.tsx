@@ -4,6 +4,7 @@ import { PageBody, PageHeader } from '@/app/PageHeader';
 import { ACCOUNTS_ITEM, CONSOLIDATION_ITEM, NAV_ITEMS, STUDIO_ITEM } from '@/app/navItems';
 import { Card } from '@/components/ui/Card';
 import { ContinueCard } from '@/features/home/ContinueCard';
+import { ReviewBanner } from '@/features/drill/ReviewBanner';
 import { Greeting } from '@/features/home/Greeting';
 import { useFocus } from '@/features/ai/useFocus';
 import { APP_TAGLINE, APP_TITLE } from '@/lib/constants';
@@ -34,6 +35,7 @@ export default function HomePage() {
 
         <Greeting />
         <ContinueCard />
+        <ReviewBanner />
 
         <div className="grid gap-3 sm:grid-cols-2">
           {MENU.map(({ to, label, icon: Icon, description }) => (

@@ -445,7 +445,7 @@ export default function SettingsPage() {
           </Field>
           <Field
             label="学習記録を消す"
-            hint="読んだレッスンの印と、問題の答え合わせの記録を消します"
+            hint="読んだレッスンの印と、問題の答え合わせ・復習の記録を消します"
           >
             <Button size="sm" onClick={() => setConfirm('progress')}>
               <Trash2 />
@@ -482,7 +482,11 @@ export default function SettingsPage() {
         confirmLabel="消す"
         danger
         onConfirm={() =>
-          void Promise.all([db.lessonProgress.clear(), db.drillAttempts.clear()]).then(
+          void Promise.all([
+            db.lessonProgress.clear(),
+            db.drillAttempts.clear(),
+            db.reviews.clear(),
+          ]).then(
             () => toast.success('学習記録を消しました'),
             (e) => toast.error(`消せませんでした: ${errorMessage(e)}`),
           )
