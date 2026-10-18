@@ -619,3 +619,29 @@
   description: 収益・費用の計上時期が、正しい期とずれていること。税務調査や監査でよく確かめられる。
   lessons: [tax-advisor-terms, audit-what-checked]
   related: [修正申告]
+- term: 均等割
+  kana: きんとうわり
+  description: 法人住民税のうち、資本金等の額と従業者数の区分に応じて定額でかかる部分。赤字でもかかる。
+  lessons: [tax-local-tax]
+  related: [法人税割]
+- term: 法人税割
+  kana: ほうじんぜいわり
+  description: 法人住民税のうち、法人税額に税率（標準で道府県民税 1.0%・市町村民税 6.0%）を掛けて計算する部分。
+  lessons: [tax-local-tax]
+  related: [均等割, 地方法人税]
+- term: 地方法人税
+  kana: ちほうほうじんぜい
+  description: 法人税額に 10.3% を掛けて計算する国税。地方交付税の財源になる。法人税と一緒に申告する。
+  lessons: [tax-local-tax]
+  related: [法人税割]
+- term: 特別法人事業税
+  kana: とくべつほうじんじぎょうぜい
+  description: 法人事業税の所得割額（標準税率で計算した額）に税率を掛けて計算する国税。都道府県が事業税と一緒に徴収する。
+  lessons: [tax-local-tax]
+  related: [外形標準課税]
+- term: 外形標準課税
+  kana: がいけいひょうじゅんかぜい
+  aliases: [付加価値割, 資本割]
+  description: 資本金 1 億円を超える法人などの事業税の課税のしかた。所得割に加え、付加価値割と資本割がかかるので、赤字でも事業税がかかる。
+  lessons: [tax-local-tax]
+  related: [特別法人事業税]

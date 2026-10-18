@@ -293,6 +293,15 @@ export const WidgetSchema = z.discriminatedUnion('type', [
     dividendExclusion: yenAmount.default(100000),
   }),
   z.object({
+    type: z.literal('local-tax'),
+    corporateTax: yenAmount.default(1466800),
+    income: yenAmount.default(9150000),
+    capital: yenAmount.default(10000000),
+    employees: z.number().int().min(0).default(30),
+    months: z.number().int().min(1).max(12).default(12),
+    noReducedRate: z.boolean().default(false),
+  }),
+  z.object({
     type: z.literal('payroll-month'),
     basePay: yenAmount.default(300000),
     allowances: yenAmount.default(20000),
