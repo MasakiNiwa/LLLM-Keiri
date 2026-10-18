@@ -31,6 +31,10 @@
   title: 内部統制（J-SOX）
   description: 財務報告に係る内部統制の評価。4 つの目的と 6 つの基本的要素、RCM、整備・運用状況の評価、IT 統制、不備の評価と経理部門の役割
   icon: shield-check
+- id: audit
+  title: 会計監査への対応
+  description: 監査法人の監査で何をチェックされ、何を提出するか。監査の流れ（期中・半期・四半期・期末）、アサーションと監査手続、PBC リスト、監査人とのやりとり
+  icon: file-search
 - id: finance
   title: 資金繰り・経営への報告
   description: 利益とお金の違い、資金繰り表、運転資金と CCC、資金調達、予実分析・ROE・FCF・部門別損益と経営陣への報告

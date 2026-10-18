@@ -3,6 +3,7 @@ import {
   Briefcase,
   CalendarCheck,
   Factory,
+  FileSearch,
   Gauge,
   Landmark,
   Network,
@@ -27,6 +28,7 @@ const ICONS: Record<string, LucideIcon> = {
   gauge: Gauge,
   factory: Factory,
   'shield-check': ShieldCheck,
+  'file-search': FileSearch,
   wallet: Wallet,
   sparkles: Sparkles,
 };
