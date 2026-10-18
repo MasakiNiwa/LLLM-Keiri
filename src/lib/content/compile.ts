@@ -245,6 +245,20 @@ export function compileQuizSet(
     if (q.answer >= q.choices.length)
       checker.errors.push(`${where}（問題 ${q.id}）: answer が選択肢の数を超えています`);
   }
+  if (r.data.rcm) {
+    const steps = new Set<string>();
+    for (const st of r.data.rcm.steps) {
+      if (steps.has(st.id)) checker.errors.push(`${where}: 手順の id「${st.id}」が重複しています`);
+      steps.add(st.id);
+    }
+    for (const risk of r.data.rcm.risks) {
+      if (ids.has(risk.id))
+        checker.errors.push(`${where}: リスクの id「${risk.id}」が重複しています`);
+      ids.add(risk.id);
+      if (!steps.has(risk.control))
+        checker.errors.push(`${where}（リスク ${risk.id}）: 手順「${risk.control}」がありません`);
+    }
+  }
   return r.data;
 }
 

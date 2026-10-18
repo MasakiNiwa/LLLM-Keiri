@@ -264,9 +264,9 @@ export function buildContent(root: string): BuildResult {
       entities: c.entities.map((e) => ({ name: e.name, currency: e.currency })),
       eliminationCount: c.eliminations.length,
     })),
-    quizzes: quizzes.map(({ questions, ...meta }) => ({
+    quizzes: quizzes.map(({ questions, rcm, ...meta }) => ({
       ...meta,
-      questionCount: questions.length,
+      questionCount: questions.length + (rcm?.risks.length ?? 0),
     })),
     exercises: exercises.map((e) => ({
       id: e.id,
@@ -305,7 +305,7 @@ export function buildContent(root: string): BuildResult {
       kind: 'quiz' as const,
       title: q.title,
       track: q.track,
-      text: `${q.summary} ${q.tags.join(' ')} ${q.questions.map((x) => `${x.context ?? ''} ${x.question}`).join(' ')}`,
+      text: `${q.summary} ${q.tags.join(' ')} ${q.rcm ? `${q.rcm.process} ${q.rcm.steps.map((x) => x.text).join(' ')} ${q.rcm.risks.map((x) => x.risk).join(' ')}` : ''} ${q.questions.map((x) => `${x.context ?? ''} ${x.question}`).join(' ')}`,
     })),
     ...accounts.map((a) => ({
       id: `account:${a.name}`,

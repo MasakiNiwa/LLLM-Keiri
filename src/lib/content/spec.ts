@@ -208,6 +208,21 @@ basis:
   - name: 根拠の基準・法令
 asOf: '2026-10-01'
 updated: '2026-10-01'
+rcm:                           # RCM の演習（任意。内部統制の分野で使う）
+  process: 購買プロセス
+  steps:                       # 業務記述書（手順ごと）
+    - id: s1
+      text: 購買課長が発注をシステム上で承認する
+    - id: s2
+      text: 倉庫担当者が検収を入力する
+  risks:
+    - id: r1                   # questions の id と重ならないようにする
+      risk: 承認されていない発注が行われる
+      control: s1              # コントロールがある手順の id
+      assertion: 実在性        # 実在性・網羅性・権利と義務の帰属・評価の妥当性・期間配分の適切性・表示の妥当性
+      type: 予防               # 予防・発見
+      method: 手作業           # 手作業・自動・IT 依存の手作業
+      explanation: 解説
 questions:
   - id: q1
     context: 事例の説明（任意）
