@@ -1,18 +1,13 @@
 import { useMemo, useState } from 'react';
 import { CheckCircle2, CircleHelp, RotateCcw, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { QuizSchema, type Quiz } from '@/lib/content/schema';
+import type { Quiz } from '@/lib/content/schema';
+import { lessonQuizId, parseQuiz } from '@/lib/content/lessonQuiz';
+import { useLessonId } from './lessonContext';
+import { recordAttempt } from '@/features/drill/records';
+import { useReviewOnce } from '@/features/drill/reviewRepo';
 import { cn } from '@/lib/utils/cn';
 import { ShiwakeExercise } from '@/features/journal/ShiwakeExercise';
-
-function parseQuiz(json: string): Quiz | null {
-  try {
-    const r = QuizSchema.safeParse(JSON.parse(json));
-    return r.success ? r.data : null;
-  } catch {
-    return null;
-  }
-}
 
 /** 選択問題（採点はプログラム）。答えるたびに onAnswer を呼ぶ */
 export function ChoiceQuiz({
@@ -98,7 +93,17 @@ export function ChoiceQuiz({
 /** レッスンの中の確認問題（` ```quiz `）。採点はプログラムが行う */
 export function QuizBlock({ json }: { json: string }) {
   const quiz = useMemo(() => parseQuiz(json), [json]);
+  const lessonId = useLessonId();
+  const setId = `lesson:${lessonId ?? ''}`;
+  const review = useReviewOnce(setId);
   if (!quiz) return null;
+  const qid = lessonQuizId(quiz.question);
+  // レッスンの中で答えた結果も、学習の記録と復習の予定に入れる
+  const record = (correct: boolean, revealed: boolean, kind: string) => {
+    if (!lessonId) return;
+    review(qid, correct, revealed);
+    void recordAttempt({ setId, questionId: qid, correct, revealed, kind });
+  };
   return (
     <section className="my-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/40">
       <div className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-accent-700 dark:text-accent-300">
@@ -107,9 +112,13 @@ export function QuizBlock({ json }: { json: string }) {
       </div>
       <p className="mb-3 font-medium leading-relaxed">{quiz.question}</p>
       {quiz.type === 'choice' ? (
-        <ChoiceQuiz quiz={quiz} />
+        <ChoiceQuiz quiz={quiz} onAnswer={(ok) => record(ok, false, ok ? 'exact' : 'choice')} />
       ) : (
-        <ShiwakeExercise question={quiz} seed={quiz.question} />
+        <ShiwakeExercise
+          question={quiz}
+          seed={quiz.question}
+          onJudged={(o) => record(o.result.correct, o.revealed, o.result.kind)}
+        />
       )}
     </section>
   );

@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { Progress } from '@/components/ui/Progress';
 import { useFocus } from '@/features/ai/useFocus';
 import { recordAttempt } from '@/features/drill/records';
+import { useReviewOnce } from '@/features/drill/reviewRepo';
 import { BasisInfo } from '@/features/learn/MetaBadges';
 import { ChoiceQuiz } from '@/features/learn/QuizBlock';
 import { MatchExercise } from '@/features/learn/MatchExercise';
@@ -27,6 +28,17 @@ function QuizSetBody({ id }: { id: string }) {
   const [set, setSet] = useState<QuizSet | null>(null);
   const [error, setError] = useState<string | null>(null);
   const setId = `quiz:${id}`;
+  const review = useReviewOnce(setId);
+  const record = (questionId: string, ok: boolean) => {
+    review(questionId, ok, false);
+    void recordAttempt({
+      setId,
+      questionId,
+      correct: ok,
+      revealed: false,
+      kind: ok ? 'exact' : 'choice',
+    });
+  };
   useEffect(() => {
     let stale = false;
     fetchQuizSet(id).then(
@@ -79,33 +91,9 @@ function QuizSetBody({ id }: { id: string }) {
                 正解 {correct}/{ids.length}
               </span>
             </div>
-            {set.rcm && (
-              <RcmExercise
-                rcm={set.rcm}
-                onGraded={(riskId, ok) =>
-                  void recordAttempt({
-                    setId,
-                    questionId: riskId,
-                    correct: ok,
-                    revealed: false,
-                    kind: ok ? 'exact' : 'choice',
-                  })
-                }
-              />
-            )}
+            {set.rcm && <RcmExercise rcm={set.rcm} onGraded={(riskId, ok) => record(riskId, ok)} />}
             {set.match && (
-              <MatchExercise
-                match={set.match}
-                onGraded={(itemId, ok) =>
-                  void recordAttempt({
-                    setId,
-                    questionId: itemId,
-                    correct: ok,
-                    revealed: false,
-                    kind: ok ? 'exact' : 'choice',
-                  })
-                }
-              />
+              <MatchExercise match={set.match} onGraded={(itemId, ok) => record(itemId, ok)} />
             )}
             {(set.rcm || set.match) && <h2 className="px-1 pt-2 font-semibold">確認問題</h2>}
             {set.questions.map((q, i) => (
@@ -127,18 +115,7 @@ function QuizSetBody({ id }: { id: string }) {
                     <XCircle className="size-5 shrink-0 text-rose-500" />
                   )}
                 </div>
-                <ChoiceQuiz
-                  quiz={q}
-                  onAnswer={(ok) =>
-                    void recordAttempt({
-                      setId,
-                      questionId: q.id,
-                      correct: ok,
-                      revealed: false,
-                      kind: ok ? 'exact' : 'choice',
-                    })
-                  }
-                />
+                <ChoiceQuiz quiz={q} onAnswer={(ok) => record(q.id, ok)} />
               </Card>
             ))}
             <BasisInfo basis={set.basis} asOf={set.asOf} updated={set.updated} />
