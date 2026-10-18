@@ -3,12 +3,16 @@ import {
   Banknote,
   BookCopy,
   FileSpreadsheet,
+  Gauge,
   Landmark,
   NotebookPen,
   Sparkle,
   Trash2,
 } from 'lucide-react';
 import { CashFlowView } from '@/features/cashflow/CashFlowView';
+import { AnalysisView } from '@/features/analysis/AnalysisView';
+import { ratiosForAi } from '@/features/analysis/ratiosForAi';
+import { analyze } from '@/lib/analysis/ratios';
 import { buildIndirectCashFlow } from '@/lib/cashflow/indirect';
 import { toast } from 'sonner';
 import { useLocation, useParams } from 'wouter';
@@ -34,13 +38,14 @@ import {
 } from '@/lib/ledger/ledger';
 import { errorMessage } from '@/lib/utils/format';
 
-type Tab = 'journal' | 'ledger' | 'trial' | 'statements' | 'cashflow';
+type Tab = 'journal' | 'ledger' | 'trial' | 'statements' | 'cashflow' | 'analysis';
 const TABS: { value: Tab; label: string; icon: React.ReactNode }[] = [
   { value: 'journal', label: '仕訳帳', icon: <NotebookPen /> },
   { value: 'ledger', label: '元帳', icon: <BookCopy /> },
   { value: 'trial', label: '試算表', icon: <FileSpreadsheet /> },
   { value: 'statements', label: '決算書', icon: <Landmark /> },
   { value: 'cashflow', label: 'CF', icon: <Banknote /> },
+  { value: 'analysis', label: '分析', icon: <Gauge /> },
 ];
 
 export default function LedgerPage() {
@@ -76,6 +81,11 @@ export default function LedgerPage() {
     [ledger, statements, book],
   );
 
+  const ratios = useMemo(
+    () => (book ? analyze(new Map(ledger.map((l) => [l.account, l.balance])), book) : []),
+    [ledger, book],
+  );
+
   // 帳簿の集計（プログラムが計算した数字）を AI に伝える
   useFocus({
     kind: 'ledger',
@@ -85,6 +95,7 @@ export default function LedgerPage() {
     trialBalanced: tb.drTotal === tb.crTotal,
     netIncome: statements.netIncome,
     unsettled: statements.unsettled.map((u) => u.account),
+    ratios: tab === 'analysis' ? ratiosForAi(ratios) : undefined,
   });
 
   const load = async (s: Scenario) => {
@@ -154,6 +165,12 @@ export default function LedgerPage() {
               onAccount={openAccount}
               note="帳簿は何もないところから始まるとして、期首の残高を 0 にしています。"
             />
+          ) : (
+            <p className="text-sm text-slate-500">仕訳を入力すると、ここに表示されます。</p>
+          ))}
+        {tab === 'analysis' &&
+          (ledger.length > 0 ? (
+            <AnalysisView ratios={ratios} onAccount={openAccount} />
           ) : (
             <p className="text-sm text-slate-500">仕訳を入力すると、ここに表示されます。</p>
           ))}
