@@ -45,3 +45,22 @@ describe('商品売買業の決算', () => {
     expect(part.totals.plCr - part.totals.plDr).toBe(part.totals.bsDr - part.totals.bsCr);
   });
 });
+
+describe('簿記 2 級レベルの決算', () => {
+  const ex = JSON.parse(
+    files.get('content/exercises/bookkeeping2-closing.json')!,
+  ) as ClosingExercise;
+  const ws = buildWorksheet(
+    lines(ex.trialBalance),
+    ex.adjustments.map((a) => lines(a.answer)),
+    book,
+  );
+  const row = (a: string) => ws.rows.find((r) => r.account === a)!;
+  it('当期純利益と主な残高', () => {
+    expect(ws.netIncome).toBe(1211000);
+    expect(row('繰越商品').bsDr).toBe(456000);
+    expect(row('リース債務').bsCr).toBe(400000);
+    expect(row('その他有価証券評価差額金').bsCr).toBe(35000);
+    expect(row('減価償却累計額').bsCr).toBe(2820000);
+  });
+});
