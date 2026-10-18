@@ -1,13 +1,7 @@
 import { ChevronRight } from 'lucide-react';
 import { Link } from 'wouter';
 import { PageBody, PageHeader } from '@/app/PageHeader';
-import {
-  ACCOUNTS_ITEM,
-  CALENDAR_ITEM,
-  CONSOLIDATION_ITEM,
-  NAV_ITEMS,
-  STUDIO_ITEM,
-} from '@/app/navItems';
+import { NAV_GROUPS } from '@/app/navItems';
 import { Card } from '@/components/ui/Card';
 import { ContinueCard } from '@/features/home/ContinueCard';
 import { ReviewBanner } from '@/features/drill/ReviewBanner';
@@ -15,13 +9,8 @@ import { Greeting } from '@/features/home/Greeting';
 import { useFocus } from '@/features/ai/useFocus';
 import { APP_TAGLINE, APP_TITLE } from '@/lib/constants';
 
-const MENU = [
-  ...NAV_ITEMS.filter((n) => n.to !== '/'),
-  CONSOLIDATION_ITEM,
-  ACCOUNTS_ITEM,
-  CALENDAR_ITEM,
-  STUDIO_ITEM,
-];
+// ホームには、設定・ヘルプ以外の機能を並べる（すべての機能は「メニュー」に）
+const MENU = NAV_GROUPS.filter((g) => g.id !== 'app').flatMap((g) => g.items);
 
 export default function HomePage() {
   useFocus({ kind: 'home' });

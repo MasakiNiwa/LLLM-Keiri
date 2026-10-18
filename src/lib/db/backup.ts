@@ -16,6 +16,7 @@ export const BACKUP_TABLES = {
   journal: '帳簿の仕訳',
   userContent: 'マイ教材',
   chat: 'AI とのチャット',
+  activity: '学習の記録（レッスンを開いた・読んだ日）',
 } as const;
 export type BackupTable = keyof typeof BACKUP_TABLES;
 const TABLE_NAMES = Object.keys(BACKUP_TABLES) as BackupTable[];

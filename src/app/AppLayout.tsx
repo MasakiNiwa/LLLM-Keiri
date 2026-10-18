@@ -3,7 +3,14 @@ import { Link, useLocation } from 'wouter';
 import { cn } from '@/lib/utils/cn';
 import { APP_TITLE } from '@/lib/constants';
 import { ModelStatusChip } from '@/features/engine/ModelStatusChip';
-import { BOTTOM_NAV_ITEMS, NAV_ITEMS, SUB_NAV_ITEMS, isActivePath, type NavItem } from './navItems';
+import {
+  activeBottomItem,
+  BOTTOM_NAV_ITEMS,
+  HOME_ITEM,
+  isActivePath,
+  NAV_GROUPS,
+  type NavItem,
+} from './navItems';
 
 function Logo() {
   return (
@@ -27,7 +34,7 @@ function SideLink({ item, location }: { item: NavItem; location: string }) {
       href={item.to}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+        'flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors',
         active
           ? 'bg-accent-50 text-accent-800 dark:bg-accent-900/30 dark:text-accent-200'
           : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white',
@@ -47,17 +54,17 @@ function SideNav() {
       <div className="py-2">
         <Logo />
       </div>
-      <nav className="mt-4 flex flex-col gap-1" aria-label="メイン">
-        {NAV_ITEMS.map((item) => (
-          <SideLink key={item.to} item={item} location={location} />
-        ))}
-      </nav>
-      <nav
-        className="mt-4 flex flex-col gap-1 border-t border-slate-200 pt-4 dark:border-slate-800"
-        aria-label="その他"
-      >
-        {SUB_NAV_ITEMS.map((item) => (
-          <SideLink key={item.to} item={item} location={location} />
+      <nav className="mt-3 flex min-h-0 flex-col gap-0.5 overflow-y-auto" aria-label="メイン">
+        <SideLink item={HOME_ITEM} location={location} />
+        {NAV_GROUPS.map((g) => (
+          <div key={g.id} className="mt-3 flex flex-col gap-0.5">
+            <div className="px-3 pb-1 text-[0.7rem] font-semibold tracking-wide text-slate-400">
+              {g.label}
+            </div>
+            {g.items.map((item) => (
+              <SideLink key={item.to} item={item} location={location} />
+            ))}
+          </div>
         ))}
       </nav>
       <div className="mt-auto space-y-2 pt-4">
@@ -76,9 +83,9 @@ function BottomNav() {
       aria-label="メイン"
       className="pb-safe shrink-0 border-t border-slate-200 bg-white/90 backdrop-blur-md md:hidden dark:border-slate-800 dark:bg-slate-900/90"
     >
-      <div className="grid grid-cols-6">
+      <div className="grid grid-cols-5">
         {BOTTOM_NAV_ITEMS.map(({ to, label, icon: Icon }) => {
-          const active = isActivePath(location, to);
+          const active = activeBottomItem(location) === to;
           return (
             <Link
               key={to}

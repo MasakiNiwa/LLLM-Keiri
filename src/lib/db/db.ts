@@ -71,6 +71,15 @@ export interface ReviewRecord extends ReviewFields {
   updatedAt: number;
 }
 
+/** 学習の記録（何日に何を学んだか）。レッスンを開いた・読んだなど、ほかの表に日付が残らないものを記録する */
+export interface ActivityRecord {
+  id?: number;
+  at: number;
+  kind: 'lesson-open' | 'lesson-read';
+  /** レッスンの id など */
+  refId: string;
+}
+
 /**
  * このアプリのデータベース（IndexedDB）。
  * テーブルを増やすときは version を上げて stores に足す（既存のデータは残る）。
@@ -82,6 +91,7 @@ export class KeiriDB extends Dexie {
   chat!: EntityTable<ChatRecord, 'id'>;
   userContent!: EntityTable<UserContent, 'id'>;
   reviews!: EntityTable<ReviewRecord, 'key'>;
+  activity!: EntityTable<ActivityRecord, 'id'>;
 
   constructor(name = STORAGE_PREFIX) {
     super(name);
@@ -102,6 +112,9 @@ export class KeiriDB extends Dexie {
     });
     this.version(6).stores({
       reviews: 'key, due, setId',
+    });
+    this.version(7).stores({
+      activity: '++id, at, kind, refId',
     });
   }
 }

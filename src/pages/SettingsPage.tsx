@@ -516,6 +516,7 @@ export default function SettingsPage() {
             db.lessonProgress.clear(),
             db.drillAttempts.clear(),
             db.reviews.clear(),
+            db.activity.clear(),
           ]).then(
             () => toast.success('学習記録を消しました'),
             (e) => toast.error(`消せませんでした: ${errorMessage(e)}`),

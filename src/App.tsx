@@ -7,6 +7,7 @@ import { useStartup } from '@/app/useStartup';
 import { useTheme } from '@/app/useTheme';
 import HomePage from '@/pages/HomePage';
 import { AccountSheet } from '@/features/accounts/AccountSheet';
+import { CommandPalette } from '@/features/command/CommandPalette';
 import { AiFab, AiPanel } from '@/features/ai/AiPanel';
 import { useSettings } from '@/features/settings/settingsStore';
 
@@ -18,6 +19,8 @@ const DrillListPage = lazy(() => import('@/pages/DrillListPage'));
 const DrillPage = lazy(() => import('@/pages/DrillPage'));
 const ExercisePage = lazy(() => import('@/pages/ExercisePage'));
 const CalendarPage = lazy(() => import('@/pages/CalendarPage'));
+const LogPage = lazy(() => import('@/pages/LogPage'));
+const MenuPage = lazy(() => import('@/pages/MenuPage'));
 const LedgerPage = lazy(() => import('@/pages/LedgerPage'));
 const ChatPage = lazy(() => import('@/pages/ChatPage'));
 const ModelsPage = lazy(() => import('@/pages/ModelsPage'));
@@ -52,6 +55,8 @@ export default function App() {
             <Route path="/consolidation/:id/:tab?" component={ConsolidationPage} />
             <Route path="/studio/:tab?" component={StudioPage} />
             <Route path="/calendar" component={CalendarPage} />
+            <Route path="/log" component={LogPage} />
+            <Route path="/menu" component={MenuPage} />
             <Route path="/settings" component={SettingsPage} />
             <Route path="/help" component={HelpPage} />
             <Route component={HomePage} />
@@ -59,6 +64,7 @@ export default function App() {
         </Suspense>
       </AppLayout>
       <AccountSheet />
+      <CommandPalette />
       <AiFab />
       <AiPanel />
       <Toaster
