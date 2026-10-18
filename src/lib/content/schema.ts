@@ -264,6 +264,14 @@ export const ConsolidationCaseSchema = z.object({
   updated: date,
   entities: z.array(EntitySchema).min(2),
   eliminations: z.array(EliminationSchema).min(1),
+  /** 前期末（期首）の連結貸借対照表。あればキャッシュ・フロー計算書を作る */
+  opening: z
+    .object({
+      note: z.string().optional(),
+      /** 仕訳の書き方（借方に資産、貸方に負債・純資産） */
+      balanceSheet: z.string().min(1),
+    })
+    .optional(),
 });
 export type ConsolidationCase = z.infer<typeof ConsolidationCaseSchema>;
 export type ConsolidationMeta = Pick<

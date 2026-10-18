@@ -3,7 +3,13 @@ import { describe, expect, it } from 'vitest';
 import { AccountBook } from '../src/lib/content/accounts';
 import type { ContentIndex } from '../src/lib/content/schema';
 import { parseShiwake } from '../src/lib/journal/parse';
-import { buildLedger, buildStatements, trialBalance } from '../src/lib/ledger/ledger';
+import { buildIndirectCashFlow } from '../src/lib/cashflow/indirect';
+import {
+  buildLedger,
+  buildStatements,
+  closingBalanceSheet,
+  trialBalance,
+} from '../src/lib/ledger/ledger';
 import { buildContent } from './content';
 
 // 実際の学習データ（content/）を読み込んで確かめる
@@ -35,6 +41,14 @@ describe('学習データ', () => {
       expect(st.totalAssets).toBe(st.totalLiabilities + st.totalEquity + st.netIncome);
       // サンプルは赤字にならないように作っている（決算書の見方の説明が分かりやすいように）
       expect(st.netIncome).toBeGreaterThan(0);
+      // キャッシュ・フロー計算書の合計が、現金・預金の増減と一致する
+      const cf = buildIndirectCashFlow({
+        opening: new Map(),
+        closing: closingBalanceSheet(ledger, st.netIncome),
+        netIncome: st.netIncome,
+        book,
+      });
+      expect(cf.netChange).toBe(cf.closingCash - cf.openingCash);
     },
   );
 });
