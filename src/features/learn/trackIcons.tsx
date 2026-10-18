@@ -9,6 +9,7 @@ import {
   Scale,
   ShieldCheck,
   ShoppingCart,
+  Sparkles,
   Sprout,
   Wallet,
   type LucideIcon,
@@ -27,6 +28,7 @@ const ICONS: Record<string, LucideIcon> = {
   factory: Factory,
   'shield-check': ShieldCheck,
   wallet: Wallet,
+  sparkles: Sparkles,
 };
 
 export function TrackIcon({ name, className }: { name?: string; className?: string }) {
