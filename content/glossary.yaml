@@ -334,7 +334,7 @@
   kana: あさーしょん
   aliases: [適正な財務報告を確保するための要件]
   description: 財務報告が正しいための要件。実在性・網羅性・権利と義務の帰属・評価の妥当性・期間配分の適切性・表示の妥当性。
-  lessons: [jsox-rcm]
+  lessons: [jsox-rcm, audit-what-checked]
   related: [RCM]
 - term: キーコントロール
   kana: きーこんとろーる
@@ -536,3 +536,48 @@
   description: 請求書を、システムが読める決まった形のデータでやり取りする仕組み。日本ではデジタル庁が Peppol に基づく標準の仕様（JP PINT）を管理している。
   lessons: [ai-digital-invoice]
   related: [AI-OCR]
+- term: 監査意見
+  kana: かんさいけん
+  aliases: [無限定適正意見, 限定付適正意見, 不適正意見, 意見不表明]
+  description: 監査人が監査報告書で述べる、財務諸表が適正かどうかの意見。無限定適正意見・限定付適正意見・不適正意見・意見不表明がある。
+  lessons: [audit-overview]
+  related: [KAM, 重要性]
+- term: 重要性
+  kana: じゅうようせい
+  aliases: [監査上の重要性]
+  description: 財務諸表の利用者の判断を変えるほどの誤りかどうかの基準。監査人は金額の目安を決めるが、不正など性質が重要なものは金額が小さくても重要とされる。
+  lessons: [audit-overview, audit-working]
+  related: [監査意見]
+- term: KAM
+  kana: かむ
+  aliases: [監査上の主要な検討事項]
+  description: 監査人が当期の監査で特に重要と判断した事項。上場会社などの監査報告書に、その内容と監査での対応が書かれる。
+  lessons: [audit-overview]
+  related: [監査意見]
+- term: PBC
+  kana: ぴーびーしー
+  aliases: [PBC リスト, 依頼資料]
+  description: Prepared by Client の略。監査人が会社に作成・提出を依頼する資料（明細・計算資料・証憑など）とその一覧。
+  lessons: [audit-pbc]
+  related: [残高確認]
+- term: 残高確認
+  kana: ざんだかかくにん
+  aliases: [確認状]
+  description: 監査人が取引先・銀行に直接、売掛金・預金・借入金などの残高を問い合わせる手続。会社は送付先の一覧を作り、回答との差異を説明する。
+  lessons: [audit-what-checked, audit-pbc]
+  related: [PBC]
+- term: 経営者確認書
+  kana: けいえいしゃかくにんしょ
+  description: 経営者が、財務諸表を作る責任を果たしたこと、すべての資料を提供したことなどを、監査人に書面で確認するもの。監査報告書の日付で提出する。
+  lessons: [audit-pbc]
+  related: [監査意見]
+- term: 期中レビュー
+  kana: きちゅうれびゅー
+  description: 半期報告書の中間財務諸表について、監査人が質問と分析的手続を中心に行う手続。監査より保証の水準が限定的。
+  lessons: [audit-schedule]
+  related: [監査意見]
+- term: 仕訳テスト
+  kana: しわけてすと
+  description: 経営者による内部統制の無効化のリスクに対応して、監査人が期末の仕訳など通常と違う仕訳を抽出して確かめる手続。
+  lessons: [audit-what-checked, ai-anomaly]
+  related: [アサーション]
