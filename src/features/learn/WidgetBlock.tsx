@@ -8,7 +8,7 @@ import { amount, useAmounts } from './useAmounts';
 import { AmountField, ResetButton } from './widgetParts';
 import { ImpairmentWidget, LeaseWidget, PointsWidget } from './StandardsWidgets';
 import { DeficiencyWidget } from './JsoxWidgets';
-import { Beppyo4Widget, TaxReturnWidget } from './TaxWidgets';
+import { Beppyo4Widget, LocalTaxWidget, TaxReturnWidget } from './TaxWidgets';
 import { MonthlyPayrollWidget, YearEndWidget } from './PayrollWidgets';
 import { DupontWidget, SalesVarianceWidget } from './ManagementWidgets';
 import { CashPlanWidget, WorkingCapitalWidget } from './CashWidgets';
@@ -338,6 +338,7 @@ const TITLES: Record<Widget['type'], string> = {
   'cash-plan': '資金繰り表を作ってみる',
   'sales-variance': '売上の予実差異を分けてみる',
   'tax-return': '法人税申告書を通しで作ってみる',
+  'local-tax': '地方税などを計算してみる',
   dupont: 'ROE を分解してみる',
 };
 
@@ -381,6 +382,7 @@ export function WidgetBlock({ json }: { json: string }) {
       {w.type === 'cash-plan' && <CashPlanWidget w={w} />}
       {w.type === 'sales-variance' && <SalesVarianceWidget w={w} />}
       {w.type === 'tax-return' && <TaxReturnWidget w={w} />}
+      {w.type === 'local-tax' && <LocalTaxWidget w={w} />}
       {w.type === 'dupont' && <DupontWidget w={w} />}
     </section>
   );

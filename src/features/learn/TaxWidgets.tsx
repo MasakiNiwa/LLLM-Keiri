@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { Widget } from '@/lib/content/schema';
 import { formatAmount } from '@/lib/journal/amount';
 import { beppyo4, type Beppyo4Row } from '@/lib/tax/beppyo4';
+import { localTax } from '@/lib/tax/localTax';
 import { taxReturn } from '@/lib/tax/taxReturn';
 import { cn } from '@/lib/utils/cn';
 import { amount, useAmounts } from './useAmounts';
@@ -295,6 +296,99 @@ export function TaxReturnWidget({ w }: { w: Extract<Widget, { type: 'tax-return'
           </section>
           <p className="text-xs leading-relaxed text-slate-500">
             学習用の簡単な形です。地方法人税・住民税・事業税の計算、税額控除、欠損金は考えていません。中小法人の軽減税率（15%）は特例の税率で、適用期限があります。
+          </p>
+        </div>
+      )}
+      <ResetButton onClick={reset} />
+    </>
+  );
+}
+
+/** 地方法人税・住民税・事業税（標準税率） */
+export function LocalTaxWidget({ w }: { w: Extract<Widget, { type: 'local-tax' }> }) {
+  const { type: _t, noReducedRate: initialNoReduced, ...init } = w;
+  const { values, set, reset } = useAmounts(init);
+  const [noReduced, setNoReduced] = useState(initialNoReduced);
+  const r = useMemo(
+    () =>
+      localTax({
+        corporateTax: amount(values.corporateTax),
+        income: amount(values.income),
+        capital: amount(values.capital),
+        employees: amount(values.employees),
+        months: amount(values.months),
+        noReducedRate: noReduced,
+      }),
+    [values, noReduced],
+  );
+  const deductible = r.lines.filter((l) => l.deductible).reduce((s, l) => s + l.amount, 0);
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-3">
+        <AmountField
+          label="法人税額（別表一）"
+          value={values.corporateTax}
+          onChange={set('corporateTax')}
+        />
+        <AmountField label="所得金額（別表四）" value={values.income} onChange={set('income')} />
+        <AmountField label="資本金等の額" value={values.capital} onChange={set('capital')} />
+        <AmountField label="従業者数（人）" value={values.employees} onChange={set('employees')} />
+        <AmountField label="事業年度の月数" value={values.months} onChange={set('months')} />
+      </div>
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={noReduced}
+          onChange={(e) => setNoReduced(e.target.checked)}
+        />
+        事業税の軽減税率を使えない（3 以上の都道府県に事務所があり、資本金 1,000 万円以上）
+      </label>
+      {r.error ? (
+        <p className="text-sm text-rose-600 dark:text-rose-400">{r.error}</p>
+      ) : (
+        <div className="space-y-2 text-sm">
+          <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+            <table className="w-full text-xs">
+              <thead className="bg-slate-50 text-slate-500 dark:bg-slate-800/50">
+                <tr>
+                  <th className="px-2 py-1.5 text-left font-medium">税目と計算</th>
+                  <th className="px-2 py-1.5 text-right font-medium">税額</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {r.lines.map((l) => (
+                  <tr key={l.label}>
+                    <td className="px-2 py-1">
+                      {l.label}
+                      {l.deductible && (
+                        <span className="ml-1 text-[0.65rem] text-emerald-700 dark:text-emerald-300">
+                          損金
+                        </span>
+                      )}
+                      <span className="block text-slate-500">{l.formula}</span>
+                    </td>
+                    <td className="px-2 py-1 text-right font-mono tabular-nums">
+                      {formatAmount(l.amount)}
+                    </td>
+                  </tr>
+                ))}
+                <tr className="font-semibold">
+                  <td className="px-2 py-1">合計</td>
+                  <td className="px-2 py-1 text-right font-mono tabular-nums">
+                    {formatAmount(r.total)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            事業税・特別法人事業税（{formatAmount(deductible)}
+            円）は、申告して納めた期（翌期）の損金になります。住民税・地方法人税は損金になりません。
+          </p>
+          <p className="text-xs leading-relaxed text-slate-500">
+            標準税率で計算しています（2019 年 10 月 1
+            日以後に開始する事業年度）。都道府県・市町村によっては、条例で標準税率より高い税率（超過課税）や、均等割の上乗せがあります。外形標準課税の対象の法人（資本金
+            1 億円超など）は計算が違います。
           </p>
         </div>
       )}
