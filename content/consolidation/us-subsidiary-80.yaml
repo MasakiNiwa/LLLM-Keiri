@@ -1,12 +1,14 @@
 id: us-subsidiary-80
 title: 米国子会社（持分 80%・ドル建て）の連結
-summary: P 社が米国に設立した S 社（持分 80%）を、ドルの試算表から円に換算して連結します。決算日・期中平均・取得時の 3 つのレートと、為替換算調整勘定の動きを確かめます
+summary: P 社が米国に設立した S 社（持分 80%）を、ドルの試算表から円に換算して連結します。決算日・期中平均・取得時の 3 つのレートと、為替換算調整勘定の動き、キャッシュ・フロー計算書の換算差額、地域別のセグメント情報を確かめます
 level: 5
 unit: 千円
 lessons:
   - consolidation-foreign-translation
   - consolidation-capital
   - consolidation-after-acquisition
+  - consolidation-cash-flow
+  - consolidation-segments
 basis:
   - name: 外貨建取引等会計処理基準 三 在外子会社等の財務諸表項目の換算
   - name: 連結財務諸表に関する会計基準（企業会計基準第 22 号）
@@ -16,7 +18,8 @@ entities:
   - id: p
     name: P 社（親会社）
     role: parent
-    note: 期首（2025 年 4 月 1 日）に、米国の S 社を現地の会社と共同で設立し、資本金 1,000 千ドルのうち 800 千ドル（80%）を出資した（1 ドル 150 円 → 120,000 千円）
+    segment: 日本
+    note: 期首（2025 年 4 月 1 日）に、米国の S 社を現地の会社と共同で設立し、資本金 1,000 千ドルのうち 800 千ドル（80%）を出資した（1 ドル 150 円 → 120,000 千円）。期中に 40,000 千円を借り入れた
     trialBalance: |
       普通預金 80,000 / 買掛金 60,000
       売掛金 80,000 / 借入金 70,000
@@ -29,13 +32,16 @@ entities:
     name: S 社（米国子会社）
     role: subsidiary
     ownership: 80
+    segment: 北米
     currency: USD
     unit: 千ドル
     rates:
       HR: 150
       AR: 145
       CR: 140
-    note: 期首に設立（資本金 1,000 千ドル）。期中に 1 ドル 150 円から 140 円へ円高が進んだ（期中平均 145 円）
+    note: 期首に設立（資本金 1,000 千ドル。払込み時のレート 1 ドル 150 円）。期中に 1 ドル 150 円から 140 円へ円高が進んだ（期中平均 145 円）
+    opening:
+      balanceSheet: ''
     trialBalance: |
       普通預金 400 / 買掛金 200
       売掛金 300 / 資本金 1,000
@@ -44,6 +50,13 @@ entities:
       売上原価 800 /
       給料 200 /
       支払家賃 100 /
+opening:
+  note: 期首は S 社の設立前なので、P 社だけの貸借対照表
+  balanceSheet: |
+    普通預金 150,000 / 買掛金 50,000
+    売掛金 60,000 / 借入金 30,000
+    建物 100,000 / 資本金 200,000
+    / 利益剰余金 30,000
 eliminations:
   - id: capital
     category: capital

@@ -26,6 +26,8 @@ import {
 export const TRANSLATION_ACCOUNT = '為替換算調整勘定';
 /** 連結損益計算書で、当期純利益から差し引く科目 */
 export const NCI_PROFIT_ACCOUNT = '非支配株主に帰属する当期純利益';
+/** 非支配株主持分 */
+export const NCI_ACCOUNT = '非支配株主持分';
 
 export type RateType = keyof Rates | 'HIST' | 'JPY';
 

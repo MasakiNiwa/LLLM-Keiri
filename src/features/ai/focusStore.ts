@@ -71,6 +71,18 @@ export type AiFocus =
         consolidated: number;
         sign: string;
       };
+      /** セグメント情報（セグメントのタブを見ているとき） */
+      segments?: {
+        segments: Record<
+          string,
+          { sales: number; intersegmentSales: number; profit: number; assets: number }
+        >;
+        adjustments: { sales: number; profit: number; assets: number };
+        consolidated: { sales: number; profit: number; assets: number };
+        note: string;
+      };
+      /** 連結キャッシュ・フロー計算書の区分ごとの合計（CF のタブを見ているとき） */
+      cashFlow?: Record<string, number>;
     }
   | { kind: 'accounts'; account?: string }
   | { kind: 'other'; page: string };

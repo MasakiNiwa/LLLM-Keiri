@@ -14,3 +14,9 @@ export const RATE_LABELS: Record<string, string> = {
   HIST: '発生時のレート',
   JPY: '',
 };
+
+/** マイナスは △ で表す（開示の書き方） */
+export function triangle(n: number): string {
+  if (n === 0) return '—';
+  return n < 0 ? `△${formatAmount(-n)}` : formatAmount(n);
+}

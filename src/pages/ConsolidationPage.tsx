@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Banknote, Building2, FileSpreadsheet, Landmark, Wrench } from 'lucide-react';
+import { Banknote, Building2, FileSpreadsheet, Landmark, PieChart, Wrench } from 'lucide-react';
+import { SegmentsView } from '@/features/consolidation/SegmentsView';
+import { segmentReport } from '@/lib/consolidation/segments';
 import { CashFlowView } from '@/features/cashflow/CashFlowView';
 import { consolidatedCashFlow } from '@/lib/consolidation/cashflow';
 import { Link, useLocation, useParams } from 'wouter';
@@ -26,16 +28,23 @@ import { loadConsolidation } from '@/features/studio/userContentRepo';
 import type { ConsolidationCase } from '@/lib/content/schema';
 import { errorMessage } from '@/lib/utils/format';
 
-type Tab = 'entities' | 'eliminations' | 'worksheet' | 'statements' | 'cashflow';
+type Tab = 'entities' | 'eliminations' | 'worksheet' | 'statements' | 'cashflow' | 'segments';
 const TABS: { value: Tab; label: string; icon: React.ReactNode }[] = [
   { value: 'entities', label: '各社', icon: <Building2 /> },
   { value: 'eliminations', label: '修正仕訳', icon: <Wrench /> },
   { value: 'worksheet', label: '精算表', icon: <FileSpreadsheet /> },
   { value: 'statements', label: '連結財務諸表', icon: <Landmark /> },
   { value: 'cashflow', label: 'CF', icon: <Banknote /> },
+  { value: 'segments', label: 'セグメント', icon: <PieChart /> },
 ];
 
 export default function ConsolidationPage() {
+  const { id = '' } = useParams<{ id: string }>();
+  // 事例が変わったら、ドリルダウンや練習の状態を持ち越さない
+  return <ConsolidationCasePage key={id} />;
+}
+
+function ConsolidationCasePage() {
   const { id = '', tab: tabParam } = useParams<{ id: string; tab?: string }>();
   const [, navigate] = useLocation();
   const tab: Tab = TABS.some((t) => t.value === tabParam) ? (tabParam as Tab) : 'statements';
@@ -78,8 +87,14 @@ export default function ConsolidationPage() {
     () => (c && book && result ? consolidatedCashFlow(c, book, result) : null),
     [c, book, result],
   );
-  // キャッシュ・フローのタブは、期首の連結貸借対照表がある事例だけ
-  const tabs = TABS.filter((t) => t.value !== 'cashflow' || c?.opening);
+  const segments = useMemo(
+    () => (c && book && result ? segmentReport(c, book, result, enabled) : null),
+    [c, book, result, enabled],
+  );
+  // キャッシュ・フローのタブは期首の連結貸借対照表がある事例、セグメントのタブはセグメントを書いた事例だけ
+  const tabs = TABS.filter(
+    (t) => (t.value !== 'cashflow' || c?.opening) && (t.value !== 'segments' || segments),
+  );
   const openAccount = (account: string) => drill.open({ kind: 'account', account });
 
   // 連結の数字（プログラムが計算したもの）と、ドリルダウンで見ている内訳を AI に伝える
@@ -120,6 +135,31 @@ export default function ConsolidationPage() {
                 sign: '借方が正、貸方が負',
               }
             : undefined,
+          segments:
+            tab === 'segments' && segments
+              ? {
+                  segments: Object.fromEntries(
+                    segments.segments.map((s) => [
+                      s.name,
+                      { ...s.values, intersegmentSales: s.intersegmentSales },
+                    ]),
+                  ),
+                  adjustments: segments.adjustmentTotals,
+                  consolidated: segments.consolidated,
+                  note: 'セグメント利益は営業利益、セグメント資産は各社の資産の合計。調整額は連結修正仕訳の分',
+                }
+              : undefined,
+          cashFlow:
+            tab === 'cashflow' && cashFlow
+              ? {
+                  営業活動: cashFlow.totals.operating,
+                  投資活動: cashFlow.totals.investing,
+                  財務活動: cashFlow.totals.financing,
+                  換算差額: cashFlow.totals.translation,
+                  期首の現金: cashFlow.openingCash,
+                  期末の現金: cashFlow.closingCash,
+                }
+              : undefined,
         }
       : null,
   );
@@ -174,6 +214,9 @@ export default function ConsolidationPage() {
                 note={`期首の連結貸借対照表: ${c.opening?.note ?? ''}。修正仕訳の反映を外すと、キャッシュ・フロー計算書も変わります（現金の増減と合わなくなる修正もあります）。`}
               />
             )}
+            {tab === 'segments' && segments && (
+              <SegmentsView c={c} report={segments} onDrill={drill.open} />
+            )}
             {tab === 'statements' && (
               <ConsolidatedStatementsView c={c} result={result} onAccount={openAccount} />
             )}
@@ -198,6 +241,7 @@ export default function ConsolidationPage() {
               c={c}
               result={result}
               enabled={enabled}
+              segments={segments}
               stack={drill.stack}
               onPush={drill.push}
               onBack={drill.back}

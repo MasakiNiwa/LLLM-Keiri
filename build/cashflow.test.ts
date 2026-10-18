@@ -71,3 +71,32 @@ describe('buildIndirectCashFlow（期首が空の帳簿）', () => {
     expect(cf.netChange).toBe(cf.closingCash - cf.openingCash);
   });
 });
+
+describe('連結キャッシュ・フロー計算書（米国子会社の設立年）', () => {
+  const cf = consolidatedCashFlow(load('us-subsidiary-80'), book)!;
+  const line = (account: string) => cf.lines.find((l) => l.account === account)?.amount;
+
+  it('各区分の合計が、現金の増減と一致する', () => {
+    expect(cf.openingCash).toBe(150000);
+    // P 社 80,000 ＋ S 社 400 千ドル × 140
+    expect(cf.closingCash).toBe(136000);
+    expect(cf.netChange).toBe(-14000);
+  });
+
+  it('S 社の増減は期中平均レートで、資本の払込みは払込み時のレートで数える', () => {
+    // P 社 20,000 ＋ S 社 300 千ドル × 145
+    expect(line('売掛金')).toBe(-63500);
+    expect(line('繰越商品')).toBe(-29000);
+    expect(line('買掛金')).toBe(39000);
+    expect(line('備品')).toBe(-58000);
+    // 非支配株主の払込み 200 千ドル × 150
+    expect(line('非支配株主持分')).toBe(30000);
+    expect(cf.totals.financing).toBe(70000);
+  });
+
+  it('現金及び現金同等物に係る換算差額', () => {
+    // S 社の円のキャッシュ・フロー 63,000 と、期末の現金 56,000 の差
+    expect(cf.totals.translation).toBe(-7000);
+    expect(line('為替換算調整勘定')).toBe(-7000);
+  });
+});
