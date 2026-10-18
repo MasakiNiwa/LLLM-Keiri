@@ -16,7 +16,7 @@ export function ReviewBanner() {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block font-semibold">
-            {n > 0 ? `今日の復習 ${n} 問` : '今日の復習は終わりました'}
+            {n > 0 ? `今日の復習 ${n} 件` : '今日の復習は終わりました'}
           </span>
           <span className="block text-xs text-slate-500 dark:text-slate-400">
             {n > 0

@@ -19,6 +19,7 @@ import { ChoiceQuiz } from '@/features/learn/QuizBlock';
 import { RiskCard } from '@/features/learn/RcmExercise';
 import { useFontZoom } from '@/features/settings/useFontZoom';
 import { useSettings } from '@/features/settings/settingsStore';
+import { LESSON_GRADES, reviewLesson } from '@/features/learn/progress';
 import { db } from '@/lib/db/db';
 import { formatShiwake } from '@/lib/journal/parse';
 import { isDue, SELF_GRADES, type ReviewFields } from '@/lib/srs/review';
@@ -46,7 +47,13 @@ async function loadQueue(limit: number): Promise<Queue> {
 }
 
 const questionText = (it: ReviewItem) =>
-  it.kind === 'shiwake' ? it.question.question : it.kind === 'choice' ? it.question : it.risk.risk;
+  it.kind === 'shiwake'
+    ? it.question.question
+    : it.kind === 'choice'
+      ? it.question
+      : it.kind === 'rcm'
+        ? it.risk.risk
+        : `レッスン「${it.title}」を思い出す`;
 
 interface Judged {
   correct: boolean;
@@ -166,6 +173,13 @@ export default function ReviewPage() {
     document.querySelector('[data-scroll-root]')?.scrollTo(0, 0);
   };
 
+  /** レッスンの復習: 思い出し具合を選ぶと、次の復習日が決まる */
+  const gradeLesson = (lessonId: string, g: Grade) => {
+    const i = pos;
+    setJudged((j) => ({ ...j, [i]: { correct: g >= Rating.Good, grade: g, prev: null } }));
+    void reviewLesson(lessonId, g);
+  };
+
   const correctCount = Object.values(judged).filter((j) => j.correct).length;
   const nextButton = (
     <div className="flex justify-end">
@@ -259,8 +273,62 @@ export default function ReviewPage() {
                   {item.context}
                 </p>
               )}
-              {item.kind !== 'rcm' && (
+              {item.kind !== 'rcm' && item.kind !== 'lesson' && (
                 <p className="text-[1.05rem] leading-relaxed font-medium">{questionText(item)}</p>
+              )}
+              {item.kind === 'lesson' && (
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">
+                    レッスンの復習
+                  </p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{item.summary}</p>
+                  <div className="rounded-xl bg-slate-50 p-3 text-sm dark:bg-slate-800/50">
+                    <p className="mb-1.5 font-medium">
+                      まず、見出しを見て、それぞれ何が書いてあったかを思い出してみましょう
+                    </p>
+                    <ol className="list-decimal space-y-0.5 pl-5">
+                      {item.headings.map((h) => (
+                        <li key={h}>{h}</li>
+                      ))}
+                    </ol>
+                  </div>
+                  <Link
+                    href={item.href}
+                    className="inline-flex items-center gap-1 text-sm font-medium text-accent-700 hover:underline dark:text-accent-300"
+                  >
+                    レッスンを開いて読み直す
+                    <ArrowRight className="size-4" />
+                  </Link>
+                  <div className="space-y-1.5">
+                    <p className="text-sm font-medium">どれくらい覚えていましたか？</p>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                      {LESSON_GRADES.map((g) => (
+                        <button
+                          key={g.grade}
+                          type="button"
+                          aria-pressed={judged[pos]?.grade === g.grade}
+                          onClick={() => gradeLesson(item.lessonId, g.grade)}
+                          disabled={judged[pos] !== undefined}
+                          className={cn(
+                            'rounded-xl border px-3 py-2 text-sm font-medium disabled:cursor-default',
+                            judged[pos]?.grade === g.grade
+                              ? 'border-accent-600 bg-accent-600 text-white'
+                              : 'border-slate-300 bg-white hover:border-accent-400 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900',
+                          )}
+                        >
+                          {g.label}
+                        </button>
+                      ))}
+                    </div>
+                    {judged[pos] && (
+                      <p className="text-xs text-slate-500">
+                        {judged[pos].grade === Rating.Again
+                          ? '近いうちにもう一度出します。レッスンを読み直しておきましょう。'
+                          : '思い出し具合に合わせて、次の復習の日を決めました。'}
+                      </p>
+                    )}
+                  </div>
+                </div>
               )}
               {item.kind === 'choice' && (
                 <ChoiceQuiz
@@ -309,7 +377,9 @@ export default function ReviewPage() {
                 }
               />
             )}
-            {judged[pos] && <SelfGrade judged={judged[pos]} onChange={regrade} />}
+            {judged[pos] && item.kind !== 'lesson' && (
+              <SelfGrade judged={judged[pos]} onChange={regrade} />
+            )}
             {judged[pos] && nextButton}
           </div>
         )}

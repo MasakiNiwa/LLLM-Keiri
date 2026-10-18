@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Flame,
+  History,
   NotebookPen,
   PenLine,
   Sparkles,
@@ -16,12 +17,12 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Link, useLocation, useParams } from 'wouter';
 import { Tabs } from '@/components/ui/Tabs';
 import { WeaknessView } from '@/features/log/WeaknessView';
+import { HistoryList } from '@/features/log/HistoryList';
+import { useTitles } from '@/features/log/useTitles';
 import { PageBody, PageHeader } from '@/app/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useFocus } from '@/features/ai/useFocus';
-import { useContentIndex } from '@/features/content/contentStore';
-import { useUserContent } from '@/features/studio/userContentRepo';
 import holidayData from '@/data/holidays.json';
 import { createHolidayLookup, type HolidayData } from '@/lib/calendar/holidays';
 import { db } from '@/lib/db/db';
@@ -54,33 +55,6 @@ function useDailyLog() {
     ]);
     return buildDailyLog({ activity, lessonProgress, attempts, journal, chat });
   }, []);
-}
-
-/** id から表示名を引く（レッスン・問題セット・演習・マイ教材） */
-function useTitles() {
-  const { index } = useContentIndex();
-  const mine = useUserContent();
-  return useMemo(() => {
-    const m = new Map<string, { title: string; href: string }>();
-    for (const l of index?.lessons ?? []) {
-      m.set(l.id, { title: l.title, href: `/learn/${l.id}` });
-      m.set(`lesson:${l.id}`, { title: `${l.title}（確認問題）`, href: `/learn/${l.id}` });
-    }
-    for (const d of index?.drills ?? []) m.set(d.id, { title: d.title, href: `/drill/${d.id}` });
-    for (const q of index?.quizzes ?? [])
-      m.set(`quiz:${q.id}`, { title: q.title, href: `/quiz/${q.id}` });
-    for (const e of index?.exercises ?? [])
-      m.set(`exercise:${e.id}`, {
-        title: `決算の総合演習「${e.title}」`,
-        href: `/exercise/${e.id}`,
-      });
-    for (const c of mine ?? [])
-      m.set(c.id, {
-        title: `${c.title}（マイ教材）`,
-        href: c.kind === 'lesson' ? `/learn/${c.id}` : `/drill/${c.id}`,
-      });
-    return m;
-  }, [index, mine]);
 }
 
 function DayDetail({
@@ -149,6 +123,16 @@ function DayDetail({
                 ))}
               </ul>,
             )}
+          {log.lessonsReviewed.length > 0 &&
+            row(
+              <CalendarClock />,
+              '復習したレッスン',
+              <ul className="space-y-0.5">
+                {log.lessonsReviewed.map((id) => (
+                  <li key={id}>{link(id)}</li>
+                ))}
+              </ul>,
+            )}
           {log.lessonsOpened.length > 0 &&
             row(
               <BookOpenText />,
@@ -196,16 +180,17 @@ function DayDetail({
   );
 }
 
-type Tab = 'calendar' | 'weakness';
+type Tab = 'calendar' | 'history' | 'weakness';
 const TABS: { value: Tab; label: string; icon: React.ReactNode }[] = [
   { value: 'calendar', label: 'カレンダー', icon: <CalendarDays /> },
+  { value: 'history', label: '履歴', icon: <History /> },
   { value: 'weakness', label: '苦手の分析', icon: <Target /> },
 ];
 
 export default function LogPage() {
   const params = useParams<{ tab?: string }>();
   const [, navigate] = useLocation();
-  const tab: Tab = params.tab === 'weakness' ? 'weakness' : 'calendar';
+  const tab: Tab = TABS.some((t) => t.value === params.tab) ? (params.tab as Tab) : 'calendar';
   return (
     <>
       <PageHeader title="学習の記録" />
@@ -215,7 +200,9 @@ export default function LogPage() {
           items={TABS}
           onChange={(t) => navigate(t === 'calendar' ? '/log' : `/log/${t}`, { replace: true })}
         />
-        {tab === 'calendar' ? <CalendarTab /> : <WeaknessView />}
+        {tab === 'calendar' && <CalendarTab />}
+        {tab === 'history' && <HistoryList />}
+        {tab === 'weakness' && <WeaknessView />}
       </PageBody>
     </>
   );

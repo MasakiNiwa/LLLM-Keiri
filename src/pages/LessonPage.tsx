@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/Card';
 import { useContentIndex } from '@/features/content/contentStore';
 import { LessonMarkdown } from '@/features/learn/LessonMarkdown';
 import { LessonIdContext } from '@/features/learn/lessonContext';
+import { LessonReviewPanel } from '@/features/learn/LessonReviewPanel';
 import { BasisInfo, LevelBadge } from '@/features/learn/MetaBadges';
 import { SpeakToggle } from '@/features/speech/SpeakToggle';
 import { useSpeech } from '@/features/speech/speechStore';
@@ -247,6 +248,7 @@ export default function LessonPage() {
                 {read ? '読んだ（取り消す）' : '読んだ！'}
               </Button>
             </div>
+            <LessonReviewPanel lessonId={id} />
             <nav className="grid grid-cols-2 gap-3" aria-label="前後のレッスン">
               <NeighborLink meta={siblings[pos - 1]} dir="prev" />
               <NeighborLink meta={siblings[pos + 1]} dir="next" />

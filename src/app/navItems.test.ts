@@ -15,6 +15,7 @@ describe('下部ナビ', () => {
     expect(activeBottomItem('/models')).toBe('/ai');
     expect(activeBottomItem('/settings')).toBe('/settings');
     expect(activeBottomItem('/ledger')).toBe('/menu');
+    expect(activeBottomItem('/history/quiz%3Aa')).toBe('/log');
   });
   it('機能の行き先は重ならない', () => {
     const to = ALL_FEATURES.map((i) => i.to);

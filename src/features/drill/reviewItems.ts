@@ -1,6 +1,7 @@
 /**
  * 復習の予定（setId・questionId）から、出し直す問題を読み込む。
- * setId の形: <問題セットの id>（仕訳問題・マイ教材）／ exercise:<id> ／ quiz:<id> ／ lesson:<id>
+ * setId の形: <問題セットの id>（仕訳問題・マイ教材）／ exercise:<id> ／ quiz:<id> ／ lesson:<id>（確認問題）
+ * ／ read（レッスンそのものの復習。questionId がレッスンの id）
  */
 import { loadDrill, loadLesson } from '@/features/studio/userContentRepo';
 import { fetchExercise, fetchQuizSet } from '@/lib/content/load';
@@ -18,6 +19,7 @@ export type ReviewItem = { setId: string; questionId: string; title: string; hre
       explanation?: string;
     }
   | { kind: 'rcm'; rcm: RcmCase; risk: RcmCase['risks'][number]; index: number }
+  | { kind: 'lesson'; lessonId: string; summary: string; headings: string[] }
 );
 
 type Loaded = (questionId: string) => ReviewItem | null;
@@ -115,6 +117,21 @@ export async function loadReviewItems(
   const loaders = new Map<string, Loaded | null>();
   const items: ReviewItem[] = [];
   for (const r of records) {
+    if (r.setId === 'read') {
+      const lesson = await loadLesson(r.questionId).catch(() => null);
+      if (lesson)
+        items.push({
+          setId: r.setId,
+          questionId: r.questionId,
+          title: lesson.meta.title,
+          href: `/learn/${r.questionId}`,
+          kind: 'lesson',
+          lessonId: r.questionId,
+          summary: lesson.meta.summary,
+          headings: lesson.meta.headings.filter((h) => h.depth === 2).map((h) => h.text),
+        });
+      continue;
+    }
     if (!loaders.has(r.setId)) loaders.set(r.setId, await loader(r.setId).catch(() => null));
     const item = loaders.get(r.setId)?.(r.questionId);
     if (item) items.push(item);
