@@ -47,6 +47,8 @@ export type AiFocus =
       trialBalanced: boolean;
       netIncome: number;
       unsettled: string[];
+      /** 財務分析の比率（分析のタブを見ているとき。プログラムが計算した値） */
+      ratios?: Record<string, string>;
     }
   | {
       kind: 'consolidation';
@@ -83,6 +85,8 @@ export type AiFocus =
       };
       /** 連結キャッシュ・フロー計算書の区分ごとの合計（CF のタブを見ているとき） */
       cashFlow?: Record<string, number>;
+      /** 財務分析の比率（分析のタブを見ているとき） */
+      ratios?: Record<string, string>;
     }
   | { kind: 'accounts'; account?: string }
   | { kind: 'other'; page: string };

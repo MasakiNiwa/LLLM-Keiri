@@ -2,6 +2,7 @@ import {
   BookOpen,
   Briefcase,
   CalendarCheck,
+  Gauge,
   Landmark,
   Network,
   Scale,
@@ -19,6 +20,7 @@ const ICONS: Record<string, LucideIcon> = {
   network: Network,
   briefcase: Briefcase,
   scale: Scale,
+  gauge: Gauge,
 };
 
 export function TrackIcon({ name, className }: { name?: string; className?: string }) {

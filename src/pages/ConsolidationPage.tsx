@@ -1,6 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Banknote, Building2, FileSpreadsheet, Landmark, PieChart, Wrench } from 'lucide-react';
+import {
+  Banknote,
+  Building2,
+  FileSpreadsheet,
+  Gauge,
+  Landmark,
+  PieChart,
+  Wrench,
+} from 'lucide-react';
 import { SegmentsView } from '@/features/consolidation/SegmentsView';
+import { AnalysisView } from '@/features/analysis/AnalysisView';
+import { ratiosForAi } from '@/features/analysis/ratiosForAi';
+import { analyze } from '@/lib/analysis/ratios';
 import { segmentReport } from '@/lib/consolidation/segments';
 import { CashFlowView } from '@/features/cashflow/CashFlowView';
 import { consolidatedCashFlow } from '@/lib/consolidation/cashflow';
@@ -28,7 +39,8 @@ import { loadConsolidation } from '@/features/studio/userContentRepo';
 import type { ConsolidationCase } from '@/lib/content/schema';
 import { errorMessage } from '@/lib/utils/format';
 
-type Tab = 'entities' | 'eliminations' | 'worksheet' | 'statements' | 'cashflow' | 'segments';
+type Tab =
+  'entities' | 'eliminations' | 'worksheet' | 'statements' | 'cashflow' | 'segments' | 'analysis';
 const TABS: { value: Tab; label: string; icon: React.ReactNode }[] = [
   { value: 'entities', label: '各社', icon: <Building2 /> },
   { value: 'eliminations', label: '修正仕訳', icon: <Wrench /> },
@@ -36,6 +48,7 @@ const TABS: { value: Tab; label: string; icon: React.ReactNode }[] = [
   { value: 'statements', label: '連結財務諸表', icon: <Landmark /> },
   { value: 'cashflow', label: 'CF', icon: <Banknote /> },
   { value: 'segments', label: 'セグメント', icon: <PieChart /> },
+  { value: 'analysis', label: '分析', icon: <Gauge /> },
 ];
 
 export default function ConsolidationPage() {
@@ -90,6 +103,13 @@ function ConsolidationCasePage() {
   const segments = useMemo(
     () => (c && book && result ? segmentReport(c, book, result, enabled) : null),
     [c, book, result, enabled],
+  );
+  const ratios = useMemo(
+    () =>
+      result && book
+        ? analyze(new Map(result.ledger.map((l) => [l.account, l.balance])), book)
+        : [],
+    [result, book],
   );
   // キャッシュ・フローのタブは期首の連結貸借対照表がある事例、セグメントのタブはセグメントを書いた事例だけ
   const tabs = TABS.filter(
@@ -149,6 +169,7 @@ function ConsolidationCasePage() {
                   note: 'セグメント利益は営業利益、セグメント資産は各社の資産の合計。調整額は連結修正仕訳の分',
                 }
               : undefined,
+          ratios: tab === 'analysis' ? ratiosForAi(ratios) : undefined,
           cashFlow:
             tab === 'cashflow' && cashFlow
               ? {
@@ -212,6 +233,14 @@ function ConsolidationCasePage() {
                 unit={c.unit}
                 onAccount={openAccount}
                 note={`期首の連結貸借対照表: ${c.opening?.note ?? ''}。修正仕訳の反映を外すと、キャッシュ・フロー計算書も変わります（現金の増減と合わなくなる修正もあります）。`}
+              />
+            )}
+            {tab === 'analysis' && (
+              <AnalysisView
+                ratios={ratios}
+                unit={c.unit}
+                onAccount={openAccount}
+                note="連結では、当期純利益は親会社株主に帰属する当期純利益、自己資本は純資産から非支配株主持分を除いた額を使います。"
               />
             )}
             {tab === 'segments' && segments && (
