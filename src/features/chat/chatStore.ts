@@ -44,9 +44,9 @@ interface ChatState {
   init: () => Promise<void>;
   /**
    * 送信する。受け付けたら true（入力欄を空にしてよい）、AI が使えない・ほかの処理中なら false
-   * （入力した文章はそのまま残す）
+   * （入力した文章はそのまま残す）。practice: AI 練習の始め方（AI への指示は画面に出さず、発話の前に添える）
    */
-  send: (text: string) => boolean;
+  send: (text: string, practice?: { label: string; instructions: string }) => boolean;
   /** 最後の応答を作り直す。新しい応答ができるまで、元の応答は消さない */
   regenerate: () => Promise<void>;
   /** フロートの解説でのやりとりを、チャットの履歴に加える（続きを話せるように） */
@@ -68,7 +68,9 @@ function toHistory(messages: ChatMessage[]): ChatTurn[] {
 /** 直近でモデルに渡したアプリの状態 */
 function lastContext(messages: ChatMessage[]): string | undefined {
   for (let i = messages.length - 1; i >= 0; i--) {
-    if (messages[i].context) return messages[i].context;
+    // AI 練習の指示は除いて、アプリの状態だけを比べる
+    const context = messages[i].context?.replace(/\n*<practice>[\s\S]*<\/practice>/, '');
+    if (context) return context;
   }
   return undefined;
 }
@@ -256,17 +258,23 @@ export const useChat = create<ChatState>()((set, get) => {
       return initPromise;
     },
 
-    send(text) {
+    send(text, practice) {
       const trimmed = text.trim();
       if (!trimmed || !canGenerate()) return false;
       void (async () => {
         const history = get().messages;
+        // 使い方モードでは、アプリの状態の代わりに、質問に関係するヘルプの抜粋を添える
+        const context = get().helpMode ? helpContext(trimmed) : await contextFor(history);
         const user: ChatMessage = {
           id: createId(),
           role: 'user',
           text: trimmed,
-          // 使い方モードでは、アプリの状態の代わりに、質問に関係するヘルプの抜粋を添える
-          context: get().helpMode ? helpContext(trimmed) : await contextFor(history),
+          context: practice
+            ? [context, `<practice>\n${practice.instructions}\n</practice>`]
+                .filter(Boolean)
+                .join('\n\n')
+            : context,
+          practice: practice?.label,
           createdAt: Date.now(),
           status: 'done',
         };

@@ -138,10 +138,17 @@ export const MessageItem = memo(function MessageItem({
       <div className="flex justify-end">
         <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-accent-600 px-4 py-2.5 whitespace-pre-wrap text-white">
           {message.text}
-          {message.context && (
-            <div className="mt-1 text-[0.65rem] opacity-70" title="アプリの状態を AI に伝えました">
-              📎 アプリの状態つき
-            </div>
+          {message.practice ? (
+            <div className="mt-1 text-[0.65rem] opacity-70">🎯 AI 練習: {message.practice}</div>
+          ) : (
+            message.context && (
+              <div
+                className="mt-1 text-[0.65rem] opacity-70"
+                title="アプリの状態を AI に伝えました"
+              >
+                📎 アプリの状態つき
+              </div>
+            )
           )}
         </div>
       </div>

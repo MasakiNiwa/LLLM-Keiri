@@ -43,6 +43,8 @@ export interface ChatRecord {
   text: string;
   /** ユーザーの発話の前に付けたアプリの状態（<app_state>）やヘルプの抜粋 */
   context?: string;
+  /** AI 練習で始めた発話なら、その練習の名前（吹き出しに表示する） */
+  practice?: string;
   thinking?: string;
   /** 使ったツール */
   tools?: string[];
