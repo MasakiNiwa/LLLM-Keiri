@@ -165,6 +165,25 @@ export const ShiwakeQuizSchema = ShiwakeQuestionSchema.extend({ type: z.literal(
 export const QuizSchema = z.discriminatedUnion('type', [ChoiceQuizSchema, ShiwakeQuizSchema]);
 export type Quiz = z.infer<typeof QuizSchema>;
 
+const yenAmount = z.number().int().min(0);
+
+/** レッスンの中の計算の部品（` ```widget `）。数字を変えると、プログラムが仕訳を作り直す */
+export const WidgetSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('payroll'),
+    gross: yenAmount.default(300000),
+    incomeTax: yenAmount.default(7000),
+    residentTax: yenAmount.default(12000),
+    socialInsurance: yenAmount.default(45000),
+  }),
+  z.object({
+    type: z.literal('collection'),
+    billed: yenAmount.default(110000),
+    received: yenAmount.default(109560),
+  }),
+]);
+export type Widget = z.infer<typeof WidgetSchema>;
+
 export const DrillQuestionSchema = ShiwakeQuestionSchema.extend({ id: z.string().min(1) });
 export type DrillQuestion = z.infer<typeof DrillQuestionSchema>;
 

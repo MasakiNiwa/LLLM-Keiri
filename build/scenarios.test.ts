@@ -52,3 +52,36 @@ describe('学習データ', () => {
     },
   );
 });
+
+describe('帳簿のサンプル「小さな会社の 1 か月」', () => {
+  const s = index.scenarios.find((x) => x.id === 'office-one-month')!;
+  const ledger = buildLedger(
+    s.entries.map((e, i) => ({
+      id: String(i),
+      date: e.date,
+      memo: e.memo,
+      lines: parseShiwake(e.shiwake).entries[0].lines,
+    })),
+    book,
+  );
+  const bal = (a: string) => ledger.find((l) => l.account === a)?.balance ?? 0;
+
+  it('仮払金・未払金は精算で 0 に戻る', () => {
+    expect(bal('仮払金')).toBe(0);
+    expect(bal('未払金')).toBe(0);
+  });
+
+  it('月末の預り金は 5 月分の給料から預かった分だけ残る', () => {
+    expect(bal('所得税預り金')).toBe(-7000);
+    expect(bal('預り金')).toBe(-12000);
+    expect(bal('社会保険料預り金')).toBe(-45000);
+    // 会社負担の社会保険料 45,000 ＋ 電気代 18,000
+    expect(bal('未払費用')).toBe(-63000);
+  });
+
+  it('5 月の損益', () => {
+    // 売上 1,200,000 − 仕入 300,000 − 家賃 150,000 − 旅費 49,200 − 手数料 660 − 給料 300,000
+    // − 減価償却 10,000 − 法定福利費 45,000 − 電気代 18,000
+    expect(buildStatements(ledger).netIncome).toBe(327140);
+  });
+});

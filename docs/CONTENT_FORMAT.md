@@ -64,6 +64,16 @@ explanation: 解説
 ```
 ````
 
+- 計算の部品: コードブロックの言語を widget にして YAML で書く。数字を変えるとアプリが仕訳を作り直す。
+  type: payroll（給料の仕訳。gross・incomeTax・residentTax・socialInsurance）、type: collection（入金消込。billed・received）。金額は省略できる
+
+````
+```widget
+type: payroll
+gross: 300000
+```
+````
+
 - 囲み: 引用の 1 行目に [!POINT]（ポイント）・[!NOTE]（補足）・[!TIP]（コツ）・[!WARNING]（注意）
 
 ```

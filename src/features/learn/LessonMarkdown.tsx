@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm';
 import { ShiwakeBlock } from '@/features/journal/ShiwakeBlock';
 import { Callout } from './Callout';
 import { QuizBlock } from './QuizBlock';
+import { WidgetBlock } from './WidgetBlock';
 import {
   CALLOUT_TYPES,
   remarkCallouts,
@@ -38,12 +39,13 @@ function textOf(node: HastNode | undefined): string {
 
 const components: Components = {
   a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
-  // ```shiwake と ```quiz は専用の部品で表示する
+  // ```shiwake・```quiz・```widget は専用の部品で表示する
   pre: ({ node, children, ...props }) => {
     const code = (node as HastNode | undefined)?.children?.find((c) => c.tagName === 'code');
     const lang = code?.properties?.className?.find((c) => c.startsWith('language-'))?.slice(9);
     if (lang === 'shiwake') return <ShiwakeBlock text={textOf(code).replace(/\n$/, '')} />;
     if (lang === 'quiz') return <QuizBlock json={textOf(code)} />;
+    if (lang === 'widget') return <WidgetBlock json={textOf(code)} />;
     return <pre {...props}>{children}</pre>;
   },
   blockquote: ({ node: _node, children, ...props }) => {
