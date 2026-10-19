@@ -15,7 +15,7 @@ import { Card } from '@/components/ui/Card';
 import { useFocus } from '@/features/ai/useFocus';
 import { loader, type ReviewItem } from '@/features/drill/reviewItems';
 import { LESSON_GRADES } from '@/features/learn/progress';
-import { fmtDate, useHistory, useTargetTitle } from '@/features/log/useHistory';
+import { fmtDate, historyBack, useHistory, useTargetTitle } from '@/features/log/useHistory';
 import { db } from '@/lib/db/db';
 import { isDue } from '@/lib/srs/review';
 import { cn } from '@/lib/utils/cn';
@@ -73,6 +73,7 @@ export default function HistoryPage() {
   const h = history?.get(id);
   const { title, href } = titleOf(id);
   const [now] = useState(() => Date.now());
+  const [back] = useState(historyBack);
   // 問題の答え合わせは、レッスンなら確認問題（lesson:<id>）、それ以外はその setId
   const setId = h && h.triedQuestions > 0 ? id : null;
   const cards = useLiveQuery(
@@ -109,7 +110,7 @@ export default function HistoryPage() {
 
   return (
     <>
-      <PageHeader title={title} back={<BackButton to="/log/history" label="履歴へ" />} />
+      <PageHeader title={title} back={<BackButton to={back.to} label={back.label} />} />
       <PageBody>
         {!history && <p className="text-sm text-slate-500">読み込み中…</p>}
         {history && !h && <p className="text-sm text-slate-500">この対象の記録はありません。</p>}

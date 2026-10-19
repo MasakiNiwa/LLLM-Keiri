@@ -29,3 +29,25 @@ export const historyHref = (id: string) => `/history/${encodeURIComponent(id)}`;
 
 export const fmtDate = (at: number) =>
   new Date(at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' });
+
+const BACK_KEY = 'lllm-keiri:history-back';
+
+/** 履歴の画面の戻り先を覚える（学習対象のページから開いたときはそのページへ戻る） */
+export function rememberHistoryBack(to: string | null): void {
+  try {
+    if (to) sessionStorage.setItem(BACK_KEY, to);
+    else sessionStorage.removeItem(BACK_KEY);
+  } catch {
+    // 保存できなくても、履歴の一覧へ戻るだけ
+  }
+}
+
+export function historyBack(): { to: string; label: string } {
+  try {
+    const to = sessionStorage.getItem(BACK_KEY);
+    if (to) return { to, label: '学習のページへ' };
+  } catch {
+    // 読めなければ履歴の一覧へ
+  }
+  return { to: '/log/history', label: '履歴へ' };
+}

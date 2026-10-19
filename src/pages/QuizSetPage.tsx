@@ -13,6 +13,7 @@ import { BasisInfo } from '@/features/learn/MetaBadges';
 import { ChoiceQuiz } from '@/features/learn/QuizBlock';
 import { MatchExercise } from '@/features/learn/MatchExercise';
 import { RcmExercise } from '@/features/learn/RcmExercise';
+import { HistoryLink } from '@/features/log/HistoryLink';
 import { fetchQuizSet } from '@/lib/content/load';
 import type { QuizSet } from '@/lib/content/schema';
 import { db } from '@/lib/db/db';
@@ -85,6 +86,7 @@ function QuizSetBody({ id }: { id: string }) {
         {set && (
           <>
             <p className="text-sm text-slate-600 dark:text-slate-400">{set.summary}</p>
+            <HistoryLink targetId={setId} />
             <div className="flex items-center gap-3 text-sm">
               <Progress value={correct / ids.length} className="h-2 flex-1" />
               <span className="tabular-nums">

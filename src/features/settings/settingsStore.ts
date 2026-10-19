@@ -69,8 +69,8 @@ export interface Settings extends Omit<ConversationSettings, 'systemPrompt'> {
   /** 源泉所得税の納期の特例を受けている */
   specialWithholding: boolean;
   // ---- 復習 ----
-  /** 1 日の復習の上限（0 は上限なし） */
-  reviewLimit: number;
+  /** 1 日の復習の目標の数（0 は目標なし）。目標を超えても続けて復習できる */
+  reviewGoal: number;
   // ---- 読み上げ ----
   /** AI の返事が終わったら自動で読み上げる */
   autoSpeak: boolean;
@@ -115,7 +115,7 @@ export const DEFAULT_SETTINGS: Settings = {
   closingMonth: 3,
   specialWithholding: false,
 
-  reviewLimit: 30,
+  reviewGoal: 30,
 
   autoSpeak: false,
   speechRate: 1.1,
