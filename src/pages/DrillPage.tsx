@@ -11,6 +11,7 @@ import type { ReactionKey } from '@/features/ai/personas';
 import { useFocus } from '@/features/ai/useFocus';
 import type { AiFocus } from '@/features/ai/focusStore';
 import { recordAttempt } from '@/features/drill/records';
+import { HistoryLink } from '@/features/log/HistoryLink';
 import { updateReview } from '@/features/drill/reviewRepo';
 import type { JudgeResult } from '@/lib/journal/judge';
 import { formatShiwake } from '@/lib/journal/parse';
@@ -239,6 +240,7 @@ export default function DrillPage() {
         {set && order && (
           <>
             <Progress value={Math.min(pos, order.length) / order.length} className="h-1.5" />
+            <HistoryLink targetId={set.id} />
             {finished ? (
               <Summary
                 set={set}

@@ -14,6 +14,7 @@ import { useContentIndex } from '@/features/content/contentStore';
 import { LessonMarkdown } from '@/features/learn/LessonMarkdown';
 import { LessonIdContext } from '@/features/learn/lessonContext';
 import { LessonReviewPanel } from '@/features/learn/LessonReviewPanel';
+import { HistoryLink } from '@/features/log/HistoryLink';
 import { BasisInfo, LevelBadge } from '@/features/learn/MetaBadges';
 import { SpeakToggle } from '@/features/speech/SpeakToggle';
 import { useSpeech } from '@/features/speech/speechStore';
@@ -212,6 +213,7 @@ export default function LessonPage() {
               </div>
               <BasisInfo basis={meta.basis} asOf={meta.asOf} updated={meta.updated} />
               <SpeakToggle id={`lesson:${meta.id}`} text={`${meta.title}\n${lesson.body}`} />
+              <HistoryLink targetId={`lesson:${meta.id}`} />
             </header>
             <Toc meta={meta} />
             <article style={{ zoom }}>

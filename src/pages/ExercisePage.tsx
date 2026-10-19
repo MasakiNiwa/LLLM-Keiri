@@ -13,6 +13,7 @@ import { useFocus } from '@/features/ai/useFocus';
 import { useContent, useContentIndex } from '@/features/content/contentStore';
 import { recordAttempt } from '@/features/drill/records';
 import { useReviewOnce } from '@/features/drill/reviewRepo';
+import { HistoryLink } from '@/features/log/HistoryLink';
 import { ShiwakeExercise, type ExerciseOutcome } from '@/features/journal/ShiwakeExercise';
 import { BasisInfo } from '@/features/learn/MetaBadges';
 import { StatementsView } from '@/features/ledger/views';
@@ -315,6 +316,7 @@ function ExerciseBody({ id }: { id: string }) {
         {ex && ws && statements && (
           <>
             <p className="text-sm text-slate-600 dark:text-slate-400">{ex.summary}</p>
+            <HistoryLink targetId={setId} />
             <div className="flex items-center gap-3 text-sm">
               <Progress value={solved / ex.adjustments.length} className="h-2 flex-1" />
               <span className="tabular-nums">

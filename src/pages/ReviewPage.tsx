@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { ArrowRight, CalendarCheck, CheckCircle2, XCircle } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowRight, CalendarCheck, CheckCircle2, PartyPopper, XCircle } from 'lucide-react';
 import { Rating, type Grade } from 'ts-fsrs';
 import { Link } from 'wouter';
 import { BackButton } from '@/app/BackButton';
@@ -13,7 +13,12 @@ import { useFocus } from '@/features/ai/useFocus';
 import { recordAttempt } from '@/features/drill/records';
 import { ReviewOverview } from '@/features/drill/ReviewOverview';
 import { loadReviewItems, type ReviewItem } from '@/features/drill/reviewItems';
-import { setReviewGrade, updateReview, useReviewRecords } from '@/features/drill/reviewRepo';
+import {
+  reviewKey,
+  setReviewGrade,
+  updateReview,
+  useReviewRecords,
+} from '@/features/drill/reviewRepo';
 import { ShiwakeExercise, type ExerciseOutcome } from '@/features/journal/ShiwakeExercise';
 import { ChoiceQuiz } from '@/features/learn/QuizBlock';
 import { RiskCard } from '@/features/learn/RcmExercise';
@@ -27,23 +32,26 @@ import { cn } from '@/lib/utils/cn';
 
 interface Queue {
   items: ReviewItem[];
-  /** 上限を超えて、明日以降にまわした数 */
-  rest: number;
   next?: number;
 }
 
 /** 今日の復習の問題（開いたときの分で固定する。解いているあいだに予定が変わっても並びは変えない） */
-async function loadQueue(limit: number): Promise<Queue> {
+async function loadQueue(): Promise<Queue> {
   const now = Date.now();
   const all = await db.reviews.orderBy('due').toArray();
   const due = all.filter((r) => isDue(r, now));
-  const items = await loadReviewItems(due);
-  const shown = limit > 0 ? items.slice(0, limit) : items;
-  return {
-    items: shown,
-    rest: items.length - shown.length,
-    next: all.find((r) => !isDue(r, now))?.due,
-  };
+  return { items: await loadReviewItems(due), next: all.find((r) => !isDue(r, now))?.due };
+}
+
+/** 明日が復習の日の問題（先取りで復習する） */
+async function loadAhead(exclude: Set<string>): Promise<ReviewItem[]> {
+  const now = Date.now();
+  const tomorrow = now + 86_400_000;
+  const all = await db.reviews.orderBy('due').toArray();
+  const ahead = all.filter(
+    (r) => !isDue(r, now) && isDue(r, tomorrow) && !exclude.has(reviewKey(r.setId, r.questionId)),
+  );
+  return loadReviewItems(ahead);
 }
 
 const questionText = (it: ReviewItem) =>
@@ -90,9 +98,13 @@ function SelfGrade({ judged, onChange }: { judged: Judged; onChange: (g: Grade) 
 }
 
 export default function ReviewPage() {
-  const limit = useSettings((s) => s.reviewLimit);
+  const goal = useSettings((s) => s.reviewGoal);
   const records = useReviewRecords();
   const [queue, setQueue] = useState<Queue | null>(null);
+  /** ここまで解いたら一区切り（目標の数。続けるとのびる） */
+  const [stopAt, setStopAt] = useState(0);
+  const [loadingAhead, setLoadingAhead] = useState(false);
+  const [now] = useState(() => Date.now());
   const [pos, setPos] = useState(0);
   const [judged, setJudged] = useState<Record<number, Judged>>({});
   const [last, setLast] = useState<ExerciseOutcome | null>(null);
@@ -104,14 +116,43 @@ export default function ReviewPage() {
 
   useEffect(() => {
     let stale = false;
-    void loadQueue(useSettings.getState().reviewLimit).then((q) => !stale && setQueue(q));
+    void loadQueue().then((q) => {
+      if (stale) return;
+      const g = useSettings.getState().reviewGoal;
+      setQueue(q);
+      setStopAt(g > 0 ? Math.min(g, q.items.length) : q.items.length);
+    });
     return () => {
       stale = true;
     };
   }, []);
 
   const item = queue?.items[pos];
-  const finished = !!queue && pos >= queue.items.length;
+  const finished = !!queue && pos >= stopAt;
+  const remaining = queue ? queue.items.length - pos : 0;
+  const goalReached = goal > 0 && pos >= goal;
+  // 明日が予定の問題（先取り）の数
+  const aheadCount = useMemo(() => {
+    if (!records || !queue) return 0;
+    const inQueue = new Set(queue.items.map((it) => reviewKey(it.setId, it.questionId)));
+    return records.filter(
+      (r) =>
+        !isDue(r, now) &&
+        isDue(r, now + 86_400_000) &&
+        !inQueue.has(reviewKey(r.setId, r.questionId)),
+    ).length;
+  }, [records, queue, now]);
+  const studyAhead = async () => {
+    if (!queue) return;
+    setLoadingAhead(true);
+    const extra = await loadAhead(
+      new Set(queue.items.map((it) => reviewKey(it.setId, it.questionId))),
+    );
+    setLoadingAhead(false);
+    if (!extra.length) return;
+    setQueue({ ...queue, items: [...queue.items, ...extra] });
+    setStopAt(queue.items.length + extra.length);
+  };
   const judgedHere = last && item ? last : null;
 
   useFocus(
@@ -184,7 +225,7 @@ export default function ReviewPage() {
   const nextButton = (
     <div className="flex justify-end">
       <Button variant={judged[pos]?.correct ? 'primary' : 'secondary'} onClick={next}>
-        {pos + 1 < (queue?.items.length ?? 0) ? '次の問題' : '結果を見る'}
+        {pos + 1 < stopAt ? '次の問題' : '結果を見る'}
         <ArrowRight />
       </Button>
     </div>
@@ -199,7 +240,7 @@ export default function ReviewPage() {
           queue &&
           !finished && (
             <span className="text-sm text-slate-500 tabular-nums">
-              {pos + 1}/{queue.items.length}
+              {pos + 1}/{stopAt}
             </span>
           )
         }
@@ -223,21 +264,31 @@ export default function ReviewPage() {
             </Link>
           </Card>
         )}
-        {queue && queue.items.length > 0 && (
-          <Progress
-            value={Math.min(pos, queue.items.length) / queue.items.length}
-            className="h-1.5"
-          />
+        {queue && queue.items.length > 0 && !finished && (
+          <div className="flex items-center gap-3 text-xs text-slate-500">
+            <Progress
+              value={Math.min(pos, stopAt) / Math.max(1, stopAt)}
+              className="h-1.5 flex-1"
+            />
+            {goal > 0 && <span className="tabular-nums">今日の目標 {goal} 件</span>}
+          </div>
         )}
         {finished && queue.items.length > 0 && (
           <Card className="space-y-3 p-5 text-center">
-            <p className="text-sm text-slate-500">今日の復習はおしまいです</p>
+            {goalReached ? (
+              <p className="flex items-center justify-center gap-1.5 font-semibold text-accent-700 dark:text-accent-300">
+                <PartyPopper className="size-5" />
+                今日の目標（{goal} 件）を達成しました！
+              </p>
+            ) : (
+              <p className="text-sm text-slate-500">ここまでの復習の結果</p>
+            )}
             <p className="text-3xl font-bold tabular-nums">
               {correctCount}
-              <span className="text-lg text-slate-500"> / {queue.items.length} 問 正解</span>
+              <span className="text-lg text-slate-500"> / {pos} 件 正解</span>
             </p>
             <ul className="space-y-1 text-left text-sm">
-              {queue.items.map((it, i) => (
+              {queue.items.slice(0, pos).map((it, i) => (
                 <li key={i} className="flex items-start gap-2">
                   {judged[i]?.correct ? (
                     <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
@@ -248,10 +299,33 @@ export default function ReviewPage() {
                 </li>
               ))}
             </ul>
-            {queue.rest > 0 && (
-              <p className="text-xs text-slate-500">
-                1 日の上限（{limit} 問）を超えた {queue.rest} 問は、明日以降に出します。
-              </p>
+            {remaining > 0 ? (
+              <div className="space-y-1.5">
+                <p className="text-sm">
+                  今日が復習の日のものが、まだ {remaining}{' '}
+                  件あります。余力があれば、続けて学べます。
+                </p>
+                <Button variant="primary" onClick={() => setStopAt(queue.items.length)}>
+                  続けて復習する（{remaining} 件）
+                  <ArrowRight />
+                </Button>
+              </div>
+            ) : aheadCount > 0 ? (
+              <div className="space-y-1.5">
+                <p className="text-sm">
+                  今日の分はすべて終わりました。明日が復習の日のものを、先取りで復習することもできます。
+                </p>
+                <Button
+                  variant="secondary"
+                  disabled={loadingAhead}
+                  onClick={() => void studyAhead()}
+                >
+                  明日の分を先取りする（{aheadCount} 件）
+                  <ArrowRight />
+                </Button>
+              </div>
+            ) : (
+              <p className="text-sm">今日の復習はすべて終わりました。おつかれさまでした！</p>
             )}
             <p className="text-xs text-slate-500">
               間違えた問題は近いうちに、正解した問題は間隔をあけて、また出します（記憶のアルゴリズム

@@ -14,12 +14,12 @@ const STAGES: { key: MemoryStage; label: string; className: string }[] = [
   { key: 'mature', label: '長期記憶', className: 'bg-accent-700 dark:bg-accent-300' },
 ];
 
-const LIMITS = [10, 20, 30, 50, 100, 0];
+const GOALS = [10, 20, 30, 50, 100, 0];
 
 /** 復習の予定と記憶の状態（FSRS） */
 export function ReviewOverview({ records }: { records: ReviewRecord[] }) {
   const [now] = useState(() => Date.now());
-  const limit = useSettings((s) => s.reviewLimit);
+  const goal = useSettings((s) => s.reviewGoal);
   const update = useSettings((s) => s.update);
   const stats = useMemo(() => {
     const days = forecast(records, now, 14);
@@ -123,11 +123,14 @@ export function ReviewOverview({ records }: { records: ReviewRecord[] }) {
       )}
 
       <label className="flex items-center gap-3 text-sm">
-        <span className="flex-1">1 日の復習の上限</span>
+        <span className="flex-1">
+          1 日の復習の目標
+          <span className="block text-xs text-slate-500">達成したあとも、続けて復習できます</span>
+        </span>
         <Select
-          value={String(limit)}
-          onChange={(v) => update({ reviewLimit: Number(v) })}
-          options={LIMITS.map((l) => ({ value: String(l), label: l ? `${l} 問` : '上限なし' }))}
+          value={String(goal)}
+          onChange={(v) => update({ reviewGoal: Number(v) })}
+          options={GOALS.map((g) => ({ value: String(g), label: g ? `${g} 件` : '目標なし' }))}
           className="w-28"
         />
       </label>

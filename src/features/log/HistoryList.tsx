@@ -4,7 +4,13 @@ import { Link } from 'wouter';
 import { Card } from '@/components/ui/Card';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { cn } from '@/lib/utils/cn';
-import { fmtDate, historyHref, useHistory, useTargetTitle } from './useHistory';
+import {
+  fmtDate,
+  historyHref,
+  rememberHistoryBack,
+  useHistory,
+  useTargetTitle,
+} from './useHistory';
 
 type Filter = 'all' | 'lesson' | 'questions';
 const FILTERS: { value: Filter; label: string }[] = [
@@ -60,7 +66,12 @@ export function HistoryList() {
         {rows.map(({ h, title }) => {
           const due = h.nextDue !== undefined && h.nextDue <= now + 86_400_000;
           return (
-            <Link key={h.id} href={historyHref(h.id)} className="group block">
+            <Link
+              key={h.id}
+              href={historyHref(h.id)}
+              onClick={() => rememberHistoryBack(null)}
+              className="group block"
+            >
               <Card className="flex items-center gap-3 p-3 transition-colors group-hover:border-accent-300 dark:group-hover:border-accent-700">
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-accent-50 text-accent-700 dark:bg-accent-900/30 dark:text-accent-300 [&_svg]:size-4">
                   {h.kind === 'lesson' ? <BookOpenText /> : <PenLine />}
