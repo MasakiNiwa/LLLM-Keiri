@@ -143,6 +143,11 @@ export const HELP_TOPICS: HelpTopic[] = [
     body: '「AI モデル」画面で Gemma 4 E2B（Web 版）などをダウンロードして読み込む。WebGPU に対応した Chrome・Edge を推奨。モデルは同じ github.io のほかのサイト（LLLM Study・Try Local など）と共有され、ほかのサイトで保存済みならそのまま使える。端末のファイルとして書き出してバックアップしたり、ファイルから取り込んだりもできる。',
   },
   {
+    id: 'cloud-ai',
+    title: 'クラウド AI（Gemini・OpenAI・Claude・OpenRouter）を使う',
+    body: '「AI モデル」画面の「AI の接続先」で Gemini API・OpenAI API・Claude API・OpenRouter のどれかを選び、API キーを登録すると、クラウドの AI で解説・チャット・AI 練習ができる（キーは Gemini は Google AI Studio、OpenAI は OpenAI の API keys、Claude は Claude Console、OpenRouter は OpenRouter の Keys で作る。OpenRouter は「OpenRouter でログイン」でもキーを受け取れる）。Gemini には無料枠があり、OpenAI・Claude は使った分だけ課金される。OpenRouter は 1 つのキーで多くの会社のモデルを使え、無料のモデルもある。キーは合言葉で暗号化してこの端末に保存し、次からは合言葉を入れて解除するだけで使える（同じ合言葉で保存したキーはまとめて解除される）。合言葉を忘れたらキーを削除して登録し直す。画面上のモデル名（チップ）を押すと、使う AI とモデルをその場で切り替えられる。Gemini の無料枠や OpenRouter の無料のモデルでは、送った内容が学習に使われることがあるので、個人情報や会社の機密（実際の取引先・給与・決算の数字など）は送らない。キーには利用額の上限などの制限をかけておくと安心。クラウド AI が上限などで答えられないときは、端末内の AI が読み込み済みならそちらで答える。仕訳の正誤・税額などの計算は、どちらの AI でもアプリのプログラムが行う。API キーと接続先の設定はバックアップに含めない。',
+  },
+  {
     id: 'ai-explain',
     title: 'AI の解説ボタン',
     body: 'レッスン・問題・帳簿の画面の右下にある AI のボタンを押すと、見ている内容をもとに AI が解説する。「この部分を解説」「具体例」などの頼み方を選ぶか、自由に質問できる。「チャットで続ける」で AI のページに移って会話を続けられる。設定でボタンを隠せる。',

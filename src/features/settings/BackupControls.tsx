@@ -17,11 +17,13 @@ import {
 import { db } from '@/lib/db/db';
 import { downloadText } from '@/lib/utils/download';
 import { errorMessage } from '@/lib/utils/format';
-import { useSettings } from './settingsStore';
+import { portableSettings, useSettings } from './settingsStore';
 
 /** 設定（関数を除いた値だけ） */
 function settingsSnapshot(): Record<string, unknown> {
-  return JSON.parse(JSON.stringify(useSettings.getState())) as Record<string, unknown>;
+  return portableSettings(
+    JSON.parse(JSON.stringify(useSettings.getState())) as Record<string, unknown>,
+  );
 }
 
 /** 学習データのバックアップ（書き出し）と復元（読み込み） */
@@ -61,7 +63,8 @@ export function BackupControls() {
     setBusy(true);
     try {
       await importBackup(db, pending, mode);
-      if (withSettings && pending.settings) useSettings.setState(pending.settings);
+      if (withSettings && pending.settings)
+        useSettings.setState(portableSettings(pending.settings));
       toast.success('復元しました。読み込み直します');
       setPending(null);
       // 画面が持っている古い状態を捨てるため、読み込み直す

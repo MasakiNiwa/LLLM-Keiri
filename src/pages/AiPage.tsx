@@ -9,8 +9,9 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { AI_PRACTICES, type AiPractice } from '@/features/ai/practices';
 import { useFocus } from '@/features/ai/useFocus';
 import { useChat } from '@/features/chat/chatStore';
-import { useEngine } from '@/features/engine/engineStore';
 import { cn } from '@/lib/utils/cn';
+import { useAiReady } from '@/features/cloud/aiClient';
+import { ModelStatusChip } from '@/features/engine/ModelStatusChip';
 
 function LinkCard({ item }: { item: NavItem }) {
   const Icon = item.icon;
@@ -103,7 +104,7 @@ function PracticeCard({
 export default function AiPage() {
   useFocus({ kind: 'other', page: 'AI（AI に質問・AI 練習）' });
   const [, navigate] = useLocation();
-  const ready = useEngine((s) => s.status === 'ready');
+  const ready = useAiReady();
   const [pending, setPending] = useState<{ p: AiPractice; theme: string } | null>(null);
 
   const start = async (p: AiPractice, theme: string, clearFirst: boolean) => {
@@ -123,7 +124,7 @@ export default function AiPage() {
 
   return (
     <>
-      <PageHeader title="AI" />
+      <PageHeader title="AI" meta={<ModelStatusChip className="max-w-44" />} />
       <PageBody>
         <section className="space-y-2">
           <h2 className="px-1 text-sm font-semibold text-slate-500 dark:text-slate-400">
@@ -142,11 +143,11 @@ export default function AiPage() {
           </h2>
           {!ready && (
             <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-              AI 練習には AI モデルが必要です。
+              AI 練習には AI が必要です。
               <Link href={MODELS_ITEM.to} className="font-medium underline">
                 「AI モデル」
               </Link>
-              で読み込んでください。
+              でモデルを読み込むか、クラウド AI のキーを登録・解除してください。
             </p>
           )}
           <div className="grid gap-2 sm:grid-cols-2">
