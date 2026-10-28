@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils/cn';
-import { useEngine } from '@/features/engine/engineStore';
 import { useSettings } from '@/features/settings/settingsStore';
 import { buildAppState } from './appContext';
 import { buildReactionPrompt } from './assist';
@@ -8,6 +7,7 @@ import { useAiBusy } from './aiBusy';
 import type { AiFocus } from './focusStore';
 import { runOneshot } from './oneshot';
 import { getPersona, reactionText, type ReactionKey } from './personas';
+import { aiReadyNow } from '@/features/cloud/aiClient';
 
 interface ReactionBubbleProps {
   /** 変わるたびにひとことを出し直す（答え合わせの回数など） */
@@ -37,11 +37,7 @@ export function ReactionBubble({ trigger, reactionKey, n, focus, className }: Re
     const template = reactionText(getPersona(personaId, custom), reactionKey, n);
     // テンプレートは描画のあとに出す（effect の中で同期的に state を変えない）
     queueMicrotask(() => !stale && setShown({ trigger, text: template, ai: false }));
-    const canAi =
-      mode === 'llm' &&
-      focus &&
-      useEngine.getState().status === 'ready' &&
-      useAiBusy.getState().task === null;
+    const canAi = mode === 'llm' && focus && aiReadyNow() && useAiBusy.getState().task === null;
     if (canAi) {
       void (async () => {
         try {

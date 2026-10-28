@@ -218,7 +218,7 @@ export default function SettingsPage() {
           <Field
             label="あなたの立場（任意）"
             htmlFor="user-role"
-            hint="説明の深さや例の選び方の参考にしてもらいます。端末の外には出ません"
+            hint="説明の深さや例の選び方の参考にしてもらいます（端末内の AI なら端末の外には出ません）"
             stacked
           >
             <Select
@@ -261,7 +261,7 @@ export default function SettingsPage() {
           <Field
             label="見ている内容を AI に伝える"
             htmlFor="share-state"
-            hint="チャットで、見ていたページ・問題・帳簿・学習の進み具合を構造化データで渡します（端末の外には出ません）"
+            hint="チャットで、見ていたページ・問題・帳簿・学習の進み具合を構造化データで渡します（端末内の AI なら端末の外には出ません）"
           >
             <Switch
               id="share-state"
@@ -527,7 +527,7 @@ export default function SettingsPage() {
       <ConfirmDialog
         open={confirm === 'all'}
         title="すべてのデータを消しますか？"
-        description="このアプリの設定・学習記録・帳簿の仕訳・チャットの履歴をすべて消します。元に戻せません。ダウンロードした AI モデル（ほかのサイトと共有）は消えません。"
+        description="このアプリの設定・学習記録・帳簿の仕訳・チャットの履歴と、この端末に保存したクラウド AI の API キーをすべて消します。元に戻せません。ダウンロードした AI モデル（ほかのサイトと共有）は消えません。"
         confirmLabel="すべて消す"
         danger
         onConfirm={() => void clearAll()}

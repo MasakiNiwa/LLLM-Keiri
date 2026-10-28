@@ -10,6 +10,7 @@ import {
   LITERTLM_VERSION,
   LITERTLM_WASM_DIR,
 } from './build/vite-plugin-litertlm-wasm.ts';
+import { cspPlugin } from './build/vite-plugin-csp.ts';
 
 const appPkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 
@@ -22,6 +23,7 @@ export default defineConfig({
     tailwindcss(),
     contentPlugin(),
     litertlmWasm(),
+    cspPlugin(),
     VitePWA({
       // 生成中・ダウンロード中に勝手にリロードしないよう、更新はユーザーが選ぶ
       registerType: 'prompt',

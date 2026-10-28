@@ -1,11 +1,15 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { CloudProviderId } from '@/lib/cloud/keyVault';
 import { STORAGE_PREFIX } from '@/lib/constants';
 import type { BackendKind, ConversationSettings } from '@/lib/llm/types';
 
 export type ThemeSetting = 'system' | 'light' | 'dark';
 /** ダークモードの配色。neutral: 色味のないグレー、warm: 暖かいグレー、vivid: 鮮やかな配色 */
 export type DarkPalette = 'neutral' | 'warm' | 'vivid';
+
+/** AI の接続先（端末内のモデルか、クラウド AI のどれか） */
+export type AiProvider = 'local' | CloudProviderId;
 
 /** auto: WebGPU が使えれば GPU（Artisan）、使えなければ CPU */
 export type BackendSetting = 'auto' | BackendKind;
@@ -51,6 +55,16 @@ export interface Settings extends Omit<ConversationSettings, 'systemPrompt'> {
   // ---- エンジン（変更後はモデルの再読み込みが必要） ----
   backend: BackendSetting;
   maxNumTokens: number;
+  /** AI の接続先（端末内のモデルか、クラウド AI の API か） */
+  aiProvider: AiProvider;
+  /** クラウド AI ごとの使うモデル（無ければ、キーを登録したときに既定のモデルを選ぶ） */
+  cloudModels: Partial<Record<CloudProviderId, string>>;
+  /** クラウド AI ごとに、送る内容の説明に同意したか */
+  cloudConsents: Partial<Record<CloudProviderId, boolean>>;
+  /** 最近使ったクラウド AI のモデル（「接続先|モデル」。新しい順） */
+  recentCloudModels: string[];
+  /** ★ を付けた OpenRouter のモデル */
+  openrouterFavorites: string[];
   // ---- モデル管理 ----
   saveImportedModels: boolean;
   autoLoadLastModel: boolean;
@@ -99,6 +113,11 @@ export const DEFAULT_SETTINGS: Settings = {
   enableThinking: false,
 
   backend: 'auto',
+  aiProvider: 'local',
+  cloudModels: {},
+  cloudConsents: {},
+  recentCloudModels: [],
+  openrouterFavorites: [],
   maxNumTokens: 4096,
 
   saveImportedModels: true,
@@ -149,3 +168,22 @@ export const useSettings = create<SettingsState>()(
     },
   ),
 );
+
+/**
+ * 端末ごとに決める設定（バックアップに含めない・復元で上書きしない）。
+ * クラウド AI の接続はキーと一緒に端末ごとに決める（バックアップから戻しても勝手に接続しない）
+ */
+export const DEVICE_ONLY: (keyof Settings)[] = [
+  'aiProvider',
+  'cloudModels',
+  'cloudConsents',
+  'recentCloudModels',
+  'openrouterFavorites',
+];
+
+/** バックアップに含める設定（端末ごとの設定を除く） */
+export function portableSettings(s: Record<string, unknown>): Record<string, unknown> {
+  const out = { ...s };
+  for (const k of DEVICE_ONLY) delete out[k];
+  return out;
+}

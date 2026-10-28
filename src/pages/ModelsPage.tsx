@@ -6,6 +6,7 @@ import { TRY_LOCAL_URL } from '@/lib/constants';
 import { formatBytes, formatDuration } from '@/lib/utils/format';
 import { resolveBackend, useEngine } from '@/features/engine/engineStore';
 import { WebGpuNotice } from '@/features/engine/WebGpuNotice';
+import { CloudSettings } from '@/features/cloud/CloudSettings';
 import { LoadProgressCard } from '@/features/models/LoadProgressCard';
 import { ModelDownload } from '@/features/models/ModelDownload';
 import { ModelImport } from '@/features/models/ModelImport';
@@ -112,9 +113,11 @@ export default function ModelsPage() {
       <PageHeader title="AI モデル" />
       <PageBody>
         <p className="px-1 text-sm text-slate-600 dark:text-slate-400">
-          AI パートナーは、この端末のブラウザの中で動くローカル
-          LLM（LiteRT-LM）です。レッスン・問題・帳簿はモデルがなくても使えます。
+          AI パートナーは、この端末のブラウザの中で動くローカル LLM（LiteRT-LM）です。クラウド
+          AI（Gemini・OpenAI・Claude・OpenRouter）の API
+          キーを使うこともできます。レッスン・問題・帳簿は AI がなくても使えます。
         </p>
+        <CloudSettings />
         <WebGpuNotice />
         <CurrentModel />
         <LoadProgressCard />

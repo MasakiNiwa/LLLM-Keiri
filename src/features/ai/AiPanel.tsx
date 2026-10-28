@@ -24,6 +24,7 @@ import { useAiPanel } from './aiPanelStore';
 import { focusTitle, useAiFocus, type AiFocus } from './focusStore';
 import { cancelAi, runOneshot } from './oneshot';
 import { getPersona } from './personas';
+import { useAiReady } from '@/features/cloud/aiClient';
 
 const Markdown = lazy(() => import('@/features/chat/markdown/Markdown'));
 
@@ -61,7 +62,7 @@ function AiPanelBody() {
   const open = useAiPanel((s) => s.open);
   const setOpen = useAiPanel((s) => s.setOpen);
   const focus = useAiFocus((s) => s.current);
-  const ready = useEngine((s) => s.status === 'ready');
+  const ready = useAiReady();
   const loading = useEngine((s) => s.status === 'loading');
   const busyTask = useAiBusy((s) => s.task);
   const personaId = useSettings((s) => s.persona);
@@ -156,7 +157,8 @@ function AiPanelBody() {
             <div className="space-y-2 text-slate-600 dark:text-slate-400">
               <p>
                 AI の解説を使うには、AI
-                モデルを読み込みます（この端末のブラウザの中で動き、内容は外部に送信されません）。
+                モデルを読み込むか（この端末のブラウザの中で動き、内容は外部に送信されません）、クラウド
+                AI の API キーを登録・解除します。
               </p>
               <Link
                 href="/models"

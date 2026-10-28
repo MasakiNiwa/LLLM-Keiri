@@ -13,6 +13,7 @@ import { LoadProgressCard } from '@/features/models/LoadProgressCard';
 import { ModelStatusChip } from '@/features/engine/ModelStatusChip';
 import { useEngine } from '@/features/engine/engineStore';
 import { useSettings } from '@/features/settings/settingsStore';
+import { useAiReady } from '@/features/cloud/aiClient';
 
 const SUGGESTIONS = [
   '売掛金と未収入金の違いは？',
@@ -59,7 +60,7 @@ function AttachedFocus() {
 function EmptyState({ onPick }: { onPick: (text: string) => void }) {
   const personaId = useSettings((s) => s.persona);
   const custom = useSettings((s) => s.customPersona);
-  const ready = useEngine((s) => s.status === 'ready');
+  const ready = useAiReady();
   const engineStatus = useEngine((s) => s.status);
   const attached = useAiFocus((s) => s.attached);
   const helpMode = useChat((s) => s.helpMode);
@@ -96,7 +97,9 @@ function EmptyState({ onPick }: { onPick: (text: string) => void }) {
         ) : (
           <div className="space-y-3 rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-400">
             <p>
-              AI はこの端末のブラウザの中で動くローカル AI です。会話の内容は外部に送信されません。
+              AI はこの端末のブラウザの中で動くローカル AI
+              です（会話の内容は外部に送信されません）。クラウド
+              AI（Gemini・OpenAI・Claude・OpenRouter）の API キーを登録して使うこともできます。
             </p>
             <Link href="/models">
               <Button variant="primary">
@@ -144,7 +147,6 @@ export default function ChatPage() {
               title="アプリの使い方を聞く（ヘルプをもとに答えます）"
             >
               <LifeBuoy />
-              <span className="sm:hidden">使い方</span>
               <span className="hidden sm:inline">使い方を聞く</span>
             </Button>
             <Button

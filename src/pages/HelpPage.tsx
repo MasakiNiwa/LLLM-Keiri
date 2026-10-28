@@ -149,7 +149,10 @@ export default function HelpPage() {
             <p>
               AI は <ExtLink href={LITERTLM_URL}>LiteRT-LM</ExtLink>{' '}
               を使ってブラウザの中で動きます（WebGPU 対応の Chrome / Edge
-              を推奨）。会話や学習の内容は外部に送信されません。
+              を推奨）。会話や学習の内容は外部に送信されません。クラウド
+              AI（Gemini・OpenAI・Claude・OpenRouter）を選んだときだけ、AI
+              に頼んだ内容がその会社に送られます（API
+              キーは合言葉で暗号化して端末に保存し、その会社以外には送りません）。
             </p>
             <p>
               ダウンロードした AI モデルは、同じ github.io のほかのサイト（

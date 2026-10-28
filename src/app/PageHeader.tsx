@@ -70,7 +70,7 @@ export function PageHeader({ title, meta, actions, back, hideTitleOnMobile }: Pa
         >
           {title}
         </h1>
-        {meta && <div className="min-w-0">{meta}</div>}
+        {meta && <div className="flex min-w-0 overflow-hidden">{meta}</div>}
         <div className="ml-auto flex shrink-0 items-center gap-0.5">
           {actions}
           <SearchButton />
